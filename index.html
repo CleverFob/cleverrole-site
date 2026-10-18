@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clever Role · No agents. Just outcomes.</title>
+<meta name="description" content="Clever Role Limited builds digital solutions for businesses. Coming soon.">
+<meta property="og:title" content="Clever Role">
+<meta property="og:description" content="No agents. Just outcomes. Coming soon.">
+<meta property="og:image" content="https://cleverrole.com/og.jpg">
+<meta property="og:url" content="https://cleverrole.com/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#000000">
+<link rel="canonical" href="https://cleverrole.com/">
+<link rel="icon" href="/favicon.ico">
+<style>
+@font-face{font-family:'Inter Variable';font-style:normal;font-display:swap;font-weight:100 900;src:url(/inter.woff2) format('woff2-variations');}
+/* Layout: one still, dark stage. The spinning symbol and the official wordmark sit dead centre; everything else whispers at the edges. */
+:root{
+  --bg:#000; --fg:#f4f4f2; --muted:#8a8c8c; --line:#2a2c2d; --panel:#0d0e0f;
+  --mark-filter:invert(0); --blend:screen;
+  --face:'Inter Variable',system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --bg:#fff; --fg:#0a0a0a; --muted:#6b6d6e; --line:#dcdddc; --panel:#f6f6f5;
+  --mark-filter:invert(1); --blend:multiply;
+  color-scheme:light;
+}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--face);font-weight:400;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  transition:background .6s ease,color .6s ease;overflow:hidden}
+#field{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;display:block}
+.stage{position:relative}
+.veil{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 75% 70% at 50% 46%,transparent 45%,var(--bg) 100%)}
+.stage{height:100%;display:grid;grid-template-rows:auto 1fr auto;padding-block:18px 20px;box-sizing:border-box}
+.top{display:flex;justify-content:flex-end}
+.theme{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:transparent;cursor:pointer;display:grid;place-items:center;padding:0}
+.theme span{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--fg);background:linear-gradient(90deg,var(--fg) 50%,transparent 50%)}
+.theme:hover{border-color:var(--muted)}
+:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+
+.centre{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(4px,1.5vh,14px);min-height:0;padding-bottom:7vh}
+.centre{--w:min(62vw,40vh,380px)}  /* wordmark width; the symbol is sized from it, as in the official stacked logo */
+.symbol{width:calc(var(--w) * 1.008);aspect-ratio:1;max-width:100%;filter:contrast(1.15) var(--mark-filter);
+  margin:calc(var(--w) * -0.09) 0 calc(var(--w) * -0.177);  /* frames carry empty space; this leaves the official symbol-to-wordmark gap */
+  opacity:0;animation:rise 1.6s .1s ease forwards}
+#symbol{cursor:grab;touch-action:pan-y;-webkit-user-select:none;user-select:none}
+#symbol.drag{cursor:grabbing}
+.word{width:var(--w);position:relative;height:auto;filter:var(--mark-filter);opacity:0;animation:rise 1.4s .9s ease forwards}
+.soon{font-size:11px;font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--muted);margin:6px 0 0;padding-left:.32em;opacity:0;animation:rise 1.4s 1.6s ease forwards}
+.tag{font-size:clamp(20px,3vw,28px);font-weight:700;letter-spacing:-.03em;color:var(--fg);margin:22px 0 0;text-align:center;opacity:0;animation:rise 1.4s 1.2s ease forwards}
+.line{font-size:clamp(14px,2vw,16px);font-weight:400;color:var(--muted);margin:6px 0 0;text-align:center;letter-spacing:-.01em;opacity:0;animation:rise 1.4s 1.4s ease forwards}
+.mail{font-weight:600;color:var(--fg);text-decoration:none;border-bottom:1px solid var(--line)}
+.symwrap{position:relative;display:flex;justify-content:center}
+.spinhint{margin-top:10px;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);white-space:nowrap;pointer-events:none;opacity:0;animation:hint 1.2s 3s ease forwards;transition:opacity .6s ease}
+.spinhint.used{opacity:0!important;animation:none}
+@keyframes hint{to{opacity:.8}}
+.mail:hover{border-color:var(--fg)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+footer{display:flex;justify-content:center;gap:22px;flex-wrap:wrap;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+footer a,footer button{color:var(--muted);text-decoration:none;background:none;border:0;padding:4px 0;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer}
+footer a:hover,footer button:hover{color:var(--fg)}
+.contact{display:inline-flex;align-items:center;gap:8px}
+.contact svg{transition:transform .3s ease}
+.contact:hover svg{transform:translateY(-1px)}
+
+.chat{position:fixed;z-index:5;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));
+  width:min(380px,calc(100vw - 32px));height:min(520px,calc(100dvh - 32px));display:flex;flex-direction:column;
+  background:color-mix(in srgb,var(--panel) 82%,transparent);-webkit-backdrop-filter:blur(18px) saturate(1.2);backdrop-filter:blur(18px) saturate(1.2);
+  border:1px solid var(--line);border-radius:22px;box-shadow:0 30px 80px -20px rgba(0,0,0,.55);overflow:hidden;
+  transform-origin:100% 100%;animation:pop .45s cubic-bezier(.2,.9,.25,1.15)}
+.chat[hidden]{display:none}
+@keyframes pop{from{opacity:0;transform:translateY(16px) scale(.92)}to{opacity:1;transform:none}}
+.chat-head{display:flex;align-items:center;gap:12px;padding:14px 14px 12px 16px;border-bottom:1px solid var(--line)}
+.chat-av{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;flex:none;background:var(--bg)}
+.chat-av img{width:18px;height:auto;filter:var(--mark-filter)}
+.chat-who{flex:1;min-width:0}
+.chat-who b{display:block;font-size:14px;font-weight:700;letter-spacing:-.01em}
+.chat-who span{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.chat-who span i{width:7px;height:7px;border-radius:50%;background:#3ccf7a;box-shadow:0 0 0 3px rgba(60,207,122,.18)}
+.close{background:none;border:0;color:var(--muted);font:inherit;font-size:22px;line-height:1;cursor:pointer;padding:4px 8px;border-radius:8px}
+.close:hover{color:var(--fg)}
+.chat-log{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px;overscroll-behavior:contain}
+.b{max-width:82%;padding:10px 14px;border-radius:18px;font-size:14.5px;line-height:1.45;animation:rise .3s ease;overflow-wrap:anywhere}
+.b.us{align-self:flex-start;background:var(--bg);border:1px solid var(--line);border-bottom-left-radius:6px}
+.b.them{align-self:flex-end;background:var(--fg);color:var(--bg);border-bottom-right-radius:6px}
+.typing{align-self:flex-start;display:flex;gap:4px;padding:12px 14px;border:1px solid var(--line);border-radius:18px;border-bottom-left-radius:6px;background:var(--bg)}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:dot 1s infinite ease-in-out}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes dot{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+.chat-in{display:flex;align-items:flex-end;gap:8px;padding:10px 10px 10px 14px;border-top:1px solid var(--line)}
+.chat-in textarea{flex:1;font:inherit;font-size:16px;color:var(--fg);background:transparent;border:0;outline:0;resize:none;max-height:120px;min-height:24px;padding:8px 0;line-height:1.4}
+.chat-in textarea::placeholder{color:var(--muted)}
+.chat-send{width:38px;height:38px;flex:none;border-radius:50%;border:0;background:var(--fg);color:var(--bg);display:grid;place-items:center;cursor:pointer;transition:transform .2s ease,opacity .2s}
+.chat-send:disabled{opacity:.3;cursor:default}
+.chat-send:not(:disabled):hover{transform:scale(1.06)}
+.chat-foot{font-size:11px;color:var(--muted);text-align:center;padding:0 12px 10px}
+.chat-foot a{color:var(--muted)}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+@media (max-width:520px){.chat{right:0;left:0;bottom:0;width:100%;height:min(78dvh,560px);border-radius:22px 22px 0 0;border-bottom:0;padding-bottom:env(safe-area-inset-bottom,0px)}}
+.bgpick{position:fixed;z-index:3;left:50%;transform:translateX(-50%);top:calc(22px + env(safe-area-inset-top,0px));display:flex;gap:4px;align-items:center;padding:4px;border:1px solid var(--line);border-radius:99px;background:var(--bg);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.bgpick span{color:var(--muted);padding:0 8px 0 10px}
+.bgpick button{font:inherit;letter-spacing:inherit;text-transform:inherit;color:var(--muted);background:none;border:0;border-radius:99px;padding:7px 12px;cursor:pointer}
+.bgpick button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+@media (max-width:520px){.bgpick span{display:none}.bgpick{top:calc(68px + env(safe-area-inset-top,0px))}}
+.preview{position:fixed;z-index:2;left:max(16px,env(safe-area-inset-left,0px));top:calc(26px + env(safe-area-inset-top,0px));font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border:1px dashed var(--line);border-radius:99px;padding:5px 10px}
+@media (prefers-reduced-motion:reduce){.symbol,.word,.tag,.soon,.line,.chat,.b{animation:none;opacity:1}}
+</style>
+</head>
+<body>
+
+
+<canvas id="field" aria-hidden="true"></canvas>
+<div class="veil" aria-hidden="true"></div>
+<div class="stage">
+  <div class="top">
+    <button class="theme" id="themeToggle" type="button" aria-label="Switch to light"><span></span></button>
+  </div>
+
+  <main class="centre">
+    <div class="symwrap"><canvas class="symbol" id="symbol" role="img" aria-label="Clever Role symbol, turning slowly. Swipe it to spin."></canvas></div>
+    <img class="word" src="wordmark.png" alt="Clever Role">
+    <p class="tag">No agents. Just outcomes.</p>
+    <p class="line">We build digital solutions for businesses.</p>
+    <p class="soon">Coming soon</p>
+    <span class="spinhint" id="spinHint" aria-hidden="true">‹ drag to spin ›</span>
+  </main>
+
+  <footer>
+    <button type="button" id="openForm" class="contact"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg>Get in touch</button>
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+  </footer>
+</div>
+
+<section class="chat" id="chat" hidden role="dialog" aria-label="Chat with Clever Role">
+  <div class="chat-head">
+    <div class="chat-av"><img src="data:image/png;base64,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" alt=""></div>
+    <div class="chat-who"><b>Clever Role</b><span><i></i>We usually reply within a day</span></div>
+    <button class="close" type="button" id="closeChat" aria-label="Close chat">×</button>
+  </div>
+  <div class="chat-log" id="chatLog" aria-live="polite"></div>
+  <form class="chat-in" id="chatForm" autocomplete="on">
+    <input class="hp" id="hpField" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <textarea id="chatInput" rows="1" placeholder="Type your message" aria-label="Your message"></textarea>
+    <button class="chat-send" id="chatSend" type="submit" aria-label="Send" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+  </form>
+  <div class="chat-foot">Or email <a href="mailto:hello@cleverrole.com">hello@cleverrole.com</a> · <a href="/privacy">Privacy</a></div>
+</section>
+
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById('themeToggle');
+  function apply(t){
+    if(t==='light'){root.setAttribute('data-theme','light');btn.setAttribute('aria-label','Switch to dark');}
+    else{root.setAttribute('data-theme','dark');btn.setAttribute('aria-label','Switch to light');}
+  }
+  var saved=null; try{saved=localStorage.getItem('cr-theme');}catch(e){}
+  apply(saved==='light'?'light':'dark');
+  btn.addEventListener('click',function(){
+    var next=root.getAttribute('data-theme')==='light'?'dark':'light'; apply(next);
+    try{localStorage.setItem('cr-theme',next);}catch(e){}
+  });
+
+
+  /* Chat: a short conversation collects the message, name and email, then sends it to hello@ without leaving the page. */
+  var SEND_URL='', SEND_KEY='';  /* set at go-live (form delivery service); empty = preview, nothing is sent */
+  var chat=document.getElementById('chat'), log=document.getElementById('chatLog'), cf=document.getElementById('chatForm'),
+      inp=document.getElementById('chatInput'), sendBtn=document.getElementById('chatSend'), step=0, started=false, data={};
+  function bubble(t,who){var d=document.createElement('div');d.className='b '+who;d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight;}
+  function say(t,cb){var ty=document.createElement('div');ty.className='typing';ty.innerHTML='<i></i><i></i><i></i>';log.appendChild(ty);log.scrollTop=log.scrollHeight;
+    setTimeout(function(){ty.remove();bubble(t,'us');if(cb)cb();},650+Math.min(900,t.length*12));}
+  function ask(ph,type){inp.placeholder=ph;inp.setAttribute('inputmode',type==='email'?'email':'text');inp.disabled=false;inp.focus();}
+  function open(){chat.hidden=false;if(!started){started=true;say('Hi, thanks for stopping by.',function(){say('What would you like to tell us?',function(){ask('Type your message');});});}else inp.focus();}
+  function close(){chat.hidden=true;}
+  document.getElementById('openForm').addEventListener('click',open);
+  document.getElementById('closeChat').addEventListener('click',close);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!chat.hidden)close();});
+  inp.addEventListener('input',function(){sendBtn.disabled=!inp.value.trim();inp.style.height='auto';inp.style.height=Math.min(120,inp.scrollHeight)+'px';});
+  inp.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(!sendBtn.disabled)cf.requestSubmit?cf.requestSubmit():cf.dispatchEvent(new Event('submit',{cancelable:true}));}});
+  function deliver(){
+    if(document.getElementById('hpField').value)return Promise.resolve(true);
+    if(!SEND_URL){location.href='mailto:hello@cleverrole.com?subject='+encodeURIComponent('Hello from '+data.name)+'&body='+encodeURIComponent(data.message+'\n\n'+data.name+' <'+data.email+'>');return Promise.resolve('mail');}
+    return fetch(SEND_URL,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},
+      body:JSON.stringify({access_key:SEND_KEY,subject:'New message from cleverrole.com: '+data.name,from_name:'cleverrole.com',name:data.name,email:data.email,replyto:data.email,message:data.message})})
+      .then(function(r){return r.ok;}).catch(function(){return false;});
+  }
+  cf.addEventListener('submit',function(e){
+    e.preventDefault(); var v=inp.value.trim(); if(!v)return;
+    if(step===2&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){bubble(v,'them');inp.value='';sendBtn.disabled=true;say('That email doesn’t look quite right. Could you check it?',function(){ask('you@company.com','email');});return;}
+    bubble(v,'them');inp.value='';inp.style.height='auto';sendBtn.disabled=true;inp.disabled=true;
+    if(step===0){data.message=v;step=1;say('Thanks. Who are we talking to?',function(){ask('Your name');});}
+    else if(step===1){data.name=v;step=2;say('Nice to meet you, '+v.split(' ')[0]+'. What’s the best email to reply to?',function(){ask('you@company.com','email');});}
+    else if(step===2){data.email=v;step=3;say('Sending your message…',function(){deliver().then(function(ok){
+      if(ok==='mail'){say('Your email app should now open with your message ready to send. If it doesn\u2019t, email us at hello@cleverrole.com.');}
+      else if(ok){say(SEND_URL?'Done. Your message is with us and we’ll reply to '+data.email+' soon.':'Done.',function(){inp.placeholder='Message sent';});}
+      else{say('Sorry, that didn’t go through. Please email us at hello@cleverrole.com.');}
+    });});}
+  });
+})();
+
+/* Living background, three styles: precision gears, a workflow network, or orbits. Flicking the symbol drives it faster. */
+(function(){
+  var c=document.getElementById('field'), x=c.getContext('2d'); if(!x) return;
+  var root=document.documentElement, W=0,H=0,D=1, mx=0,my=0, tx=0,ty=0, run=true, prev=performance.now(), T=0;
+  var still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var MODE='gears';
+  window.crSetBackground=function(m){MODE=m;try{localStorage.setItem('cr-bg',m)}catch(e){};build();};
+  function ink(){return getComputedStyle(root).getPropertyValue('--fg').trim()||'#f4f4f2';}
+  function rgb(hex){hex=hex.replace('#','');if(hex.length===3)hex=hex.split('').map(function(a){return a+a}).join('');var n=parseInt(hex,16);return [(n>>16)&255,(n>>8)&255,n&255];}
+  var C=rgb(ink());
+  new MutationObserver(function(){C=rgb(ink());}).observe(root,{attributes:true,attributeFilter:['data-theme']});
+  function col(a){return 'rgba('+C[0]+','+C[1]+','+C[2]+','+a+')';}
+  var rnd=(function(s){return function(){s=(s*16807)%2147483647;return (s-1)/2147483646;};})(20261018);
+
+  /* ---------- gears: a meshed train of fine-line gears, like an engineering drawing ---------- */
+  var gears=[];
+  function buildGears(){
+    gears=[]; rnd=(function(s){return function(){s=(s*16807)%2147483647;return (s-1)/2147483646;};})(7);
+    var U=Math.min(W,H)/D, m=Math.max(3.6,U/120)*D;            // gear module (tooth size)
+    var sizes=[52,14,30,10,44,18,24,12,60,16,36,20,28,11,48,15,22,40];
+    var cx=W*0.5, cy=H*0.46, pad=m*14, minX=-pad, maxX=W+pad, minY=-pad, maxY=H+pad;
+    var g0={x:cx,y:cy,n:sizes[0],th:0,th0:0,flip:0}; g0.r=m*g0.n/2; gears.push(g0);
+    // grow a single meshed train outwards until the whole page (plus a margin) is filled
+    for(var qi=0;qi<gears.length&&gears.length<140;qi++){
+      var p=gears[qi], start=rnd()*Math.PI*2, kids=0;
+      for(var t=0;t<14&&kids<3;t++){
+        var n=sizes[Math.floor(rnd()*sizes.length)], r=m*n/2, phi=start+t*(Math.PI*2/14)+rnd()*0.2, d=p.r+r;
+        var gx=p.x+Math.cos(phi)*d, gy=p.y+Math.sin(phi)*d, ok=gx>minX&&gx<maxX&&gy>minY&&gy<maxY;
+        for(var k=0;ok&&k<gears.length;k++){var q=gears[k];if(q===p)continue;if(Math.hypot(q.x-gx,q.y-gy)<q.r+r+m*2.6)ok=false;}
+        if(ok){var g={x:gx,y:gy,n:n,r:r,parent:p,flip:p.flip+1};
+          g.th0=phi+Math.PI+(p.r/r)*(phi-p.th0)+Math.PI/n; gears.push(g); kids++;}
+      }
+    }
+    gears.m=m;
+  }
+  function gearPath(g,th){
+    var m=gears.m, n=g.n, ro=g.r+m, rr=g.r-1.25*m, p=Math.PI*2/n;
+    x.beginPath();
+    for(var k=0;k<n;k++){var a=th+k*p;
+      var pts=[[rr,a-p*0.5],[rr,a-p*0.27],[ro,a-p*0.14],[ro,a+p*0.14],[rr,a+p*0.27]];
+      for(var j=0;j<pts.length;j++){var R=pts[j][0],A=pts[j][1];var X=g.x+R*Math.cos(A),Y=g.y+R*Math.sin(A);(k===0&&j===0)?x.moveTo(X,Y):x.lineTo(X,Y);}
+    }
+    x.closePath();
+  }
+  function drawGears(spin){
+    var lw=Math.max(1,D*0.8), ox=-mx*24*D, oy=-my*18*D, cx=W*0.5, cy=H*0.46;
+    x.save(); x.translate(ox,oy);
+    for(var i=0;i<gears.length;i++){var g=gears[i];
+      var ang=g.th0+gears[0].th*(gears[0].n/g.n)*((g.flip%2)?-1:1);
+      // very faint overall; a touch quieter right behind the symbol and words, fading to nothing at the edges (with the veil)
+      var e=Math.hypot((g.x-cx)/(W*0.5),(g.y-cy)/(H*0.5)), a=0.1*Math.max(0,1.25-e*0.55);
+      if(a<0.004)continue;
+      gearPath(g,ang); x.fillStyle=col(a*0.12); x.fill(); x.strokeStyle=col(a); x.lineWidth=lw; x.stroke();
+      // hub, bore and spokes
+      x.beginPath(); x.arc(g.x,g.y,g.r*0.62,0,Math.PI*2); x.strokeStyle=col(a*0.6); x.stroke();
+      x.beginPath(); x.arc(g.x,g.y,Math.max(3*D,g.r*0.16),0,Math.PI*2); x.stroke();
+      if(g.n>=20){var sp=g.n>=36?6:4;for(var s=0;s<sp;s++){var aa=ang+s*Math.PI*2/sp;x.beginPath();
+        x.moveTo(g.x+Math.cos(aa)*g.r*0.18,g.y+Math.sin(aa)*g.r*0.18);x.lineTo(g.x+Math.cos(aa)*g.r*0.6,g.y+Math.sin(aa)*g.r*0.6);x.stroke();}}
+      // fine pitch circle, like a drafting line
+      x.setLineDash([2*D,5*D]); x.beginPath(); x.arc(g.x,g.y,g.r,0,Math.PI*2); x.strokeStyle=col(a*0.4); x.stroke(); x.setLineDash([]);
+    }
+    x.restore();
+  }
+  function countFlips(g){var c=0;while(g.parent){c++;g=g.parent;}return c;}
+
+  /* ---------- network: work moving between connected tasks ---------- */
+  var nodes=[], edges=[], pulses=[];
+  function buildNet(){
+    nodes=[];edges=[];pulses=[]; rnd=(function(s){return function(){s=(s*16807)%2147483647;return (s-1)/2147483646;};})(11);
+    var step=Math.max(90,Math.min(W,H)/D/6)*D, cols=Math.ceil(W/step)+1, rows=Math.ceil(H/step)+1;
+    for(var j=0;j<rows;j++)for(var i=0;i<cols;i++){if(rnd()<0.28)continue;
+      nodes.push({x:(i+0.5*(j%2))*step+(rnd()-.5)*step*0.5,y:j*step+(rnd()-.5)*step*0.5,z:0.5+rnd(),glow:0,sq:rnd()<0.35});}
+    for(var a=0;a<nodes.length;a++){var best=[];for(var b=0;b<nodes.length;b++){if(a===b)continue;var d=Math.hypot(nodes[a].x-nodes[b].x,nodes[a].y-nodes[b].y);best.push([d,b]);}
+      best.sort(function(p,q){return p[0]-q[0]});for(var k=0;k<2;k++){var bb=best[k][1];if(bb>a)edges.push([a,bb,best[k][0]]);}}
+    for(var p=0;p<Math.min(40,edges.length/2);p++)pulses.push({e:Math.floor(rnd()*edges.length),t:rnd(),dir:rnd()<.5?1:-1,s:0.15+rnd()*0.25});
+  }
+  function drawNet(dt,spin){
+    var ox=-mx*30*D, oy=-my*24*D;
+    x.lineWidth=Math.max(1,D*0.8);
+    for(var i=0;i<edges.length;i++){var e=edges[i],A=nodes[e[0]],B=nodes[e[1]];
+      x.beginPath();x.moveTo(A.x+ox*A.z,A.y+oy*A.z);
+      var midx=(A.x+B.x)/2; x.lineTo(midx+ox*(A.z+B.z)/2,A.y+oy*A.z); x.lineTo(midx+ox*(A.z+B.z)/2,B.y+oy*B.z); x.lineTo(B.x+ox*B.z,B.y+oy*B.z);
+      x.strokeStyle=col(0.07);x.stroke();}
+    for(var p=0;p<pulses.length;p++){var q=pulses[p], e=edges[q.e], A=nodes[e[0]],B=nodes[e[1]];
+      q.t+=dt*q.s*(1+Math.abs(spin)*1.5)*(300*D/e[2]);
+      if(q.t>=1){var end=q.dir>0?e[1]:e[0];nodes[end].glow=1;var nxt=[];for(var k=0;k<edges.length;k++){if(edges[k][0]===end)nxt.push([k,1]);else if(edges[k][1]===end)nxt.push([k,-1]);}
+        var pick=nxt[Math.floor(rnd()*nxt.length)]||[q.e,-q.dir];q.e=pick[0];q.dir=pick[1];q.t=0;continue;}
+      var t=q.dir>0?q.t:1-q.t, midx=(A.x+B.x)/2, z=(A.z+B.z)/2;
+      var pts=[[A.x+ox*A.z,A.y+oy*A.z],[midx+ox*z,A.y+oy*A.z],[midx+ox*z,B.y+oy*B.z],[B.x+ox*B.z,B.y+oy*B.z]];
+      var L=[0],tot=0;for(var k2=1;k2<4;k2++){tot+=Math.hypot(pts[k2][0]-pts[k2-1][0],pts[k2][1]-pts[k2-1][1]);L.push(tot);}
+      for(var tail=0;tail<10;tail++){var tt=Math.max(0,Math.min(1,t-tail*0.012*q.dir*(q.dir>0?1:-1)));var dd=tt*tot,s=1;while(s<3&&L[s]<dd)s++;
+        var f=(dd-L[s-1])/Math.max(1e-6,L[s]-L[s-1]);var X=pts[s-1][0]+(pts[s][0]-pts[s-1][0])*f,Y=pts[s-1][1]+(pts[s][1]-pts[s-1][1])*f;
+        var sz=(tail?1.4:2.6)*D;x.fillStyle=col(tail?0.35*(1-tail/10):0.9);x.fillRect(X-sz/2,Y-sz/2,sz,sz);}
+    }
+    for(var n=0;n<nodes.length;n++){var N=nodes[n],X2=N.x+ox*N.z,Y2=N.y+oy*N.z,r=(N.sq?5:3.2)*D;N.glow*=Math.exp(-dt*1.6);
+      x.strokeStyle=col(0.16+0.6*N.glow);x.fillStyle=col(0.05+0.5*N.glow);
+      if(N.sq){x.beginPath();x.rect(X2-r,Y2-r,r*2,r*2);x.fill();x.stroke();if(N.glow>0.3){x.beginPath();x.moveTo(X2-r*0.5,Y2);x.lineTo(X2-r*0.1,Y2+r*0.45);x.lineTo(X2+r*0.55,Y2-r*0.4);x.strokeStyle=col(N.glow);x.stroke();}}
+      else{x.beginPath();x.arc(X2,Y2,r,0,Math.PI*2);x.fill();x.stroke();}}
+  }
+
+  /* ---------- orbits (the earlier version) ---------- */
+  var orbits=[], dust=[];
+  function buildOrbits(){orbits=[];for(var i=0;i<12;i++)orbits.push({r:0.34+i*0.055,tilt:(i*29)%180*Math.PI/180,squash:0.22+((i*37)%50)/100,speed:(0.04+((i*17)%10)/120)*(i%2?1:-1),phase:i*0.9,beads:2+(i%3)});
+    dust=[];var n=Math.round(Math.min(220,W*H/(D*D)/7000));for(var k=0;k<n;k++)dust.push({x:Math.random(),y:Math.random(),z:Math.random(),s:0.2+Math.random()*0.8});}
+  function drawOrbits(t){var cx=W/2+mx*40*D,cy=H*0.42+my*30*D,R=Math.min(W,H)*0.62;
+    for(var k=0;k<dust.length;k++){var p=dust[k];var px=((p.x+t*0.004*p.s)%1)*W-mx*60*D*p.z,py=((p.y-t*0.006*p.s+1)%1)*H-my*60*D*p.z;x.fillStyle=col(0.05+0.18*p.z);x.fillRect(px,py,D*(0.6+p.z),D*(0.6+p.z));}
+    for(var i=0;i<orbits.length;i++){var o=orbits[i],r=R*o.r,a=o.tilt+t*0.015*(i%2?1:-1)+mx*0.3,ca=Math.cos(a),sa=Math.sin(a),sq=o.squash+my*0.15;
+      x.beginPath();x.ellipse(cx,cy,r,r*sq,a,0,Math.PI*2);x.strokeStyle=col(0.05);x.lineWidth=D;x.stroke();
+      for(var b=0;b<o.beads;b++){var th=o.phase+b*(Math.PI*2/o.beads)+t*o.speed*3;for(var j=0;j<18;j++){var tt=th-j*0.018*Math.sign(o.speed),ex=r*Math.cos(tt),ey=r*sq*Math.sin(tt);
+        var X=cx+ex*ca-ey*sa,Y=cy+ex*sa+ey*ca;x.fillStyle=col((j?0.5*(1-j/18):0.9)*(Math.sin(tt)>0?1:0.45)*0.6);var s=(j?1.2:2.2)*D;x.fillRect(X-s/2,Y-s/2,s,s);}}}}
+
+  // Soften whatever is drawn right behind the symbol, name and words, so they always read as the front layer.
+  var mid=document.querySelector('.centre');
+  function quiet(){if(!mid)return;var b=mid.getBoundingClientRect(),cx=(b.left+b.width/2)*D,cy=(b.top+b.height*0.45)*D,
+    r=Math.max(b.width,b.height*0.8)*0.62*D,g=x.createRadialGradient(cx,cy,0,cx,cy,r);
+    g.addColorStop(0,'rgba(0,0,0,0.75)');g.addColorStop(0.55,'rgba(0,0,0,0.5)');g.addColorStop(1,'rgba(0,0,0,0)');
+    x.globalCompositeOperation='destination-out';x.fillStyle=g;x.fillRect(0,0,W,H);x.globalCompositeOperation='source-over';}
+  function build(){if(MODE==='gears')buildGears();else if(MODE==='network')buildNet();else buildOrbits();
+    var ps=document.querySelectorAll('[data-bg]');for(var i=0;i<ps.length;i++)ps[i].setAttribute('aria-pressed',ps[i].getAttribute('data-bg')===MODE);}
+  function size(){D=Math.min(window.devicePixelRatio||1,2);W=c.width=Math.round(innerWidth*D);H=c.height=Math.round(innerHeight*D);build();}
+  size(); addEventListener('resize',size);
+  addEventListener('pointermove',function(e){tx=(e.clientX/innerWidth-.5);ty=(e.clientY/innerHeight-.5);},{passive:true});
+  addEventListener('deviceorientation',function(e){if(e.gamma!=null){tx=Math.max(-.5,Math.min(.5,e.gamma/60));ty=Math.max(-.5,Math.min(.5,(e.beta-45)/60));}},{passive:true});
+  document.addEventListener('visibilitychange',function(){run=!document.hidden;prev=performance.now();if(run)requestAnimationFrame(frame);});
+  function frame(now){
+    if(!run)return;
+    var dt=Math.min(0.05,(now-prev)/1000);prev=now; mx+=(tx-mx)*0.04; my+=(ty-my)*0.04;
+    var spin=window.crSpin||1;              // 1 = normal pace; bigger when the symbol is flicked; negative = reversed
+    T+=dt*(still?0:1);
+    x.clearRect(0,0,W,H);
+    x.globalAlpha=MODE==='gears'?1:0.6;   // network and orbits are busier, so they sit further back
+    if(MODE==='gears'){if(gears.length){gears[0].th+=dt*0.12*spin*(still?0:1);}drawGears(spin);}
+    else if(MODE==='network')drawNet(still?0:dt,spin);
+    else drawOrbits(T*Math.max(0.3,Math.abs(spin)));
+    x.globalAlpha=1; quiet();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* Spinnable symbol: 120 evenly spaced turns of the official rotation, drawn from four sprite sheets.
+   It turns at its normal pace; a swipe flings it faster either way, then it eases back to the normal pace in that direction. */
+(function(){
+  var c=document.getElementById('symbol'), x=c.getContext('2d'); if(!x) return;
+  var hintEl=document.getElementById('spinHint'); if(hintEl&&window.matchMedia&&matchMedia('(pointer: coarse)').matches)hintEl.textContent='‹ swipe to spin ›';
+  var N=120, PER=30, COLS=6, CELL=400, BASE=24, sheets=[], ready=[];
+  // The frames are a white symbol on black. Turn the black into true transparency so the symbol is solid
+  // and the background sits behind it, instead of showing through it.
+  function solid(im){try{var o=document.createElement('canvas');o.width=im.naturalWidth;o.height=im.naturalHeight;
+    var ox=o.getContext('2d');ox.drawImage(im,0,0);var d=ox.getImageData(0,0,o.width,o.height),p=d.data;
+    for(var i=0;i<p.length;i+=4){var L=Math.max(p[i],p[i+1],p[i+2]);p[i+3]=L<14?0:Math.min(255,(L-14)*255/56);}
+    ox.putImageData(d,0,0);return o;}catch(e){return im;}}
+  for(var s=0;s<4;s++){(function(s){var im=new Image();im.onload=function(){sheets[s]=solid(im);ready[s]=true;};im.src='spin'+s+'.jpg';sheets[s]=im;})(s);}
+  var still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var pos=0, vel=still?0:BASE, dir=1, drag=false, lastX=0, lastT=0, dragV=0, prev=performance.now(), run=true, drawn=-1;
+  function fit(){var d=Math.min(window.devicePixelRatio||1,2), w=Math.round(c.clientWidth*d)||CELL; if(c.width!==w){c.width=c.height=w;drawn=-1;}}
+  addEventListener('resize',fit);
+  function pxToFrames(){return N/((c.clientWidth||300)*1.4);}
+  c.addEventListener('pointerdown',function(e){var hn=document.getElementById('spinHint');if(hn)hn.classList.add('used');drag=true;c.classList.add('drag');lastX=e.clientX;lastT=e.timeStamp;dragV=0;try{c.setPointerCapture(e.pointerId);}catch(_){}});
+  c.addEventListener('pointermove',function(e){if(!drag)return;var dx=e.clientX-lastX, dt=Math.max(1,e.timeStamp-lastT)/1000;
+    var df=dx*pxToFrames(); pos+=df; dragV=dragV*0.6+(df/dt)*0.4; lastX=e.clientX;lastT=e.timeStamp;});
+  function end(){if(!drag)return;drag=false;c.classList.remove('drag');
+    vel=Math.max(-720,Math.min(720,dragV)); if(Math.abs(vel)>BASE*0.25)dir=vel>0?1:-1;}
+  c.addEventListener('pointerup',end);c.addEventListener('pointercancel',end);c.addEventListener('lostpointercapture',end);
+  document.addEventListener('visibilitychange',function(){run=!document.hidden;prev=performance.now();if(run)requestAnimationFrame(tick);});
+  function tick(now){
+    if(!run)return;
+    var dt=Math.min(0.05,(now-prev)/1000); prev=now;
+    if(!drag){var target=still?0:dir*BASE; vel+=(target-vel)*(1-Math.exp(-dt/0.8)); pos+=vel*dt;}
+    else if(now-lastT>80){dragV*=0.8;}
+    window.crSpin=(drag?dragV:vel)/BASE;
+    var f=((Math.round(pos)%N)+N)%N, s=Math.floor(f/PER);
+    if(!ready[s]){for(var k=0;k<4;k++)if(ready[k]){s=k;f=k*PER;break;}}
+    if(ready[s]&&f!==drawn){fit();var i=f-s*PER;x.clearRect(0,0,c.width,c.height);
+      x.drawImage(sheets[s],(i%COLS)*CELL,Math.floor(i/COLS)*CELL,CELL,CELL,0,0,c.width,c.height);drawn=f;}
+    requestAnimationFrame(tick);
+  }
+  fit(); requestAnimationFrame(tick);
+})();
+</script>
+
+</body>
+</html>
