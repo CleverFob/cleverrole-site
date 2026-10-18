@@ -4,12 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Clever Role · No agents. Just outcomes.</title>
-<meta name="description" content="Clever Role Limited builds digital solutions for businesses. Coming soon.">
-<meta property="og:title" content="Clever Role">
-<meta property="og:description" content="No agents. Just outcomes. Coming soon.">
+<meta name="description" content="We build intelligent digital solutions for modern businesses. Coming soon.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Clever Role">
+<meta property="og:title" content="Clever Role · No agents. Just outcomes.">
+<meta property="og:description" content="We build intelligent digital solutions for modern businesses. Coming soon.">
 <meta property="og:image" content="https://cleverrole.com/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Clever Role logo with the line No agents. Just outcomes.">
 <meta property="og:url" content="https://cleverrole.com/">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Clever Role · No agents. Just outcomes.">
+<meta name="twitter:description" content="We build intelligent digital solutions for modern businesses. Coming soon.">
+<meta name="twitter:image" content="https://cleverrole.com/og.jpg">
+<link rel="apple-touch-icon" href="/og-icon.png">
 <meta name="theme-color" content="#000000">
 <link rel="canonical" href="https://cleverrole.com/">
 <link rel="icon" href="/favicon.ico">
@@ -102,6 +111,11 @@ footer a:hover,footer button:hover{color:var(--fg)}
 .chat-send:not(:disabled):hover{transform:scale(1.06)}
 .chat-foot{font-size:11px;color:var(--muted);text-align:center;padding:0 12px 10px}
 .chat-foot a{color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;align-self:flex-end;justify-content:flex-end;max-width:92%;animation:rise .3s ease}
+.chip{font:inherit;font-size:13.5px;font-weight:600;color:var(--fg);background:transparent;border:1px solid var(--line);border-radius:99px;padding:8px 14px;cursor:pointer;transition:background .2s,color .2s,border-color .2s}
+.chip:hover,.chip:focus-visible{background:var(--fg);color:var(--bg);border-color:var(--fg);outline:0}
+.chat-count{font-size:11px;color:var(--muted);text-align:right;padding:0 16px 4px}
+.chat-count.over{color:#e5484d}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
 @media (max-width:520px){.chat{right:0;left:0;bottom:0;width:100%;height:min(78dvh,560px);border-radius:22px 22px 0 0;border-bottom:0;padding-bottom:env(safe-area-inset-bottom,0px)}}
 @media (max-width:520px){.preview{position:fixed;z-index:2;left:max(16px,env(safe-area-inset-left,0px));top:calc(26px + env(safe-area-inset-top,0px));font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border:1px dashed var(--line);border-radius:99px;padding:5px 10px}
@@ -139,7 +153,7 @@ footer a:hover,footer button:hover{color:var(--fg)}
 <section class="chat" id="chat" hidden role="dialog" aria-label="Chat with Clever Role">
   <div class="chat-head">
     <div class="chat-av"><img src="data:image/png;base64,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" alt=""></div>
-    <div class="chat-who"><b>Clever Role</b><span><i></i>We usually reply within a day</span></div>
+    <div class="chat-who"><b>Clever Role</b><span><i></i>A real person replies by email</span></div>
     <button class="close" type="button" id="closeChat" aria-label="Close chat">×</button>
   </div>
   <div class="chat-log" id="chatLog" aria-live="polite"></div>
@@ -148,7 +162,8 @@ footer a:hover,footer button:hover{color:var(--fg)}
     <textarea id="chatInput" rows="1" placeholder="Type your message" aria-label="Your message"></textarea>
     <button class="chat-send" id="chatSend" type="submit" aria-label="Send" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
   </form>
-  <div class="chat-foot">Or email <a href="mailto:hello@cleverrole.com">hello@cleverrole.com</a> · <a href="/privacy">Privacy</a></div>
+  <div class="chat-count" id="chatCount" hidden>0 / 1000</div>
+  <div class="chat-foot">Please don’t share passwords or card details. Or email <a href="mailto:hello@cleverrole.com">hello@cleverrole.com</a> · <a href="/privacy">Privacy</a></div>
 </section>
 
 <script>
@@ -166,39 +181,82 @@ footer a:hover,footer button:hover{color:var(--fg)}
   });
 
 
-  /* Chat: a short conversation collects the message, name and email, then sends it to hello@ without leaving the page. */
+  /* Chat: a short, polite conversation. No AI and no cost: the message goes to hello@ and a person replies by email.
+     Guard rails run in the browser: topic first, a length limit, a polite word check, no card numbers or passwords,
+     a hidden bot trap, one message per visit and three per day. */
   var SEND_URL='', SEND_KEY='';  /* set at go-live (form delivery service); empty = preview, nothing is sent */
+  var MAXLEN=1000, PER_DAY=3;
   var chat=document.getElementById('chat'), log=document.getElementById('chatLog'), cf=document.getElementById('chatForm'),
-      inp=document.getElementById('chatInput'), sendBtn=document.getElementById('chatSend'), step=0, started=false, data={};
-  function bubble(t,who){var d=document.createElement('div');d.className='b '+who;d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight;}
+      inp=document.getElementById('chatInput'), sendBtn=document.getElementById('chatSend'), count=document.getElementById('chatCount'),
+      step=-1, started=false, sent=false, openedAt=0, data={};
+  function bubble(t,who){var d=document.createElement('div');d.className='b '+who;d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
   function say(t,cb){var ty=document.createElement('div');ty.className='typing';ty.innerHTML='<i></i><i></i><i></i>';log.appendChild(ty);log.scrollTop=log.scrollHeight;
     setTimeout(function(){ty.remove();bubble(t,'us');if(cb)cb();},650+Math.min(900,t.length*12));}
   function ask(ph,type){inp.placeholder=ph;inp.setAttribute('inputmode',type==='email'?'email':'text');inp.disabled=false;inp.focus();}
-  function open(){chat.hidden=false;if(!started){started=true;say('Hi, thanks for stopping by.',function(){say('What would you like to tell us?',function(){ask('Type your message');});});}else inp.focus();}
+  function lock(ph){inp.disabled=true;sendBtn.disabled=true;inp.placeholder=ph;}
+  function today(){return new Date().toISOString().slice(0,10);}
+  function sentToday(){try{var s=JSON.parse(localStorage.getItem('cr-chat')||'{}');return s.d===today()?s.n:0;}catch(e){return 0;}}
+  function markSent(){try{localStorage.setItem('cr-chat',JSON.stringify({d:today(),n:sentToday()+1}));}catch(e){}}
+  var TOPICS=['Pricing','Partnership','Media','Something else'];
+  function chips(){var w=document.createElement('div');w.className='chips';
+    TOPICS.forEach(function(t){var b=document.createElement('button');b.type='button';b.className='chip';b.textContent=t;
+      b.addEventListener('click',function(){if(step!==0)return;w.remove();bubble(t,'them');data.topic=t;step=1;
+        say('Thanks. Tell us a little about what you need. Please don’t include passwords, card numbers or other private details.',function(){ask('Type your message');count.hidden=false;});});
+      w.appendChild(b);});
+    log.appendChild(w);log.scrollTop=log.scrollHeight;}
+  function open(){chat.hidden=false;if(started){if(!inp.disabled)inp.focus();return;}
+    started=true;openedAt=Date.now();lock('Choose a topic above');
+    if(sentToday()>=PER_DAY){say('Thanks for getting in touch again. You’ve already sent us a few messages today, so we’ll reply to those by email soon.',function(){lock('Message limit reached for today');});return;}
+    say('Hi, thanks for stopping by.',function(){
+      say('Messages here go straight to our team, and a real person replies by email, usually within a day. There’s no AI and no cost to you.',function(){
+        say('What’s it about?',function(){step=0;chips();});});});}
   function close(){chat.hidden=true;}
   document.getElementById('openForm').addEventListener('click',open);
   document.getElementById('closeChat').addEventListener('click',close);
   document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!chat.hidden)close();});
-  inp.addEventListener('input',function(){sendBtn.disabled=!inp.value.trim();inp.style.height='auto';inp.style.height=Math.min(120,inp.scrollHeight)+'px';});
+  inp.addEventListener('input',function(){var n=inp.value.length;sendBtn.disabled=!inp.value.trim()||(step===1&&n>MAXLEN);
+    count.textContent=n+' / '+MAXLEN;count.classList.toggle('over',n>MAXLEN);
+    inp.style.height='auto';inp.style.height=Math.min(120,inp.scrollHeight)+'px';});
   inp.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(!sendBtn.disabled)cf.requestSubmit?cf.requestSubmit():cf.dispatchEvent(new Event('submit',{cancelable:true}));}});
+
+  // Polite-language check: common swear words, including simple disguises like f*ck or sh1t.
+  var RUDE=/\b(f+u+c+k+\w*|f+[\W_]*c+k+\w*|sh+i+t+\w*|bull?sh\w*|c+u+n+t+\w*|bastard\w*|bitch\w*|dick(head)?s?|cock(sucker)?s?|pricks?|wank\w*|twats?|arse(hole)?s?|ass(hole)?s?|motherf\w*|piss(ed)?|slut\w*|whores?|retard\w*|nigg\w*|fag+\w*|kys)\b/i;
+  function clean(t){return t.toLowerCase().replace(/[@4]/g,'a').replace(/[1!|]/g,'i').replace(/0/g,'o').replace(/3/g,'e').replace(/\$|5/g,'s').replace(/\*/g,'u');}
+  function rude(t){return RUDE.test(t)||RUDE.test(clean(t));}
+  // Card numbers (13 to 19 digits that pass the card check) and anything labelled as a password or PIN.
+  function hasCard(t){var m=t.match(/(?:\d[ -]?){13,19}/g)||[];return m.some(function(s){var d=s.replace(/\D/g,''),sum=0,alt=false;
+    if(d.length<13||d.length>19)return false;for(var i=d.length-1;i>=0;i--){var n=+d[i];if(alt){n*=2;if(n>9)n-=9;}sum+=n;alt=!alt;}return sum%10===0;});}
+  function hasSecret(t){return /\b(password|passwd|pwd|passcode|pin|cvv|cvc|security code)\b\s*(is|:|=|-)?\s*\S{3,}/i.test(t)||/\b(iban|bsb|account number|routing number|social security|ssn)\b/i.test(t);}
+  function gibberish(t){var letters=(t.match(/[a-z]/gi)||[]).length, words=t.trim().split(/\s+/).length;
+    return letters<10||words<3||/(.)\1{6,}/.test(t)||/https?:\/\/\S+.*https?:\/\/\S+.*https?:\/\//i.test(t);}
+  function retry(v,msg,ph){inp.value=v;inp.dispatchEvent(new Event('input'));say(msg,function(){ask(ph);});}
+
   function deliver(){
-    if(document.getElementById('hpField').value)return Promise.resolve(true);
-    if(!SEND_URL){location.href='mailto:hello@cleverrole.com?subject='+encodeURIComponent('Hello from '+data.name)+'&body='+encodeURIComponent(data.message+'\n\n'+data.name+' <'+data.email+'>');return Promise.resolve('mail');}
+    if(document.getElementById('hpField').value||Date.now()-openedAt<4000)return Promise.resolve(true);  // bot trap: hidden field filled, or far too fast for a person
+    if(!SEND_URL){location.href='mailto:hello@cleverrole.com?subject='+encodeURIComponent(data.topic+' from '+data.name)+'&body='+encodeURIComponent(data.message+'\n\n'+data.name+' <'+data.email+'>');return Promise.resolve('mail');}
     return fetch(SEND_URL,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},
-      body:JSON.stringify({access_key:SEND_KEY,subject:'New message from cleverrole.com: '+data.name,from_name:'cleverrole.com',name:data.name,email:data.email,replyto:data.email,message:data.message})})
+      body:JSON.stringify({access_key:SEND_KEY,subject:'cleverrole.com: '+data.topic+' from '+data.name,from_name:'cleverrole.com',name:data.name,email:data.email,replyto:data.email,topic:data.topic,message:data.message})})
       .then(function(r){return r.ok;}).catch(function(){return false;});
   }
   cf.addEventListener('submit',function(e){
-    e.preventDefault(); var v=inp.value.trim(); if(!v)return;
-    if(step===2&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){bubble(v,'them');inp.value='';sendBtn.disabled=true;say('That email doesn’t look quite right. Could you check it?',function(){ask('you@company.com','email');});return;}
-    bubble(v,'them');inp.value='';inp.style.height='auto';sendBtn.disabled=true;inp.disabled=true;
-    if(step===0){data.message=v;step=1;say('Thanks. Who are we talking to?',function(){ask('Your name');});}
-    else if(step===1){data.name=v;step=2;say('Nice to meet you, '+v.split(' ')[0]+'. What’s the best email to reply to?',function(){ask('you@company.com','email');});}
-    else if(step===2){data.email=v;step=3;say('Sending your message…',function(){deliver().then(function(ok){
-      if(ok==='mail'){say('Your email app should now open with your message ready to send. If it doesn\u2019t, email us at hello@cleverrole.com.');}
-      else if(ok){say(SEND_URL?'Done. Your message is with us and we’ll reply to '+data.email+' soon.':'Done.',function(){inp.placeholder='Message sent';});}
-      else{say('Sorry, that didn’t go through. Please email us at hello@cleverrole.com.');}
-    });});}
+    e.preventDefault(); var v=inp.value.trim(); if(!v||sent||step<1)return;
+    inp.value='';inp.style.height='auto';sendBtn.disabled=true;inp.disabled=true;
+    if(rude(v)){retry(v,'We’d love to help, but please keep it friendly. Could you reword your message without the strong language?','Reword your message');return;}
+    if(hasCard(v)||hasSecret(v)){retry(v,'For your safety, please don’t share card numbers, passwords or other private details here. Could you remove that part and send it again?','Remove the private details');return;}
+    if(step===1){
+      if(v.length>MAXLEN){retry(v,'That’s a little long for a first message. Could you keep it under '+MAXLEN+' characters? We can go into detail by email.','Shorten your message');return;}
+      if(gibberish(v)){retry(v,'Could you add a little more detail about what you’re looking for? It helps us send the right reply.','Add a bit more detail');return;}
+      bubble(v,'them');data.message=v;step=2;count.hidden=true;say('Thanks. Who are we talking to?',function(){ask('Your name');});}
+    else if(step===2){
+      if(v.length>80||!/[a-z]/i.test(v)){retry(v,'Could you just give us your name, please?','Your name');return;}
+      bubble(v,'them');data.name=v;step=3;say('Nice to meet you, '+v.split(' ')[0]+'. What’s the best email to reply to?',function(){ask('you@company.com','email');});}
+    else if(step===3){
+      if(v.length>120||!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(v)){retry(v,'That email doesn’t look quite right. Could you check it?','you@company.com');return;}
+      bubble(v,'them');data.email=v;step=4;sent=true;say('Sending your message…',function(){deliver().then(function(ok){
+        if(ok==='mail'){markSent();say('Your email app should now open with your message ready to send. If it doesn\u2019t, email us at hello@cleverrole.com.',function(){lock('Message ready in your email app');});}
+      else if(ok){markSent();say(SEND_URL?'Done. Your message is with us and we’ll reply to '+data.email+' soon.':'Done.',function(){lock('Message sent');});}
+        else{sent=false;say('Sorry, that didn’t go through. Please email us at hello@cleverrole.com.');}
+      });});}
   });
 })();
 
@@ -328,7 +386,7 @@ footer a:hover,footer button:hover{color:var(--fg)}
   document.addEventListener('visibilitychange',function(){run=!document.hidden;prev=performance.now();if(run)requestAnimationFrame(frame);});
   function frame(now){
     if(!run)return;
-    var dt=Math.min(0.05,(now-prev)/1000);prev=now; mx+=(tx-mx)*0.04; my+=(ty-my)*0.04;
+    var dt=Math.min(0.05,(now-prev)/1000)*(window.crWake==null?1:window.crWake);prev=now; mx+=(tx-mx)*0.04; my+=(ty-my)*0.04;
     var spin=window.crSpin||1;              // 1 = normal pace; bigger when the symbol is flicked; negative = reversed
     T+=dt*(still?0:1);
     x.clearRect(0,0,W,H);
@@ -356,25 +414,27 @@ footer a:hover,footer button:hover{color:var(--fg)}
     ox.putImageData(d,0,0);return o;}catch(e){return im;}}
   for(var s=0;s<4;s++){(function(s){var im=new Image();im.onload=function(){sheets[s]=solid(im);ready[s]=true;};im.src='spin'+s+'.jpg';sheets[s]=im;})(s);}
   var still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var pos=0, vel=still?0:BASE, dir=1, drag=false, lastX=0, lastT=0, dragV=0, prev=performance.now(), run=true, drawn=-1;
+  var HOLD=2000, hold=performance.now()+HOLD, wake=still?1:0;  // a fresh visit starts still, then eases up to the normal pace
+  var pos=0, vel=0, dir=1, drag=false, lastX=0, lastT=0, dragV=0, prev=performance.now(), run=true, drawn=-1;
   function fit(){var d=Math.min(window.devicePixelRatio||1,2), w=Math.round(c.clientWidth*d)||CELL; if(c.width!==w){c.width=c.height=w;drawn=-1;}}
   addEventListener('resize',fit);
   function pxToFrames(){return N/((c.clientWidth||300)*1.4);}
-  c.addEventListener('pointerdown',function(e){var hn=document.getElementById('spinHint');if(hn)hn.classList.add('used');drag=true;c.classList.add('drag');lastX=e.clientX;lastT=e.timeStamp;dragV=0;try{c.setPointerCapture(e.pointerId);}catch(_){}});
+  c.addEventListener('pointerdown',function(e){var hn=document.getElementById('spinHint');if(hn)hn.classList.add('used');drag=true;hold=0;wake=1;c.classList.add('drag');lastX=e.clientX;lastT=e.timeStamp;dragV=0;try{c.setPointerCapture(e.pointerId);}catch(_){}});
   c.addEventListener('pointermove',function(e){if(!drag)return;var dx=e.clientX-lastX, dt=Math.max(1,e.timeStamp-lastT)/1000;
     var df=dx*pxToFrames(); pos+=df; dragV=dragV*0.6+(df/dt)*0.4; lastX=e.clientX;lastT=e.timeStamp;});
   function end(){if(!drag)return;drag=false;c.classList.remove('drag');
     vel=Math.max(-720,Math.min(720,dragV)); if(Math.abs(vel)>BASE*0.25)dir=vel>0?1:-1;}
   c.addEventListener('pointerup',end);c.addEventListener('pointercancel',end);c.addEventListener('lostpointercapture',end);
   document.addEventListener('visibilitychange',function(){run=!document.hidden;prev=performance.now();if(run)requestAnimationFrame(tick);});
-  // Every fresh visit (including coming back with the browser's Back button) starts at the normal pace, in the normal direction.
-  addEventListener('pageshow',function(e){if(e.persisted){dir=1;vel=still?0:BASE;drag=false;dragV=0;window.crSpin=1;}});
+  // Every fresh visit (including coming back with the browser's Back button) starts still for 2 seconds, then eases up to the normal pace, in the normal direction.
+  addEventListener('pageshow',function(e){if(e.persisted){dir=1;vel=0;hold=performance.now()+HOLD;wake=still?1:0;drag=false;dragV=0;window.crSpin=0;window.crWake=wake;}});
   function tick(now){
     if(!run)return;
     var dt=Math.min(0.05,(now-prev)/1000); prev=now;
-    if(!drag){var target=still?0:dir*BASE; vel+=(target-vel)*(1-Math.exp(-dt/0.8)); pos+=vel*dt;}
+    if(!drag){var target=(still||now<hold)?0:dir*BASE; vel+=(target-vel)*(1-Math.exp(-dt/0.8)); pos+=vel*dt;}
     else if(now-lastT>80){dragV*=0.8;}
-    window.crSpin=(drag?dragV:vel)/BASE;
+    if(!drag&&now>=hold)wake=Math.max(wake,Math.min(1,Math.abs(vel)/BASE*1.05));
+    window.crSpin=(drag?dragV:vel)/BASE; window.crWake=wake;
     var f=((Math.round(pos)%N)+N)%N, s=Math.floor(f/PER);
     if(!ready[s]){for(var k=0;k<4;k++)if(ready[k]){s=k;f=k*PER;break;}}
     if(ready[s]&&f!==drawn){fit();var i=f-s*PER;x.clearRect(0,0,c.width,c.height);
