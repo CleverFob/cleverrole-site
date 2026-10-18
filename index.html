@@ -35,7 +35,10 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--face);font-
 .stage{position:relative}
 .veil{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 75% 70% at 50% 46%,transparent 45%,var(--bg) 100%)}
 .stage{height:100%;display:grid;grid-template-rows:auto 1fr auto;padding-block:18px 20px;box-sizing:border-box}
-.top{display:flex;justify-content:flex-end}
+.top{display:flex;justify-content:flex-end;gap:10px;align-items:center}
+.bgname{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);opacity:0;transition:opacity .5s ease;pointer-events:none}
+.bgname.show{opacity:1}
+#bgCycle svg{width:16px;height:16px;stroke:var(--fg);fill:none;stroke-width:1.5;transition:transform .6s ease}
 .theme{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:transparent;cursor:pointer;display:grid;place-items:center;padding:0}
 .theme span{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--fg);background:linear-gradient(90deg,var(--fg) 50%,transparent 50%)}
 .theme:hover{border-color:var(--muted)}
@@ -51,7 +54,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--face);font-
 .word{width:var(--w);position:relative;height:auto;filter:var(--mark-filter);opacity:0;animation:rise 1.4s .9s ease forwards}
 .soon{font-size:11px;font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--muted);margin:6px 0 0;padding-left:.32em;opacity:0;animation:rise 1.4s 1.6s ease forwards}
 .tag{font-size:clamp(20px,3vw,28px);font-weight:700;letter-spacing:-.03em;color:var(--fg);margin:22px 0 0;text-align:center;opacity:0;animation:rise 1.4s 1.2s ease forwards}
-.line{font-size:clamp(14px,2vw,16px);font-weight:400;color:var(--muted);margin:6px 0 0;text-align:center;letter-spacing:-.01em;opacity:0;animation:rise 1.4s 1.4s ease forwards}
+.line{text-wrap:balance;max-width:92vw;font-size:clamp(14px,2vw,16px);font-weight:400;color:var(--muted);margin:6px 0 0;text-align:center;letter-spacing:-.01em;opacity:0;animation:rise 1.4s 1.4s ease forwards}
 .mail{font-weight:600;color:var(--fg);text-decoration:none;border-bottom:1px solid var(--line)}
 .symwrap{position:relative;display:flex;justify-content:center}
 .spinhint{margin-top:10px;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);white-space:nowrap;pointer-events:none;opacity:0;animation:hint 1.2s 3s ease forwards;transition:opacity .6s ease}
@@ -101,12 +104,7 @@ footer a:hover,footer button:hover{color:var(--fg)}
 .chat-foot a{color:var(--muted)}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
 @media (max-width:520px){.chat{right:0;left:0;bottom:0;width:100%;height:min(78dvh,560px);border-radius:22px 22px 0 0;border-bottom:0;padding-bottom:env(safe-area-inset-bottom,0px)}}
-.bgpick{position:fixed;z-index:3;left:50%;transform:translateX(-50%);top:calc(22px + env(safe-area-inset-top,0px));display:flex;gap:4px;align-items:center;padding:4px;border:1px solid var(--line);border-radius:99px;background:var(--bg);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
-.bgpick span{color:var(--muted);padding:0 8px 0 10px}
-.bgpick button{font:inherit;letter-spacing:inherit;text-transform:inherit;color:var(--muted);background:none;border:0;border-radius:99px;padding:7px 12px;cursor:pointer}
-.bgpick button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
-@media (max-width:520px){.bgpick span{display:none}.bgpick{top:calc(68px + env(safe-area-inset-top,0px))}}
-.preview{position:fixed;z-index:2;left:max(16px,env(safe-area-inset-left,0px));top:calc(26px + env(safe-area-inset-top,0px));font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border:1px dashed var(--line);border-radius:99px;padding:5px 10px}
+@media (max-width:520px){.preview{position:fixed;z-index:2;left:max(16px,env(safe-area-inset-left,0px));top:calc(26px + env(safe-area-inset-top,0px));font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border:1px dashed var(--line);border-radius:99px;padding:5px 10px}
 @media (prefers-reduced-motion:reduce){.symbol,.word,.tag,.soon,.line,.chat,.b{animation:none;opacity:1}}
 </style>
 </head>
@@ -117,6 +115,8 @@ footer a:hover,footer button:hover{color:var(--fg)}
 <div class="veil" aria-hidden="true"></div>
 <div class="stage">
   <div class="top">
+    <span class="bgname" id="bgName" aria-live="polite"></span>
+    <button class="theme" id="bgCycle" type="button" aria-label="Change background" title="Change background"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></button>
     <button class="theme" id="themeToggle" type="button" aria-label="Switch to light"><span></span></button>
   </div>
 
@@ -124,7 +124,7 @@ footer a:hover,footer button:hover{color:var(--fg)}
     <div class="symwrap"><canvas class="symbol" id="symbol" role="img" aria-label="Clever Role symbol, turning slowly. Swipe it to spin."></canvas></div>
     <img class="word" src="wordmark.png" alt="Clever Role">
     <p class="tag">No agents. Just outcomes.</p>
-    <p class="line">We build digital solutions for businesses.</p>
+    <p class="line">We build intelligent digital solutions for modern businesses.</p>
     <p class="soon">Coming soon</p>
     <span class="spinhint" id="spinHint" aria-hidden="true">‹ drag to spin ›</span>
   </main>
@@ -207,7 +207,7 @@ footer a:hover,footer button:hover{color:var(--fg)}
   var c=document.getElementById('field'), x=c.getContext('2d'); if(!x) return;
   var root=document.documentElement, W=0,H=0,D=1, mx=0,my=0, tx=0,ty=0, run=true, prev=performance.now(), T=0;
   var still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var MODE='gears';
+  var MODE=(function(){try{return localStorage.getItem('cr-bg')||'gears'}catch(e){return 'gears'}})();
   window.crSetBackground=function(m){MODE=m;try{localStorage.setItem('cr-bg',m)}catch(e){};build();};
   function ink(){return getComputedStyle(root).getPropertyValue('--fg').trim()||'#f4f4f2';}
   function rgb(hex){hex=hex.replace('#','');if(hex.length===3)hex=hex.split('').map(function(a){return a+a}).join('');var n=parseInt(hex,16);return [(n>>16)&255,(n>>8)&255,n&255];}
@@ -252,7 +252,7 @@ footer a:hover,footer button:hover{color:var(--fg)}
     for(var i=0;i<gears.length;i++){var g=gears[i];
       var ang=g.th0+gears[0].th*(gears[0].n/g.n)*((g.flip%2)?-1:1);
       // very faint overall; a touch quieter right behind the symbol and words, fading to nothing at the edges (with the veil)
-      var e=Math.hypot((g.x-cx)/(W*0.5),(g.y-cy)/(H*0.5)), a=0.1*Math.max(0,1.25-e*0.55);
+      var e=Math.hypot((g.x-cx)/(W*0.5),(g.y-cy)/(H*0.5)), a=0.12*Math.max(0,1.25-e*0.55);
       if(a<0.004)continue;
       gearPath(g,ang); x.fillStyle=col(a*0.12); x.fill(); x.strokeStyle=col(a); x.lineWidth=lw; x.stroke();
       // hub, bore and spokes
@@ -332,7 +332,7 @@ footer a:hover,footer button:hover{color:var(--fg)}
     var spin=window.crSpin||1;              // 1 = normal pace; bigger when the symbol is flicked; negative = reversed
     T+=dt*(still?0:1);
     x.clearRect(0,0,W,H);
-    x.globalAlpha=MODE==='gears'?1:0.6;   // network and orbits are busier, so they sit further back
+    x.globalAlpha=MODE==='gears'?1:0.75;   // network and orbits are busier, so they sit further back
     if(MODE==='gears'){if(gears.length){gears[0].th+=dt*0.12*spin*(still?0:1);}drawGears(spin);}
     else if(MODE==='network')drawNet(still?0:dt,spin);
     else drawOrbits(T*Math.max(0.3,Math.abs(spin)));
@@ -381,6 +381,10 @@ footer a:hover,footer button:hover{color:var(--fg)}
   }
   fit(); requestAnimationFrame(tick);
 })();
+(function(){var b=document.getElementById('bgCycle'),n=document.getElementById('bgName'),L=['gears','network','orbits'],N={gears:'Gears',network:'Network',orbits:'Orbits'},t,turn=0;if(!b)return;
+  b.addEventListener('click',function(){var cur='gears';try{cur=localStorage.getItem('cr-bg')||'gears'}catch(e){}
+    var next=L[(L.indexOf(cur)+1)%L.length];window.crSetBackground&&window.crSetBackground(next);
+    turn+=120;b.querySelector('svg').style.transform='rotate('+turn+'deg)';n.textContent=N[next];n.classList.add('show');clearTimeout(t);t=setTimeout(function(){n.classList.remove('show');},1600);});})();
 </script>
 
 </body>
