@@ -367,6 +367,8 @@ footer a:hover,footer button:hover{color:var(--fg)}
     vel=Math.max(-720,Math.min(720,dragV)); if(Math.abs(vel)>BASE*0.25)dir=vel>0?1:-1;}
   c.addEventListener('pointerup',end);c.addEventListener('pointercancel',end);c.addEventListener('lostpointercapture',end);
   document.addEventListener('visibilitychange',function(){run=!document.hidden;prev=performance.now();if(run)requestAnimationFrame(tick);});
+  // Every fresh visit (including coming back with the browser's Back button) starts at the normal pace, in the normal direction.
+  addEventListener('pageshow',function(e){if(e.persisted){dir=1;vel=still?0:BASE;drag=false;dragV=0;window.crSpin=1;}});
   function tick(now){
     if(!run)return;
     var dt=Math.min(0.05,(now-prev)/1000); prev=now;
