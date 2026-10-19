@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://cleverrole.com/sitemap.xml
