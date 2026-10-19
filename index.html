@@ -54,6 +54,31 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--face);font-
 .theme{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:transparent;cursor:pointer;display:grid;place-items:center;padding:0}
 .theme span{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--fg);background:linear-gradient(90deg,var(--fg) 50%,transparent 50%)}
 :focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+
+/* Privacy and Terms live inside the same page, so the controls, the background and the music carry on while you read. */
+.lock,.legalpane{display:none}
+html[data-view="privacy"] .legalpane.privacy,html[data-view="terms"] .legalpane.terms{display:block}
+html[data-view="privacy"] .lock,html[data-view="terms"] .lock{display:flex}
+html[data-view="privacy"] .centre,html[data-view="terms"] .centre{display:none}
+.lock{align-items:center;gap:calc(var(--wh) * .445);margin-right:auto;text-decoration:none;--wh:24px;border-radius:8px}
+.lock img{height:var(--wh);width:auto;filter:var(--mark-filter)}
+.lk-sym{position:relative;flex:none;width:calc(var(--wh) * 1.27);height:calc(var(--wh) * 1.2);filter:contrast(1.15) var(--mark-filter)}
+.lk-sym canvas{position:absolute;display:block;width:calc(var(--wh) * 1.846);height:calc(var(--wh) * 1.846);left:calc(var(--wh) * -0.288);top:calc(var(--wh) * -0.238)}
+.legalpane{min-height:0;overflow:auto;overscroll-behavior:contain;margin:14px auto 12px;width:100%;max-width:760px;box-sizing:border-box;padding:28px clamp(18px,4vw,40px) 12px;border-radius:20px;
+  background:color-mix(in srgb,var(--bg) 84%,transparent);border:1px solid var(--line);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);line-height:1.7;scrollbar-width:thin}
+.legalpane .eyebrow{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+.legalpane h1{font-size:clamp(30px,5.5vw,44px);font-weight:700;letter-spacing:-.03em;line-height:1.1;margin:0 0 12px}
+.legalpane .dates{color:var(--muted);font-size:13px;margin:0 0 24px}
+.legalpane .intro{font-size:16px;margin:0 0 28px}
+.legalpane section{border-top:1px solid var(--line);padding-block:20px}
+.legalpane h2{font-size:16px;font-weight:700;letter-spacing:-.01em;margin:0 0 6px}
+.legalpane section p{margin:0;font-size:15px;opacity:.88}
+.legalpane a{color:var(--fg)}
+html[data-view="privacy"] .stage,html[data-view="terms"] .stage{grid-template-columns:minmax(0,1fr)}
+@media (max-width:560px){html[data-view="privacy"] .top,html[data-view="terms"] .top{flex-wrap:wrap;row-gap:12px}
+  html[data-view="privacy"] .lock,html[data-view="terms"] .lock{flex:0 0 100%;margin-right:0}
+  .legalpane{margin-top:6px;border-radius:16px}}
+@media (max-width:380px){.lock{--wh:20px}}
 .theme{position:relative;transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease,background .25s ease}
 .theme:hover{transform:translateY(-2px);border-color:var(--acc,var(--muted));box-shadow:0 6px 16px -6px rgba(var(--acc-rgb,128,128,128),.75)}
 .theme:active{transform:translateY(0) scale(.96)}
@@ -133,6 +158,7 @@ footer a:hover,footer button:hover{color:var(--fg)}
 .sw:hover{transform:scale(1.14)}.sw[aria-pressed="true"]{border-color:var(--fg);box-shadow:0 0 0 2px var(--bg) inset}
 .nm{font-size:13px;font-weight:650;margin:2px 2px 8px}
 .pop label{display:block;font-size:11px;color:var(--muted);margin:6px 2px 4px}
+.pop .rl{display:flex;justify-content:space-between;align-items:baseline}.pop .rl output{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;margin:6px 2px 4px}
 .pop input[type=range]{width:100%;accent-color:var(--acc,var(--fg))}
 @media (prefers-reduced-motion:reduce){#musicBtn .eq b{animation:none;height:9px}.pop{animation:none}}
 @media (prefers-reduced-motion:reduce){.symbol,.word,.tag,.soon,.line,.symwrap::before,.symwrap::after{animation:none;opacity:1}.bgname{transition:none}}
@@ -144,27 +170,52 @@ footer a:hover,footer button:hover{color:var(--fg)}
 <canvas id="field" aria-hidden="true"></canvas>
 <div class="veil" aria-hidden="true"></div>
 <div id="tip" role="tooltip" aria-hidden="true"></div>
+<script>(function(){var p=(location.protocol==='file:'?location.hash.replace('#','/'):location.pathname).replace(/\/+$/,'');document.documentElement.setAttribute('data-view',p==='/privacy'?'privacy':p==='/terms'?'terms':'home');})();</script>
 <script>try{if(localStorage.getItem('cr-seen'))document.documentElement.classList.add('seen')}catch(e){}</script>
 <div class="stage">
   <div class="top">
+    <a class="lock" href="/" aria-label="Clever Role home"><span class="lk-sym"><canvas id="lkSym" aria-hidden="true"></canvas></span><img src="/wordmark.png" alt="Clever Role"></a>
     <span class="bgname" id="bgName" role="status" aria-live="polite" aria-atomic="true"></span>
     <button class="theme" id="themeToggle" type="button" aria-label="Switch to light" data-tip="Switch to light"><span></span></button>
     <button class="theme" id="musicBtn" type="button" aria-label="Music off. Open music menu" aria-haspopup="true" aria-expanded="false" data-tip="Music"><svg class="note" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg><em class="eq" aria-hidden="true"><b></b><b></b><b></b></em></button>
-    <button class="theme" id="colorBtn" type="button" aria-label="Line colour" aria-haspopup="true" aria-expanded="false" data-tip="Line colour"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="drop" d="M12 3.2c-3.4 4-6 7-6 10.3a6 6 0 0 0 12 0C18 10.200 15.400 7.200 12 3.200z"/></svg></button>
+    <button class="theme" id="colorBtn" type="button" aria-label="Lines: colour, strength, density" aria-haspopup="true" aria-expanded="false" data-tip="Lines: colour, strength, density"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="drop" d="M12 3.2c-3.4 4-6 7-6 10.3a6 6 0 0 0 12 0C18 10.200 15.400 7.200 12 3.200z"/></svg></button>
     <div class="pop" id="musicPop" hidden role="menu" aria-label="Music"><h2>Music</h2><div class="list"></div><p class="note-s">Plays only when you pick a loop. Made live in your browser.</p></div>
-    <div class="pop" id="colorPop" hidden aria-label="Line colour"><h2>Line colour</h2><div class="grid"></div><div class="nm"></div><label for="tintK">Line strength</label><input id="tintK" type="range" min="0.6" max="2" step="0.1" value="1"></div>
+    <div class="pop" id="colorPop" hidden aria-label="Line colour"><h2>Lines</h2><div class="grid"></div><div class="nm"></div><div class="rl"><label for="tintK">Strength</label><output id="tintKo" for="tintK">Default</output></div><input id="tintK" type="range" min="0.4" max="8" step="0.1" value="1" aria-label="Line strength, fainter to bolder"><div class="rl"><label for="tintD">Density</label><output id="tintDo" for="tintD">Default</output></div><input id="tintD" type="range" min="0.6" max="1.8" step="0.1" value="1" aria-label="Line density, fewer to more"></div>
     <button class="theme" id="bgCycle" type="button" aria-label="Change background" data-tip="Change background"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 3.5 8 12 12.500 20.500 8 12 3.500z"/><path d="m3.500 12 8.500 4.500 8.500-4.500"/><path d="m3.500 16 8.500 4.500 8.500-4.500"/></svg></button>
     <button class="theme reset" id="resetBtn" type="button" aria-label="Reset to default" aria-disabled="true" data-tip="Reset to default"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg></button>
   </div>
 
   <main class="centre">
     <div class="symwrap"><canvas class="symbol" id="symbol" role="img" aria-label="Clever Role symbol, turning slowly. Swipe it to spin."></canvas></div>
-    <img class="word" src="wordmark.png" alt="Clever Role">
+    <img class="word" src="/wordmark.png" alt="Clever Role">
     <p class="tag">No agents. Just outcomes.</p>
     <p class="line">We build intelligent digital solutions for modern businesses.</p>
     <p class="soon">Coming soon</p>
     <span class="spinhint" id="spinHint" aria-hidden="true">‹ drag to spin ›</span>
   </main>
+  <article class="legalpane privacy" id="legalPrivacy" tabindex="-1" aria-label="Privacy Policy">
+<p class="eyebrow">Legal</p>
+<h1>Privacy Policy</h1>
+<p class="dates">Last updated: 18 October 2026</p>
+<p class="intro">This website is run by Clever Role. Questions? Email <a href="mailto:hello@cleverrole.com">hello@cleverrole.com</a>.</p>
+<section><h2>What we collect</h2><p>This site has no accounts and no sign-in. If you contact us through the website chat or by email, we receive your name, your email address and your message. We use them only to reply to you.</p></section>
+<section><h2>Cookies and tracking</h2><p>We use no advertising or analytics cookies, and we do not track you across other websites. Your browser stores your display choices (light or dark, background), and a small counter that limits how many chat messages can be sent each day. That information stays on your device.</p></section>
+<section><h2>Hosting</h2><p>Our hosting provider may keep standard technical logs, such as IP addresses, to keep the site secure and working.</p></section>
+<section><h2>Sharing</h2><p>We do not sell or rent your information, and we only share it where the law requires it.</p></section>
+<section><h2>Your rights</h2><p>You can ask to see, correct or delete what you have sent us. Email <a href="mailto:hello@cleverrole.com">hello@cleverrole.com</a>.</p></section>
+<section><h2>Changes</h2><p>If this policy changes, we will update the date at the top of this page.</p></section>
+  </article>
+  <article class="legalpane terms" id="legalTerms" tabindex="-1" aria-label="Terms of Use">
+<p class="eyebrow">Legal</p>
+<h1>Terms of Use</h1>
+<p class="dates">Last updated: 18 October 2026</p>
+<p class="intro">This website is provided by Clever Role for general information. It is provided &quot;as is&quot;, and we may change or remove it at any time.</p>
+<section><h2>Using the contact chat</h2><p>Please use the contact chat respectfully. Don’t send unlawful, abusive or spam messages, and don’t send passwords, payment details or other sensitive information.</p></section>
+<section><h2>Our content</h2><p>All content, names and logos on this site belong to Clever Role. Please don’t copy or reuse them without our permission.</p></section>
+<section><h2>Liability</h2><p>To the extent the law allows, we are not liable for any loss arising from your use of this website.</p></section>
+<section><h2>Governing law</h2><p>These terms are governed by the laws of the country where Clever Role is registered.</p></section>
+<section><h2>Contact</h2><p><a href="mailto:hello@cleverrole.com">hello@cleverrole.com</a></p></section>
+  </article>
 
   <footer>
     <button type="button" id="openForm" class="contact"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg>Get in touch</button>
@@ -557,14 +608,14 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   window.crResetBackground=function(){MODE='network';try{localStorage.removeItem('cr-bg')}catch(e){};build();if(still)render(0,1);try{document.dispatchEvent(new Event('crbgchange'));}catch(e){}};
   window.crSetBackground=function(m){if(MODES.indexOf(m)<0)return;MODE=m;try{localStorage.setItem('cr-bg',m)}catch(e){};build();if(still)render(0,1);try{document.dispatchEvent(new Event('crbgchange'));}catch(e){}};
   // How strongly each style shows. Kept low on purpose: the background should be felt more than seen.
-  var FADE={gears:0.72,network:0.56,orbits:0.56,contours:0.64,ripples:0.7,lattice:0.65}, LIGHT=0.85, K=1;  // a modest step up from v18 (about a quarter stronger)
+  var FADE={gears:0.72,network:0.56,orbits:0.56,contours:0.64,ripples:0.7,lattice:0.65}, LIGHT=0.85, K=1, DN=1, LWK=1;  // a modest step up from v18 (about a quarter stronger)
   function ink(){return getComputedStyle(root).getPropertyValue('--fg').trim()||'#f4f4f2';}
   function rgb(hex){hex=hex.replace('#','');if(hex.length===3)hex=hex.split('').map(function(a){return a+a}).join('');var n=parseInt(hex,16);return [(n>>16)&255,(n>>8)&255,n&255];}
   // Line colour: the page sets --tint ("r, g, b") from the colour button; empty means the page's own ink. --tintk scales line strength.
   var C=rgb(ink());
-  function tint(){var cs=getComputedStyle(root),t=cs.getPropertyValue('--tint').trim();C=t?t.split(',').map(Number):rgb(ink());K=parseFloat(cs.getPropertyValue('--tintk'))||1;}
+  function tint(){var cs=getComputedStyle(root),t=cs.getPropertyValue('--tint').trim();C=t?t.split(',').map(Number):rgb(ink());K=parseFloat(cs.getPropertyValue('--tintk'))||1;LWK=Math.max(1,1+(K-1)*0.22);var d=parseFloat(cs.getPropertyValue('--tintd'))||1;if(d!==DN){DN=d;build();}}
   new MutationObserver(function(){tint();if(still)render(0,1);}).observe(root,{attributes:true,attributeFilter:['data-theme','style']});
-  function col(a){return 'rgba('+C[0]+','+C[1]+','+C[2]+','+a+')';}
+  function col(a){return 'rgba('+C[0]+','+C[1]+','+C[2]+','+Math.min(1,a*K)+')';}  // strength scales every line's own opacity, so it can go well past the default
   function seed(s){return function(){s=(s*16807)%2147483647;return (s-1)/2147483646;};}
   var rnd=seed(20261018);
   // Everything is centred on the symbol itself, wherever the layout puts it.
@@ -588,7 +639,7 @@ CleverRoleChat.formHook=function(url,key){return function(d){
     return {n:n,r:r,o:o,d:d};}
   function buildGears(){if(!GL)GL={A:gearShape(GA),B:gearShape(GB)};}
   // pixels per tooth unit, from the short side of the screen
-  function gearScale(){return Math.max(3.5,Math.min(6,Math.min(W,H)/D/230))*D;}
+  function gearScale(){return Math.max(3.5,Math.min(6,Math.min(W,H)/D/230))*D/DN;}
   function drawGears(){
     var k=gearScale(), ox=AX-mx*24*D, oy=AY-my*18*D, th=PH*0.12, cs=Math.cos(GTILT), sn=Math.sin(GTILT), step=GP*k;
     // lattice index range: the four canvas corners taken back into lattice coordinates
@@ -596,7 +647,7 @@ CleverRoleChat.formHook=function(url,key){return function(d){
     for(var q=0;q<4;q++){var dx=cx[q]-ox,dy=cy[q]-oy,u=(dx*cs+dy*sn)/step,v=(-dx*sn+dy*cs)/step;
       i0=Math.min(i0,u);i1=Math.max(i1,u);j0=Math.min(j0,v);j1=Math.max(j1,v);}
     i0=Math.floor(i0)-1;i1=Math.ceil(i1)+1;j0=Math.floor(j0)-1;j1=Math.ceil(j1)+1;
-    var angA=GTILT+th, angB=GTILT-th*(GA/GB)+Math.PI/GB, lw=Math.max(1,D*0.8)/k, a=0.12;
+    var angA=GTILT+th, angB=GTILT-th*(GA/GB)+Math.PI/GB, lw=LWK*Math.max(1,D*0.8)/k, a=0.12;
     for(var j=j0;j<=j1;j++)for(var i=i0;i<=i1;i++){
       var even=((i+j)&1)===0, g=even?GL.A:GL.B, X=ox+(i*cs-j*sn)*step, Y=oy+(i*sn+j*cs)*step, R=(g.r+1)*k;
       if(X+R<0||X-R>W||Y+R<0||Y-R>H)continue;
@@ -614,7 +665,7 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   var nodes=[], edges=[], pulses=[];
   function buildNet(){
     nodes=[];edges=[];pulses=[]; rnd=(function(s){return function(){s=(s*16807)%2147483647;return (s-1)/2147483646;};})(11);
-    var step=Math.max(90,Math.min(W,H)/D/6)*D, cols=Math.ceil(W/step)+1, rows=Math.ceil(H/step)+1;
+    var step=Math.max(90,Math.min(W,H)/D/6)*D/DN, cols=Math.ceil(W/step)+1, rows=Math.ceil(H/step)+1;
     for(var j=0;j<rows;j++)for(var i=0;i<cols;i++){if(rnd()<0.28)continue;
       nodes.push({x:(i+0.5*(j%2))*step+(rnd()-.5)*step*0.5,y:j*step+(rnd()-.5)*step*0.5,z:0.5+rnd(),glow:0,sq:rnd()<0.35});}
     for(var a=0;a<nodes.length;a++){var best=[];for(var b=0;b<nodes.length;b++){if(a===b)continue;var d=Math.hypot(nodes[a].x-nodes[b].x,nodes[a].y-nodes[b].y);best.push([d,b]);}
@@ -623,7 +674,7 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   }
   function drawNet(dt,spin){
     var ox=-mx*30*D, oy=-my*24*D;
-    x.lineWidth=Math.max(1,D*0.8);
+    x.lineWidth=LWK*Math.max(1,D*0.8);
     for(var i=0;i<edges.length;i++){var e=edges[i],A=nodes[e[0]],B=nodes[e[1]];
       x.beginPath();x.moveTo(A.x+ox*A.z,A.y+oy*A.z);
       var midx=(A.x+B.x)/2; x.lineTo(midx+ox*(A.z+B.z)/2,A.y+oy*A.z); x.lineTo(midx+ox*(A.z+B.z)/2,B.y+oy*B.z); x.lineTo(B.x+ox*B.z,B.y+oy*B.z);
@@ -647,12 +698,12 @@ CleverRoleChat.formHook=function(url,key){return function(d){
 
   /* ---------- orbits (the earlier version) ---------- */
   var orbits=[], dust=[];
-  function buildOrbits(){orbits=[];for(var i=0;i<12;i++)orbits.push({r:0.34+i*0.055,tilt:(i*29)%180*Math.PI/180,squash:0.22+((i*37)%50)/100,speed:(0.04+((i*17)%10)/120)*(i%2?1:-1),phase:i*0.9,beads:2+(i%3)});
-    dust=[];var n=Math.round(Math.min(220,W*H/(D*D)/7000));for(var k=0;k<n;k++)dust.push({x:Math.random(),y:Math.random(),z:Math.random(),s:0.2+Math.random()*0.8});}
+  function buildOrbits(){orbits=[];for(var i=0;i<Math.round(12*DN);i++)orbits.push({r:0.34+i*0.055/DN,tilt:(i*29)%180*Math.PI/180,squash:0.22+((i*37)%50)/100,speed:(0.04+((i*17)%10)/120)*(i%2?1:-1),phase:i*0.9,beads:2+(i%3)});
+    dust=[];var n=Math.round(Math.min(220,W*H/(D*D)/7000)*DN);for(var k=0;k<n;k++)dust.push({x:Math.random(),y:Math.random(),z:Math.random(),s:0.2+Math.random()*0.8});}
   function drawOrbits(t){var cx=W/2+mx*40*D,cy=H*0.42+my*30*D,R=Math.min(W,H)*0.62;
     for(var k=0;k<dust.length;k++){var p=dust[k];var px=((p.x+t*0.004*p.s)%1)*W-mx*60*D*p.z,py=((p.y-t*0.006*p.s+1)%1)*H-my*60*D*p.z;x.fillStyle=col(0.05+0.18*p.z);x.fillRect(px,py,D*(0.6+p.z),D*(0.6+p.z));}
     for(var i=0;i<orbits.length;i++){var o=orbits[i],r=R*o.r,a=o.tilt+t*0.015*(i%2?1:-1)+mx*0.3,ca=Math.cos(a),sa=Math.sin(a),sq=o.squash+my*0.15;
-      x.beginPath();x.ellipse(cx,cy,r,r*sq,a,0,Math.PI*2);x.strokeStyle=col(0.05);x.lineWidth=D;x.stroke();
+      x.beginPath();x.ellipse(cx,cy,r,r*sq,a,0,Math.PI*2);x.strokeStyle=col(0.05);x.lineWidth=D*LWK;x.stroke();
       for(var b=0;b<o.beads;b++){var th=o.phase+b*(Math.PI*2/o.beads)+t*o.speed*3;for(var j=0;j<18;j++){var tt=th-j*0.018*Math.sign(o.speed),ex=r*Math.cos(tt),ey=r*sq*Math.sin(tt);
         var X=cx+ex*ca-ey*sa,Y=cy+ex*sa+ey*ca;x.fillStyle=col((j?0.5*(1-j/18):0.9)*(Math.sin(tt)>0?1:0.45)*0.6);var s=(j?1.2:2.2)*D;x.fillRect(X-s/2,Y-s/2,s,s);}}}}
 
@@ -672,8 +723,8 @@ CleverRoleChat.formHook=function(url,key){return function(d){
     for(var j=0;j<rows;j++)for(var i=0;i<cols;i++){var X=(i*s-cx)/u,Y=(j*s-cy)/u,xr=X*ca-Y*sa,yr=X*sa+Y*ca;
       CF[j*cols+i]=1.15*Math.exp(-(X*X+Y*Y)*5)+0.34*Math.sin(xr*4.6+ph)+0.28*Math.sin(yr*3.9-ph*0.8+1.3)
         +0.2*Math.sin((xr+yr)*7.3+ph*1.3+0.5)+0.12*Math.sin((xr-yr)*10.5+2.1-ph);}
-    var thin=new Path2D(), bold=new Path2D(), STEP=0.15;
-    for(var L=-1.05,li=0;L<1.9;L+=STEP,li++){var P=(li%5===0)?bold:thin;
+    var thin=new Path2D(), bold=new Path2D(), STEP=0.15/DN;
+    for(var L=-1.05,li=0;L<1.9;L+=STEP,li++){var P=(li%Math.max(3,Math.round(5*DN))===0)?bold:thin;
       for(var j2=0;j2<rows-1;j2++)for(var i2=0;i2<cols-1;i2++){var o=j2*cols+i2,v0=CF[o],v1=CF[o+1],v2=CF[o+cols+1],v3=CF[o+cols];
         var id=(v0>L?1:0)|(v1>L?2:0)|(v2>L?4:0)|(v3>L?8:0);if(!id||id===15)continue;
         var sg=SEG[id],x0=i2*s,y0=j2*s;
@@ -681,15 +732,15 @@ CleverRoleChat.formHook=function(url,key){return function(d){
       }}
     function ept(k){var t;if(k===0){t=(L-v0)/(v1-v0);return [x0+t*s,y0];}if(k===1){t=(L-v1)/(v2-v1);return [x0+s,y0+t*s];}
       if(k===2){t=(L-v3)/(v2-v3);return [x0+t*s,y0+s];}t=(L-v0)/(v3-v0);return [x0,y0+t*s];}
-    x.lineWidth=Math.max(1,D*0.75);x.strokeStyle=col(0.14);x.stroke(thin);
-    x.lineWidth=Math.max(1,D*1.1);x.strokeStyle=col(0.24);x.stroke(bold);
+    x.lineWidth=LWK*Math.max(1,D*0.75);x.strokeStyle=col(0.14);x.stroke(thin);
+    x.lineWidth=LWK*Math.max(1,D*1.1);x.strokeStyle=col(0.24);x.stroke(bold);
   }
 
   /* ---------- ripples: rings sent out from the symbol, faster as it spins and drawn back in when it reverses ---------- */
   function drawRipples(){
-    var u=Math.min(W,H), S=Math.max(34*D,Math.min(72*D,u/13)), cx=AX-mx*20*D, cy=AY-my*16*D,
+    var u=Math.min(W,H), S=Math.max(34*D,Math.min(72*D,u/13))/DN, cx=AX-mx*20*D, cy=AY-my*16*D,
       R=Math.hypot(Math.max(cx,W-cx),Math.max(cy,H-cy)), off=((PH*14*D)%S+S)%S;
-    x.lineWidth=Math.max(1,D*0.8);
+    x.lineWidth=LWK*Math.max(1,D*0.8);
     for(var r=off;r<R;r+=S){var f=r/R, a=0.26*Math.pow(1-f,1.2)*Math.min(1,r/(S*1.6)); if(a<0.004)continue;
       var N=Math.max(48,Math.min(220,Math.round(r/(5*D)))), w=S*0.1*f;
       x.beginPath();
@@ -703,7 +754,7 @@ CleverRoleChat.formHook=function(url,key){return function(d){
 
   /* ---------- lattice: a tessellation of tumbling blocks; each cell flips a sixth of a turn as a wave from the symbol reaches it ---------- */
   function drawLattice(){
-    var h=Math.max(18,Math.min(34,Math.min(W,H)/D/22))*D, dx=Math.sqrt(3)*h, dy=1.5*h, ox=AX-mx*18*D, oy=AY-my*14*D,
+    var h=Math.max(18,Math.min(34,Math.min(W,H)/D/22))*D/DN, dx=Math.sqrt(3)*h, dy=1.5*h, ox=AX-mx*18*D, oy=AY-my*14*D,
       i0=Math.floor(-ox/dx)-1, i1=Math.ceil((W-ox)/dx)+1, j0=Math.floor(-oy/dy)-1, j1=Math.ceil((H-oy)/dy)+1,
       hex=new Path2D(), arms=new Path2D(), face=new Path2D(), V=[], k;
     for(k=0;k<6;k++)V.push([Math.cos(Math.PI/6+k*Math.PI/3)*h,Math.sin(Math.PI/6+k*Math.PI/3)*h]);  // pointy-top hexagon
@@ -716,8 +767,8 @@ CleverRoleChat.formHook=function(url,key){return function(d){
       var b=rot+Math.PI*7/6;face.moveTo(X,Y);
       for(k=0;k<3;k++){var ab=b+k*Math.PI/3;face.lineTo(X+Math.cos(ab)*h,Y+Math.sin(ab)*h);}face.closePath();
     }
-    x.lineWidth=Math.max(1,D*0.7);x.fillStyle=col(0.035);x.fill(face);x.strokeStyle=col(0.07);x.stroke(hex);
-    x.lineWidth=Math.max(1,D*0.9);x.strokeStyle=col(0.15);x.stroke(arms);
+    x.lineWidth=LWK*Math.max(1,D*0.7);x.fillStyle=col(0.035);x.fill(face);x.strokeStyle=col(0.07);x.stroke(hex);
+    x.lineWidth=LWK*Math.max(1,D*0.9);x.strokeStyle=col(0.15);x.stroke(arms);
   }
 
   function build(){if(MODE==='gears')buildGears();else if(MODE==='network')buildNet();else if(MODE==='orbits')buildOrbits();
@@ -725,7 +776,7 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   function render(dt,spin){
     anchor();
     x.setTransform(1,0,0,1,0,0); x.clearRect(0,0,W,H);
-    x.globalAlpha=Math.min(1,FADE[MODE]*(root.getAttribute('data-theme')==='light'?LIGHT:1)*K);
+    x.globalAlpha=Math.min(1,FADE[MODE]*(root.getAttribute('data-theme')==='light'?LIGHT:1));
     if(MODE==='gears')drawGears();
     else if(MODE==='network')drawNet(dt,spin);
     else if(MODE==='orbits')drawOrbits(OT);
@@ -782,7 +833,7 @@ CleverRoleChat.formHook=function(url,key){return function(d){
     var ox=o.getContext('2d');ox.drawImage(im,0,0);var d=ox.getImageData(0,0,o.width,o.height),p=d.data;
     for(var i=0;i<p.length;i+=4){var L=Math.max(p[i],p[i+1],p[i+2]);p[i+3]=L<14?0:Math.min(255,(L-14)*255/56);}
     ox.putImageData(d,0,0);return o;}catch(e){return im;}}
-  for(var s=0;s<4;s++){(function(s){var im=new Image();im.onload=function(){sheets[s]=solid(im);ready[s]=true;};im.src='spin'+s+'.jpg';sheets[s]=im;})(s);}
+  for(var s=0;s<4;s++){(function(s){var im=new Image();im.onload=function(){sheets[s]=solid(im);ready[s]=true;};im.src='/spin'+s+'.jpg';sheets[s]=im;})(s);}
   var still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
   var HOLD=2000, hold=performance.now()+HOLD, wake=still?1:0;  // a fresh visit starts still, then eases up to the normal pace
   var pos=0, vel=0, dir=1, drag=false, lastX=0, lastT=0, dragV=0, prev=performance.now(), run=true, drawn=-1;
@@ -799,6 +850,13 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   document.addEventListener('visibilitychange',function(){run=!document.hidden;prev=performance.now();if(run)requestAnimationFrame(tick);});
   // Every fresh visit (including coming back with the browser's Back button) starts still for 2 seconds, then eases up to the normal pace, in the normal direction.
   addEventListener('pageshow',function(e){if(e.persisted){dir=1;vel=0;hold=performance.now()+HOLD;wake=still?1:0;drag=false;dragV=0;window.crSpin=0;window.crWake=wake;}});
+  var lc=document.getElementById('lkSym'), lx=lc&&lc.getContext('2d'), ldrawn=-1;
+  function lfit(){var d=Math.min(window.devicePixelRatio||1,2), w=Math.round(lc.clientWidth*d)||CELL; if(lc.width!==w){lc.width=lc.height=w;ldrawn=-1;}}
+  function lcell(j){j=((j%N)+N)%N;var s=Math.floor(j/PER);if(!ready[s])return;var i=j-s*PER;lx.drawImage(sheets[s],(i%COLS)*CELL,Math.floor(i/COLS)*CELL,CELL,CELL,0,0,lc.width,lc.height);}
+  // The small header symbol keeps a visible thickness when side-on: near the two edge-on frames (30 and 90) the neighbouring angles are layered on top.
+  function lstack(f){f=((f%N)+N)%N;var d=Math.min(Math.abs(f-30),Math.abs(f-90),N-Math.abs(f-30),N-Math.abs(f-90)),k=d<10?Math.round((10-d)*0.7):0;for(var o=-k;o<=k;o++)lcell(f+o);lcell(f);}
+  function drawLock(){var pf=Math.floor(pos),fr=pos-pf,f=((pf%N)+N)%N,key=f*16+Math.round(fr*16);if(key===ldrawn||!ready[Math.floor(f/PER)])return;lfit();lx.clearRect(0,0,lc.width,lc.height);lx.imageSmoothingEnabled=true;lx.imageSmoothingQuality='high';lstack(f);if(fr>0.03){lx.globalAlpha=fr;lstack(f+1);lx.globalAlpha=1;}ldrawn=key;}
+  function frame(s,i){x.drawImage(sheets[s],(i%COLS)*CELL,Math.floor(i/COLS)*CELL,CELL,CELL,0,0,c.width,c.height);}
   function tick(now){
     if(!run)return;
     var dt=Math.min(0.05,(now-prev)/1000); prev=now;
@@ -806,13 +864,18 @@ CleverRoleChat.formHook=function(url,key){return function(d){
     else if(now-lastT>80){dragV*=0.8;}
     if(!drag&&now>=hold)wake=Math.max(wake,Math.min(1,Math.abs(vel)/BASE*1.05));
     window.crSpin=(drag?dragV:vel)/BASE; window.crWake=wake;
-    var f=((Math.round(pos)%N)+N)%N, s=Math.floor(f/PER);
-    if(!ready[s]){for(var k=0;k<4;k++)if(ready[k]){s=k;f=k*PER;break;}}
-    if(ready[s]&&f!==drawn){fit();var i=f-s*PER;x.clearRect(0,0,c.width,c.height);
-      x.drawImage(sheets[s],(i%COLS)*CELL,Math.floor(i/COLS)*CELL,CELL,CELL,0,0,c.width,c.height);drawn=f;}
+    // Smooth turning: the 120 frames are blended into each other by the fractional position, so the symbol moves at the screen's full refresh rate, not just 24 steps a second.
+    if(lc&&document.documentElement.getAttribute('data-view')!=='home'){drawLock();requestAnimationFrame(tick);return;}
+    var pf=Math.floor(pos), fr=pos-pf, f=((pf%N)+N)%N, s=Math.floor(f/PER), key=f*16+Math.round(fr*16);
+    if(!ready[s]){for(var k=0;k<4;k++)if(ready[k]){s=k;f=k*PER;fr=0;key=f*16;break;}}
+    if(ready[s]&&key!==drawn){fit();x.clearRect(0,0,c.width,c.height);x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
+      var g=(f+1)%N, s2=Math.floor(g/PER);
+      frame(s,f-s*PER,1);
+      if(fr>0.03&&ready[s2]){x.globalAlpha=fr;frame(s2,g-s2*PER,1);x.globalAlpha=1;}
+      drawn=key;}
     requestAnimationFrame(tick);
   }
-  fit(); requestAnimationFrame(tick);
+  fit(); if(lc)lfit(); addEventListener('resize',function(){if(lc)lfit();}); requestAnimationFrame(tick);
 })();
 /* Background switcher: cycles the six backgrounds. A small label names the new background for about 1.5s whenever the background actually changes
    (switcher, reset, anything else); it is announced politely (aria-live). Nothing is shown if the background stays the same. */
@@ -830,15 +893,16 @@ CleverRoleChat.formHook=function(url,key){return function(d){
     ['cyber-punk','Cyber Punk','#7c3aed','#a855f7'],['aurora','Aurora','#059669','#34d399'],['wildfire','Wildfire','#b91c1c','#f87171'],['hologram','Hologram','#0891b2','#67e8f9'],
     ['ocean','Ocean','#0284c7','#38bdf8'],['violet','Violet','#7c3aed','#a78bfa'],['rose','Rose','#be185d','#f472b6'],['crimson','Crimson','#dc2626','#f87171'],
     ['amber','Amber','#b45309','#fbbf24'],['emerald','Emerald','#047857','#34d399'],['teal','Teal','#0d9488','#2dd4bf']];
-  var idx=0, K=1;
-  try{var sv=JSON.parse(localStorage.getItem('cr-tint')||'null');if(sv){if(sv.i>=0&&sv.i<S.length)idx=sv.i|0;if(sv.k>=0.6&&sv.k<=2)K=+sv.k;}}catch(e){}
-  function save(){try{localStorage.setItem('cr-tint',JSON.stringify({i:idx,k:K}));}catch(e){}}
+  var idx=0, K=1, DN=1;
+  try{var sv=JSON.parse(localStorage.getItem('cr-tint')||'null');if(sv){if(sv.i>=0&&sv.i<S.length)idx=sv.i|0;if(sv.k>=0.4&&sv.k<=8)K=+sv.k;if(sv.d>=0.6&&sv.d<=1.8)DN=+sv.d;}}catch(e){}
+  function save(){try{localStorage.setItem('cr-tint',JSON.stringify({i:idx,k:K,d:DN}));}catch(e){}}
   function rgb(h){var n=parseInt(h.slice(1),16);return [(n>>16)&255,(n>>8)&255,n&255];}
   function light(){return root.getAttribute('data-theme')==='light';}
   function paint(){
     var neutral=idx===0, hex=neutral?(light()?'#0a0a0a':'#f4f4f2'):(light()?S[idx][2]:S[idx][3]), c=rgb(hex), lum=(0.299*c[0]+0.587*c[1]+0.114*c[2])/255;
     root.style.setProperty('--tint',neutral?'':c.join(', '));
-    root.style.setProperty('--tintk',String(K));
+    root.style.setProperty('--tintk',String(K));root.style.setProperty('--tintd',String(DN));
+    ko.textContent=K===1?'Default':(K<1?'Fainter':'Bolder')+' '+K.toFixed(1)+'×';do_.textContent=DN===1?'Default':DN.toFixed(1)+'×';
     root.style.setProperty('--acc',hex);root.style.setProperty('--acc-rgb',c.join(','));
     root.style.setProperty('--acc-ink',lum>0.58?'#000':'#fff');
     btn.style.setProperty('--sw',hex);
@@ -846,14 +910,15 @@ CleverRoleChat.formHook=function(url,key){return function(d){
       bs[i].style.background=(i===0?(light()?'#0a0a0a':'#f4f4f2'):(light()?S[i][2]:S[i][3]));}
     nm.textContent=S[idx][1];
   }
-  var grid=pop.querySelector('.grid'), nm=pop.querySelector('.nm'), rng=pop.querySelector('input[type=range]');
+  var grid=pop.querySelector('.grid'), nm=pop.querySelector('.nm'), rng=pop.querySelector('#tintK'), rngD=pop.querySelector('#tintD'), ko=pop.querySelector('#tintKo'), do_=pop.querySelector('#tintDo');
   S.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.className='sw';b.setAttribute('data-i',i);b.title=s[1];b.setAttribute('aria-label','Colour scheme: '+s[1]);
     b.addEventListener('click',function(){idx=i;save();paint();});grid.appendChild(b);});
   rng.value=K;rng.addEventListener('input',function(){K=+rng.value;save();paint();});
+  rngD.value=DN;rngD.addEventListener('input',function(){DN=+rngD.value;save();paint();});
   new MutationObserver(paint).observe(root,{attributes:true,attributeFilter:['data-theme']});
   paint();
-  window.crResetTint=function(){idx=0;K=1;rng.value=1;try{localStorage.removeItem('cr-tint');}catch(e){}paint();};
-  window.crTintIsDefault=function(){return idx===0&&K===1;};
+  window.crResetTint=function(){idx=0;K=1;DN=1;rng.value=1;rngD.value=1;try{localStorage.removeItem('cr-tint');}catch(e){}paint();};
+  window.crTintIsDefault=function(){return idx===0&&K===1&&DN===1;};
   btn.addEventListener('click',function(e){e.stopPropagation();var o=pop.hidden;window.crClosePops&&window.crClosePops();pop.hidden=!o;btn.setAttribute('aria-expanded',String(o));});
 })();
 
@@ -995,6 +1060,23 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   document.addEventListener('crbgchange',sync);
   new MutationObserver(sync).observe(root,{attributes:true,attributeFilter:['data-theme','style']});
   sync();setTimeout(sync,300);
+})();
+
+
+/* Page switching without a reload: Privacy, Terms and Home swap inside this one page, so the music never stops. A direct visit to /privacy or /terms opens the same page on that view. */
+(function(){var root=document.documentElement,T={home:document.title,privacy:'Privacy Policy \u00b7 Clever Role',terms:'Terms of Use \u00b7 Clever Role'},P={home:'/',privacy:'/privacy',terms:'/terms'};
+  function CUR(){return location.protocol==='file:'?location.hash.replace('#','/'):location.pathname;}  // a saved copy opened from disk (the preview) uses #privacy / #terms
+  function viewOf(p){p=p.replace(/\/+$/,'');return p==='/privacy'?'privacy':p==='/terms'?'terms':'home';}
+  function show(v,focus){root.setAttribute('data-view',v);document.title=T[v];var pane=document.getElementById(v==='privacy'?'legalPrivacy':v==='terms'?'legalTerms':'');if(pane){pane.scrollTop=0;if(focus)pane.focus({preventScroll:true});}
+    window.crClosePops&&window.crClosePops();}
+  T.home=T.home&&T.home.indexOf('Privacy')<0&&T.home.indexOf('Terms')<0?T.home:'Clever Role \u00b7 Digital solutions for modern businesses';
+  document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(!a||e.defaultPrevented||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button)return;
+    var u;try{u=new URL(a.href,location.href);}catch(x){return;} if(u.origin!==location.origin||u.hash&&u.pathname===location.pathname)return;
+    var up=u.pathname.replace(/\/+$/,''),v=viewOf(u.pathname),ok=up===(P[v]==='/'?'':P[v]);if(!ok)return;
+    e.preventDefault();{try{history.pushState({v:v},'',location.protocol==='file:'?(v==='home'?'#':'#'+v):P[v]);}catch(x){location.href=P[v];return;}}show(v,true);});
+  addEventListener('popstate',function(){show(viewOf(CUR()),false);});
+  addEventListener('hashchange',function(){if(location.protocol==='file:')show(viewOf(CUR()),false);});
+  show(viewOf(CUR()),false);
 })();
 
 try{localStorage.setItem('cr-seen','1')}catch(e){}
