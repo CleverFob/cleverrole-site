@@ -62,8 +62,11 @@ var still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matc
 function solid(im){try{var o=document.createElement('canvas');o.width=im.naturalWidth;o.height=im.naturalHeight;var ox=o.getContext('2d');ox.drawImage(im,0,0);
 var d=ox.getImageData(0,0,o.width,o.height),p=d.data;for(var i=0;i<p.length;i+=4){var L=Math.max(p[i],p[i+1],p[i+2]);p[i+3]=L<14?0:Math.min(255,(L-14)*255/56);}ox.putImageData(d,0,0);return o;}catch(e){return im;}}
 function fit(){var d=Math.min(window.devicePixelRatio||1,2),w=Math.round(c.clientWidth*d)||CELL;if(c.width!==w){c.width=c.height=w;drawn=-1;}}
+function cell(j){j=((j%N)+N)%N;var s=Math.floor(j/PER);if(!ready[s])return;var i=j-s*PER;x.drawImage(sheets[s],(i%COLS)*CELL,Math.floor(i/COLS)*CELL,CELL,CELL,0,0,c.width,c.height);}
+/* Solid when side-on: near the two edge-on frames (30 and 90) the neighbouring angles are layered on top, so the symbol keeps a visible thickness instead of thinning to a hairline. */
 function draw(){var f=((Math.round(pos)%N)+N)%N,s=Math.floor(f/PER);if(!ready[s]){for(var k=0;k<4;k++)if(ready[k]){s=k;f=k*PER;break;}}
-if(ready[s]&&f!==drawn){fit();var i=f-s*PER;x.clearRect(0,0,c.width,c.height);x.drawImage(sheets[s],(i%COLS)*CELL,Math.floor(i/COLS)*CELL,CELL,CELL,0,0,c.width,c.height);drawn=f;}}
+if(ready[s]&&f!==drawn){fit();x.clearRect(0,0,c.width,c.height);x.imageSmoothingQuality='high';var d=Math.min(Math.abs(f-30),Math.abs(f-90),N-Math.abs(f-30),N-Math.abs(f-90)),k=d<10?Math.round((10-d)*0.7):0;
+for(var o=-k;o<=k;o++)cell(f+o);cell(f);drawn=f;}}
 for(var s=0;s<4;s++)(function(s){var im=new Image();im.onload=function(){sheets[s]=solid(im);ready[s]=true;draw();};im.src='/spin'+s+'.jpg';})(s);
 addEventListener('resize',function(){fit();draw();});
 if(still){fit();return;}
