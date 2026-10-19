@@ -55,10 +55,10 @@ header a.lock img{height:var(--wh)}
 document.getElementById('themeToggle').addEventListener('click',function(){var n=r.getAttribute('data-theme')==='light'?'dark':'light';if(n==='light')r.setAttribute('data-theme','light');else r.removeAttribute('data-theme');try{localStorage.setItem('cr-theme',n)}catch(e){}});})();
 </script>
 <script>
-/* Header lockup, as in the design thread: the symbol (about 1.2x the wordmark height, centred on it) turns as a solid object once every 12 seconds
+/* Header lockup, as in the design thread: the symbol (about 1.2x the wordmark height, centred on it) turns as a solid object once every 5 seconds
    (as the design thread header logo), using the home page's sprite sheets and unmasking. Reduced motion: one still frame. */
 (function(){var c=document.getElementById('lkSym');if(!c)return;var x=c.getContext('2d');if(!x)return;
-var N=120,PER=30,COLS=6,CELL=400,BASE=10,sheets=[],ready=[],pos=0,prev=performance.now(),run=true,drawn=-1;
+var N=120,PER=30,COLS=6,CELL=400,BASE=24,sheets=[],ready=[],pos=0,prev=performance.now(),run=true,drawn=-1;
 var still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 function solid(im){try{var o=document.createElement('canvas');o.width=im.naturalWidth;o.height=im.naturalHeight;var ox=o.getContext('2d');ox.drawImage(im,0,0);
 var d=ox.getImageData(0,0,o.width,o.height),p=d.data;for(var i=0;i<p.length;i+=4){var L=Math.max(p[i],p[i+1],p[i+2]);p[i+3]=L<14?0:Math.min(255,(L-14)*255/56);}ox.putImageData(d,0,0);return o;}catch(e){return im;}}

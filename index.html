@@ -47,8 +47,9 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--face);font-
 .veil{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 75% 70% at 50% 46%,transparent 45%,var(--bg) 100%)}
 .stage{height:100%;display:grid;grid-template-rows:auto 1fr auto;padding-block:18px 20px;box-sizing:border-box}
 .top{display:flex;justify-content:flex-end;gap:10px;align-items:center}
-.bgname{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);opacity:0;transition:opacity .5s ease;pointer-events:none}
-.bgname.show{opacity:1}
+.bgname{font:600 11.5px/1.3 var(--face);letter-spacing:.02em;color:var(--fg);padding:5px 10px;border-radius:9px;background:color-mix(in srgb,var(--panel) 95%,transparent);
+  border:1px solid color-mix(in srgb,var(--acc,var(--line)) 30%,var(--line));box-shadow:0 10px 26px -12px rgba(0,0,0,.5);white-space:nowrap;opacity:0;transform:translateY(-3px);transition:opacity .25s ease,transform .25s ease;pointer-events:none}
+.bgname.show{opacity:1;transform:none}
 #bgCycle svg{width:16px;height:16px;stroke:var(--fg);fill:none;stroke-width:1.5;transition:transform .6s ease}
 .theme{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:transparent;cursor:pointer;display:grid;place-items:center;padding:0}
 .theme span{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--fg);background:linear-gradient(90deg,var(--fg) 50%,transparent 50%)}
@@ -61,26 +62,43 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--face);font-
   background:color-mix(in srgb,var(--panel) 95%,transparent);border:1px solid color-mix(in srgb,var(--acc,var(--line)) 30%,var(--line));box-shadow:0 10px 26px -12px rgba(0,0,0,.5);
   opacity:0;transform:translateY(-3px);transition:opacity .18s ease,transform .18s ease}
 #tip.on{opacity:1;transform:none}
-@media (prefers-reduced-motion:reduce){.theme,#tip{transition:none}.theme:hover{transform:none}}
+#resetBtn{width:30px;height:30px;opacity:.7}
+#resetBtn svg{width:14px;height:14px;stroke:var(--fg);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:transform .5s ease}
+#resetBtn:hover svg{transform:rotate(-200deg)}
+#resetBtn[aria-disabled="true"]{opacity:.28;cursor:default}
+#resetBtn[aria-disabled="true"]:hover{transform:none;box-shadow:none;border-color:var(--line)}
+#resetBtn[aria-disabled="true"]:hover svg{transform:none}
+@media (prefers-reduced-motion:reduce){.theme,#tip{transition:none}#resetBtn svg{transition:none}.theme:hover{transform:none}}
 
 .centre{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(4px,1.5vh,14px);min-height:0;padding-bottom:7vh}
 .centre{--w:min(62vw,40vh,380px)}  /* wordmark width; the symbol is sized from it, as in the official stacked logo */
 .symbol{width:calc(var(--w) * 1.008);aspect-ratio:1;max-width:100%;filter:contrast(1.15) var(--mark-filter);
   margin:calc(var(--w) * -0.09) 0 calc(var(--w) * -0.177);  /* frames carry empty space; this leaves the official symbol-to-wordmark gap */
-  opacity:0;animation:rise 1.6s .1s ease forwards}
+  opacity:0;animation:settle .75s .05s cubic-bezier(.2,.8,.2,1) forwards}
 #symbol{cursor:grab;touch-action:pan-y;-webkit-user-select:none;user-select:none}
 #symbol.drag{cursor:grabbing}
-.word{width:var(--w);position:relative;height:auto;filter:var(--mark-filter);opacity:0;animation:rise 1.4s .9s ease forwards}
-.soon{font-size:11px;font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--muted);margin:6px 0 0;padding-left:.32em;opacity:0;animation:rise 1.4s 1.6s ease forwards}
-.tag{font-size:clamp(20px,3vw,28px);font-weight:700;letter-spacing:-.03em;color:var(--fg);margin:22px 0 0;text-align:center;opacity:0;animation:rise 1.4s 1.2s ease forwards}
-.line{text-wrap:balance;max-width:92vw;font-size:clamp(14px,2vw,16px);font-weight:400;color:var(--muted);margin:6px 0 0;text-align:center;letter-spacing:-.01em;opacity:0;animation:rise 1.4s 1.4s ease forwards}
+.word{width:var(--w);position:relative;height:auto;filter:var(--mark-filter);opacity:0;animation:rise .5s .4s ease forwards}
+.soon{font-size:11px;font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--muted);margin:6px 0 0;padding-left:.32em;opacity:0;animation:rise .5s .95s ease forwards}
+.tag{font-size:clamp(20px,3vw,28px);font-weight:700;letter-spacing:-.03em;color:var(--fg);margin:22px 0 0;text-align:center;opacity:0;animation:rise .5s .6s ease forwards}
+.line{text-wrap:balance;max-width:92vw;font-size:clamp(14px,2vw,16px);font-weight:400;color:var(--muted);margin:6px 0 0;text-align:center;letter-spacing:-.01em;opacity:0;animation:rise .5s .78s ease forwards}
 .mail{font-weight:600;color:var(--fg);text-decoration:none;border-bottom:1px solid var(--line)}
-.symwrap{position:relative;display:flex;justify-content:center}
+.symwrap{position:relative;display:flex;justify-content:center;isolation:isolate;--g:.13}
+:root[data-theme="light"] .symwrap{--g:.1}
+/* Soft glow and depth behind the symbol, tinted by the colour scheme (--acc-rgb; neutral grey for Clever). Many eased stops, so no banding. */
+.symwrap::before{content:"";position:absolute;z-index:-1;left:50%;top:47%;width:min(calc(var(--w) * 2.3),100vw);aspect-ratio:1;translate:-50% -50%;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(var(--acc-rgb,244,244,242),calc(var(--g) * 1)) 0,rgba(var(--acc-rgb,244,244,242),calc(var(--g) * .8)) 12%,rgba(var(--acc-rgb,244,244,242),calc(var(--g) * .58)) 26%,rgba(var(--acc-rgb,244,244,242),calc(var(--g) * .38)) 40%,rgba(var(--acc-rgb,244,244,242),calc(var(--g) * .22)) 54%,rgba(var(--acc-rgb,244,244,242),calc(var(--g) * .12)) 66%,rgba(var(--acc-rgb,244,244,242),calc(var(--g) * .05)) 78%,rgba(var(--acc-rgb,244,244,242),calc(var(--g) * .022)) 87%,rgba(var(--acc-rgb,244,244,242),calc(var(--g) * .008)) 94%,rgba(var(--acc-rgb,244,244,242),0) 100%);
+  opacity:0;animation:rise 1.2s .1s ease forwards}
+.seen .symwrap::before{animation:none;opacity:1}
+.symwrap::after{content:"";position:absolute;z-index:-1;left:50%;bottom:calc(var(--w) * .04);width:calc(var(--w) * .8);height:calc(var(--w) * .14);translate:-50% 0;pointer-events:none;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(var(--acc-rgb,244,244,242),calc(var(--g) * .55)),rgba(var(--acc-rgb,244,244,242),0));filter:blur(6px);opacity:0;animation:rise 1.2s .3s ease forwards}
+.seen .symwrap::after{animation:none;opacity:1}
 .spinhint{margin-top:10px;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);white-space:nowrap;pointer-events:none;opacity:0;animation:hint 1.2s 3s ease forwards;transition:opacity .6s ease}
 .spinhint.used{opacity:0!important;animation:none}
 .spinhint.back{opacity:.8;animation:none}
 @keyframes hint{to{opacity:.8}}
 .mail:hover{border-color:var(--fg)}
+@keyframes settle{from{opacity:0;transform:scale(.93) translateY(8px)}to{opacity:1;transform:none}}
+.seen .symbol,.seen .word,.seen .tag,.seen .line,.seen .soon{animation:none;opacity:1}  /* return visitors: no load-in */
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
 footer{display:flex;justify-content:center;gap:22px;flex-wrap:wrap;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
@@ -92,6 +110,7 @@ footer a:hover,footer button:hover{color:var(--fg)}
 
 .top{position:relative}
 .theme svg{width:16px;height:16px;stroke:var(--fg);fill:none;stroke-width:1.5}
+#colorBtn .drop{fill:var(--sw,transparent);fill-opacity:.9}
 #colorBtn i{width:14px;height:14px;border-radius:50%;background:var(--sw,var(--fg));box-shadow:0 0 0 1.5px var(--fg) inset,0 0 10px -2px var(--sw,transparent)}
 #musicBtn.playing{border-color:var(--acc,var(--fg))}
 #musicBtn .eq{display:none;gap:2px;align-items:flex-end;height:14px}
@@ -116,8 +135,7 @@ footer a:hover,footer button:hover{color:var(--fg)}
 .pop label{display:block;font-size:11px;color:var(--muted);margin:6px 2px 4px}
 .pop input[type=range]{width:100%;accent-color:var(--acc,var(--fg))}
 @media (prefers-reduced-motion:reduce){#musicBtn .eq b{animation:none;height:9px}.pop{animation:none}}
-@media (max-width:520px){.preview{position:fixed;z-index:2;left:max(16px,env(safe-area-inset-left,0px));top:calc(26px + env(safe-area-inset-top,0px));font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border:1px dashed var(--line);border-radius:99px;padding:5px 10px}
-@media (prefers-reduced-motion:reduce){.symbol,.word,.tag,.soon,.line{animation:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.symbol,.word,.tag,.soon,.line,.symwrap::before,.symwrap::after{animation:none;opacity:1}.bgname{transition:none}}
 </style>
 </head>
 <body>
@@ -126,15 +144,17 @@ footer a:hover,footer button:hover{color:var(--fg)}
 <canvas id="field" aria-hidden="true"></canvas>
 <div class="veil" aria-hidden="true"></div>
 <div id="tip" role="tooltip" aria-hidden="true"></div>
+<script>try{if(localStorage.getItem('cr-seen'))document.documentElement.classList.add('seen')}catch(e){}</script>
 <div class="stage">
   <div class="top">
-    <span class="bgname" id="bgName" aria-live="polite"></span>
+    <span class="bgname" id="bgName" role="status" aria-live="polite" aria-atomic="true"></span>
     <button class="theme" id="themeToggle" type="button" aria-label="Switch to light" data-tip="Switch to light"><span></span></button>
     <button class="theme" id="musicBtn" type="button" aria-label="Music off. Open music menu" aria-haspopup="true" aria-expanded="false" data-tip="Music"><svg class="note" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg><em class="eq" aria-hidden="true"><b></b><b></b><b></b></em></button>
-    <button class="theme" id="colorBtn" type="button" aria-label="Line colour" aria-haspopup="true" aria-expanded="false" data-tip="Line colour"><i></i></button>
+    <button class="theme" id="colorBtn" type="button" aria-label="Line colour" aria-haspopup="true" aria-expanded="false" data-tip="Line colour"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="drop" d="M12 3.2c-3.4 4-6 7-6 10.3a6 6 0 0 0 12 0C18 10.200 15.400 7.200 12 3.200z"/></svg></button>
     <div class="pop" id="musicPop" hidden role="menu" aria-label="Music"><h2>Music</h2><div class="list"></div><p class="note-s">Plays only when you pick a loop. Made live in your browser.</p></div>
     <div class="pop" id="colorPop" hidden aria-label="Line colour"><h2>Line colour</h2><div class="grid"></div><div class="nm"></div><label for="tintK">Line strength</label><input id="tintK" type="range" min="0.6" max="2" step="0.1" value="1"></div>
-    <button class="theme" id="bgCycle" type="button" aria-label="Change background" data-tip="Change background"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></button>
+    <button class="theme" id="bgCycle" type="button" aria-label="Change background" data-tip="Change background"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 3.5 8 12 12.500 20.500 8 12 3.500z"/><path d="m3.500 12 8.500 4.500 8.500-4.500"/><path d="m3.500 16 8.500 4.500 8.500-4.500"/></svg></button>
+    <button class="theme reset" id="resetBtn" type="button" aria-label="Reset to default" aria-disabled="true" data-tip="Reset to default"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg></button>
   </div>
 
   <main class="centre">
@@ -216,6 +236,8 @@ function CleverRoleChat(opts){
   /* optional picker for the header art */
   '.crc-picker{flex:none;padding:10px var(--crc-pad) 12px;border-bottom:var(--crc-bw) solid var(--c-line);display:flex;flex-direction:column;gap:8px;animation:crc-fade .25s ease}'+
   '.crc-picker[hidden]{display:none}'+
+  '.crc-pkhead{display:flex;align-items:center;justify-content:space-between}.crc-pkhead .crc-lab{width:auto}.crc-pkx{width:24px;height:24px;font-size:18px;color:var(--c-fg);border-color:var(--c-line)}'+
+  '.crc-x{color:var(--c-fg);font-size:22px}'+
   '.crc-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}'+
   '.crc-lab{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--c-mut);width:100%}'+
   '.crc-sty{font:inherit;font-size:11.5px;font-weight:550;color:var(--c-mut);background:transparent;border:var(--crc-bw) solid var(--c-line);border-radius:99px;padding:4px 10px;cursor:pointer;transition:color .2s,border-color .2s,background .2s}'+
@@ -260,9 +282,9 @@ function CleverRoleChat(opts){
    '<div class="crc-head"><canvas class="crc-fx" aria-hidden="true"></canvas>'+
     '<div class="crc-av">'+(opts.avatar?'<img alt="" src="'+opts.avatar+'">':'')+'</div>'+
     '<div class="crc-who"><b></b><span></span></div>'+
-    '<button class="crc-ib crc-pal" type="button" data-tip="Header animation" aria-label="Header animation style and colour" aria-expanded="false"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1.1"/><circle cx="12" cy="7.5" r="1.1"/><circle cx="16" cy="10" r="1.1"/></svg></button>'+
+        '<button class="crc-ib crc-pal" type="button" data-tip="Chat style" aria-label="Chat style: animation and colour" aria-expanded="false" aria-controls="crc-picker"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/><circle cx="9" cy="8" r="2.3" fill="var(--c-pan,#000)"/><circle cx="15" cy="16" r="2.3" fill="var(--c-pan,#000)"/></svg></button>'+
     '<button class="crc-ib crc-x" type="button" data-tip="Close" aria-label="Close chat">×</button></div>'+
-   '<div class="crc-picker" hidden><div class="crc-row crc-styles"><span class="crc-lab">Header animation</span></div><div class="crc-row crc-cols"><span class="crc-lab">Colour</span></div></div>'+
+   '<div class="crc-picker" id="crc-picker" hidden role="group" aria-label="Chat style"><div class="crc-pkhead"><span class="crc-lab">Chat style</span><button class="crc-ib crc-pkx" type="button" data-tip="Close settings" aria-label="Close chat style settings">\u00d7</button></div><div class="crc-row crc-styles"><span class="crc-lab">Header animation</span></div><div class="crc-row crc-cols"><span class="crc-lab">Colour</span></div></div>'+
    '<div class="crc-log" aria-live="polite"></div>'+
    '<div class="crc-listen" hidden role="status"><i></i><span>Listening… speak now</span></div>'+
    '<form class="crc-in" autocomplete="on"><input class="crc-hp" tabindex="-1" autocomplete="off" aria-hidden="true">'+
@@ -298,7 +320,13 @@ function CleverRoleChat(opts){
     b.addEventListener('click',function(){fxc=h[0];saveFx();applyFxColour();paintPicker();drawFx(performance.now(),true);});cRow.appendChild(b);});
   function paintPicker(){[].forEach.call(picker.querySelectorAll('.crc-sty'),function(b){b.setAttribute('aria-pressed',b.getAttribute('data-s')===fxs);});
     [].forEach.call(picker.querySelectorAll('.crc-sw'),function(b){b.setAttribute('aria-pressed',b.getAttribute('data-c')===fxc);});}
-  palBtn.addEventListener('click',function(){picker.hidden=!picker.hidden;palBtn.setAttribute('aria-expanded',String(!picker.hidden));setTimeout(function(){fxSize();drawFx(performance.now(),true);},0);});
+  function closePicker(focusBtn){if(picker.hidden)return;picker.hidden=true;palBtn.setAttribute('aria-expanded','false');if(focusBtn)palBtn.focus();setTimeout(function(){fxSize();drawFx(performance.now(),true);},0);}
+  palBtn.addEventListener('click',function(){if(!picker.hidden){closePicker(false);return;}picker.hidden=false;palBtn.setAttribute('aria-expanded','true');setTimeout(function(){fxSize();drawFx(performance.now(),true);},0);});
+  q('.crc-pkx').addEventListener('click',function(){closePicker(true);});
+  /* Click or tap outside collapses the chat to its button, keeping everything (draft, step, conversation). Not while listening; with the style panel open, the first outside click only closes the panel. */
+  doc.addEventListener('pointerdown',function(e){if(root.hidden)return;var t=e.target,inChat=root.contains(t);
+    if(!picker.hidden){if(!picker.contains(t)&&!palBtn.contains(t))closePicker(false);return;}
+    if(inChat||(opts.opener&&opts.opener.contains(t))||listening)return;close();});
   var fctx=fx.getContext('2d'), FW=0, FH=0, FD=1, raf=0, FT0=performance.now();
   function fxSize(){var r=fx.getBoundingClientRect();FD=Math.min(window.devicePixelRatio||1,2);FW=Math.max(1,Math.round(r.width));FH=Math.max(1,Math.round(r.height));fx.width=FW*FD;fx.height=FH*FD;}
   function rg(c,a){return 'rgba('+c[0]+','+c[1]+','+c[2]+','+a+')';}
@@ -343,7 +371,7 @@ function CleverRoleChat(opts){
       fctx.beginPath();for(k=0;k<6;k++){var ang=Math.PI/6+k*Math.PI/3;k?fctx.lineTo(X+Math.cos(ang)*R*0.92,Y+Math.sin(ang)*R*0.92):fctx.moveTo(X+Math.cos(ang)*R*0.92,Y+Math.sin(ang)*R*0.92);}
       fctx.closePath();fctx.strokeStyle=rg(c,a);fctx.stroke();if(s>.6){fctx.fillStyle=rg(c,(s-.6)*.25);fctx.fill();}}}
   var ART={gears:artGears,network:artNetwork,orbits:artOrbits,contours:artContours,ripples:artRipples,lattice:artLattice};
-  function pageBg(){var m='gears';try{if(window.crGetBackground)m=window.crGetBackground()||m;}catch(e){}return ART[m]?m:'gears';}
+  function pageBg(){var m='network';try{if(window.crGetBackground)m=window.crGetBackground()||m;}catch(e){}return ART[m]?m:'network';}
   function drawFx(now,once){
     if(!fctx)return; if(!FW||!FH)fxSize(); var t=(now-FT0)/1000, c=accRgb(), w=FW, h=FH, u=h/56, i, k;
     fctx.setTransform(FD,0,0,FD,0,0);fctx.clearRect(0,0,w,h);
@@ -427,10 +455,10 @@ function CleverRoleChat(opts){
     say('Hi, thanks for stopping by.',function(){
       say('Pick a topic, tell us what you need, and we’ll reply by email.',function(){
         say('What’s it about?',function(){step=0;chips();});});});}
-  function close(){micStop();root.hidden=true;stopFx();}
+  function close(){micStop();closePicker(false);root.hidden=true;stopFx();}
   if(opts.opener)opts.opener.addEventListener('click',open);
   q('.crc-x').addEventListener('click',close);
-  doc.addEventListener('keydown',function(e){if(e.key==='Escape'&&!root.hidden)close();});
+  doc.addEventListener('keydown',function(e){if(e.key==='Escape'&&!root.hidden){if(!picker.hidden){closePicker(true);return;}close();}});
   inp.addEventListener('input',function(){var n=inp.value.length;sendBtn.disabled=!inp.value.trim()||(step===1&&n>MAXLEN);
     count.textContent=n+' / '+MAXLEN;count.classList.toggle('over',n>MAXLEN);
     inp.style.height='auto';inp.style.height=Math.min(120,inp.scrollHeight)+'px';});
@@ -479,7 +507,8 @@ function CleverRoleChat(opts){
         else{sent=false;say('Sorry, that didn’t go through. Please email us at '+MAIL+'.');}
       });});}
   });
-  return {open:open,close:close,el:root};
+  function resetFx(){fxs='match';fxc='scheme';try{ls&&ls.removeItem('cr-chatfx');}catch(e){}applyFxColour();paintPicker();if(!root.hidden)drawFx(performance.now(),true);}
+  return {open:open,close:close,el:root,resetFx:resetFx,isDefaultFx:function(){return fxs==='match'&&fxc==='scheme';}};
 }
 /* Send hooks. mailtoHook opens the visitor's email app with the message ready (used for now).
    formHook posts JSON to a form-delivery service when one is set up (not used yet). */
@@ -500,6 +529,7 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   }
   var saved=null; try{saved=localStorage.getItem('cr-theme');}catch(e){}
   apply(saved==='light'?'light':'dark');
+  window.crResetTheme=function(){apply('dark');try{localStorage.removeItem('cr-theme');}catch(e){}};
   btn.addEventListener('click',function(){
     var next=root.getAttribute('data-theme')==='light'?'dark':'light'; apply(next);
     try{localStorage.setItem('cr-theme',next);}catch(e){}
@@ -509,7 +539,7 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   /* Chat: the reusable widget below (CleverRoleChat). SEND_URL stays empty until a form-delivery service is set up;
      until then Send opens the visitor's email app with the message ready (mailto:hello@cleverrole.com). */
   var SEND_URL='', SEND_KEY='';
-  CleverRoleChat({opener:document.getElementById('openForm'),avatar:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABGCAYAAABv59I3AAAI5ElEQVR42tWceYxdVR3HP2c6dLF0oZRarKYLTseaYtksRNDSFtGASrSiEbc00T+MFWJjQHGFmCgVQ/gDENeogKQBGgxYY8BogVZINVBaS6kVRdNiF6QL7dB57339450bD5dzzj135r7tJC8z7+W+s3zfb1+OoU1D0nRgEFgELARmAzOAKcDrgDHAceAYcAT4D7AdeBrYAvzdGHOQNg/TYlDmA+8FlltgZgLjRjDVUWA38CjwALDRGLOHXhySJkn6uKT1kg7p1aMhqS6pZv/WA+/zr0Zunr2SfilpqaT+XgFmhqSrJW3PHaaWA8IHju+ZWgQ4F/BHJH1U0gndCsx4Sask/cPZuI86aoGX75kYNbnPuJT1B0nv7jZwFkva4KGWWiK1xCgo9rzvWUkalnSrpJM7DcwYSasdGRP79WuRQ6ewXz3xmZpDUVskXdgRLSZpKnALcIX9qAHImU+BueV8psAeFPieb24FvitrMhwBVhtjftQ2gCTNBe4A3lEAjAJr+QAwnu8od2AfsEVn6LPPXw9cZ4xRSwGSNAisAxYkUI3vvbGbzo9hoGb/HwOM9TzTCFBKiApd4A2wxhhzzUgA6k8EZz5wv7WEGxE28rGJC8ph4K/AU8BW4Flgn7WgZfczHTgVOB0YAM4A5gbACrFj/v3VkoaMMd9shUCeaYWeAsI1JFCzcdyq4M9Lmi+pr6zMk7RM0o2SdnpMiZgd5RqaDUkrW2HjrPdoqhRD7pikX0g6T5KpaD9TJa2U9FQOqFqBuZDt6aCkc6sE6LsBNR4CJxvrJS1usTtzraT9AWoKGaOZCTCtik1cYg2vRmThvKH2X0mfK8tGo9jjQkm/T/Dzajk7ac2oQxOOT5XiTErSM5WSb/peJ0i6zQEp5r5kIB2RdOZoFr3ZEcop4DwuaV4HLfs+STcE/MCQKPjVSBc7W9JRh2RDCzUccGZ2iW94u4fdah5N27BnPL3sAkbSvZEwRc3DVnO6LBa1KWCS+AT298su8C5rtxQJvExlntOF4Ze3eZxon70mSX+TdGKZydcGwhY+Hr6qi4N33/PII59Gq0tamjrpgKTDOU1Q95CqJP22m0Od1vr/VyR45/7Q34nN5dorlwMnenwp16M2wBDwDWNMrVsBMsa8ANwdcGDz44JCu826FE8XkGWG+E97JEa+xNFYsfPssSmp6GQXeCbzWcpHJS3sEYCmOnHy0Jkydb+giMWWOwEmXzArGw8ZY7b2AkDGmJdsOMUX/3LPNA44pQig83O8Kk9kD+Bn9NY4ECMyB4OTggBZz3YgIsQyKtoNbOgxgA4Fwrj5SGhfLKI4aCN4KogrbzLGHOgxgCYmhpeHYiy20PKhPHzqTvoovTdO9lAQHkJ4qQigfCxZOZJsAJt7CRlJk4D5ASHtvn8Z2BsDaKAg6G5ssP35HqOeM4A5BUYiwIvA/hhAr/egqhyL7SvQCN04PhkwXfIEsC1Wd9RPs3gpJJizcYz/5656gb0WAR9LAAfg4SJfbHJArSsn5Yd7BJxxwM2OX5kXzO45X0kBqD+BT+vGmEYPgGOAG4Al+LOxeQ32F2BbEUBDDsWEMpMTJY3tcnDGAjcBV/Hq7K+POzKwfm6MGS6aeFtB1lTW6ZvSxeC8WdJvItGIUBam8Ez91g7wsZdbJDAVmAYc7DJgZgIrgS9Yb6DhYScTsIW+lVI12w/8G3i7R827YzIwC3iuC0CZAZwFvB+4zO4LoJ5jH0XsujuBtSnr9QO7AryqnDN3difdDZuiuRa4kGY5cTYaEU89zw19wBPAlclKx5bsFmVQJeneDoKzTNK+QJFo6ks2ajq77OLn5BKFvjSJ7Abf0AFwpkvaFSl5SS2oeLw0OJbkdlg/y3g8XzlkPB24uAMEdDkwzxHAsZI84zmfgB8Dlxhj/lkaIGPMYcuXJIQ8PtWuyg1nDEZkjCmQmzuBDxtjPjvSWFZ22AdzC8qzGQHvpFnA2c6xKWDkhdR4dq7NwFJjzH1V8PksSQcCwjqf2binzTJogmME1koUcn2x6o3clVhqNyzpA20GaZpTKFVPaIiRpAcqdY8kLXeKHWPVZJK01Ubs2gnSqZKeTKByl9p/KGlMZWECSX8OFE75Gkhu6oDKP836UIpQeL7c7voqN/ARh4pSnL7PdCIYZtPFinQS1XOZ4lVVLX6CpMcKStlcVjss6aIOgLQkV+Eao6aGlZtXVLX4+wry9HlhuFfSezoA0kWSXozUUua176FKfkxbELm2IOlf81SbregASB+yBespxZuS9IKks6pYeK6k3QHbIxRUOy7pK+22tCV92rKQEiruJWnHSHwy38KfyFWMFnUEZmOdpIE2g7Q64GyHjMg/STqpioV/UFDqX/dojUwufa2drZGSvh4oAa4FCjh/LWn8aBedJOnhxLbLhifEsFPSNe0oFbYlzLcWWNt5Srpl1CJB0hslbS4IVMVKbWX9vLtt+/a8yqxbv5nyk0ShnWRImlSQaN54sMgJcRYFx31RA2jm+XfQvHLiOZp1RwdpZm4n0ryuYpYNc7wMfNUYs6sESGOBu4AVvLYII1SgusoYc1sVmm1jidRKrIy4zHhS0qySe52SEw0xc0WShiRdVpVXfX9BM1usASblWZ8J8UhhJao/VLsxwZ5zW7nOrQKk8ZLWOOjXEm5YSG2fjGmdh2xLepm9zraRhyKXpO4oldOqEogrJD1fojWyqCEvBnR2gAclTS65zwVOOXAtAaQnKulItIu/ybYgveIxKlPu6EgB7DXpJ0kTS+7zPOtmpLok6yRNqFK9nm/7NxqRezzqBQGu1EtOJOnGEQYEfV1AIZBur9Rtsobaxbah92jkJpiy8smX47puhHv8oG3HLPIOsh/6y62yas+0LUlbPGq7UQKU/MVK2yVdORoXwQYF93tkp49S97f6iq7xwGJgmU0XvZVmTWRqK9UQzbvMHgPuA35n83ij3dcg8CWaxQ+nRB79Y0sB8gXerYU8h+Ylb7NpFiIYmvd2CNhjreudwDPAs60qYLeNyJcCS4G30KxiqVsLfgPw7f8BUhgTgByJX88AAAAASUVORK5CYII=',
+  window.crChat=CleverRoleChat({opener:document.getElementById('openForm'),avatar:'data:image/png;base64,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',
     sendHook: SEND_URL?CleverRoleChat.formHook(SEND_URL,SEND_KEY):CleverRoleChat.mailtoHook('hello@cleverrole.com')});
 })();
 
@@ -521,9 +551,10 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   var root=document.documentElement, W=0,H=0,D=1, mx=0,my=0, tx=0,ty=0, run=true, prev=performance.now(), T=0, PH=0, OT=0, AX=0, AY=0, skip=0;
   var TAU=Math.PI*2;
   var still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var MODES=['gears','network','orbits','contours','ripples','lattice'];
-  var MODE=(function(){try{return localStorage.getItem('cr-bg')||'gears'}catch(e){return 'gears'}})(); if(MODES.indexOf(MODE)<0)MODE='gears';
+  var MODES=['network','gears','orbits','contours','ripples','lattice'];  // Network is the home state; the switcher cycles in this order
+  var MODE=(function(){try{return localStorage.getItem('cr-bg')||'network'}catch(e){return 'network'}})(); if(MODES.indexOf(MODE)<0)MODE='network';
   window.crGetBackground=function(){return MODE;};
+  window.crResetBackground=function(){MODE='network';try{localStorage.removeItem('cr-bg')}catch(e){};build();if(still)render(0,1);try{document.dispatchEvent(new Event('crbgchange'));}catch(e){}};
   window.crSetBackground=function(m){if(MODES.indexOf(m)<0)return;MODE=m;try{localStorage.setItem('cr-bg',m)}catch(e){};build();if(still)render(0,1);try{document.dispatchEvent(new Event('crbgchange'));}catch(e){}};
   // How strongly each style shows. Kept low on purpose: the background should be felt more than seen.
   var FADE={gears:0.72,network:0.56,orbits:0.56,contours:0.64,ripples:0.7,lattice:0.65}, LIGHT=0.85, K=1;  // a modest step up from v18 (about a quarter stronger)
@@ -701,12 +732,29 @@ CleverRoleChat.formHook=function(url,key){return function(d){
     else if(MODE==='contours')drawContours();
     else if(MODE==='ripples')drawRipples();
     else drawLattice();
-    x.setTransform(1,0,0,1,0,0); x.globalAlpha=1; quiet();
+    x.setTransform(1,0,0,1,0,0); x.globalAlpha=1; if(PS>0.012)lens(); quiet();
   }
   function size(){D=Math.min(window.devicePixelRatio||1,2);W=c.width=Math.round(innerWidth*D);H=c.height=Math.round(innerHeight*D);build();if(still)render(0,1);}
   size(); addEventListener('resize',size); addEventListener('orientationchange',function(){setTimeout(size,250);});
   if(still){addEventListener('load',function(){render(0,1);});setTimeout(function(){render(0,1);},1800);return;}  // reduced motion: one still picture, redrawn only when something changes
-  addEventListener('pointermove',function(e){tx=(e.clientX/innerWidth-.5);ty=(e.clientY/innerHeight-.5);},{passive:true});
+  /* Pointer-reactive lines: around the cursor or touch point the drawing eases outward, like a soft lens (small radius, low amplitude, spring-smoothed).
+     It only runs while the pointer has moved in the last ~1.4s, so an idle page pays nothing. Reduced motion never gets here (it returns above). */
+  var PX=0,PY=0,pvx=0,pvy=0,tX=0,tY=0,PS=0,PT=0,lastMove=-1e9,LT=null,LX=null;
+  function lens(){var R=Math.round(115*D),S=2*R,cx=PX,cy=PY,N=10,f0=0.24*PS,i;
+    if(!LT){LT=document.createElement('canvas');LX=LT.getContext('2d');}if(LT.width!==S)LT.width=LT.height=S;
+    LX.setTransform(1,0,0,1,0,0);LX.clearRect(0,0,S,S);LX.drawImage(c,cx-R,cy-R,S,S,0,0,S,S);
+    x.save();x.beginPath();x.arc(cx,cy,R,0,TAU);x.clip();x.clearRect(cx-R,cy-R,S,S);
+    for(i=0;i<N;i++){var r0=R*i/N,r1=R*(i+1)/N,rm=(r0+r1)/2,g=1/(1-f0*Math.pow(1-rm/R,2));
+      x.save();x.beginPath();x.arc(cx,cy,r1+0.5,0,TAU);if(i)x.arc(cx,cy,r0,0,TAU,true);x.clip();x.drawImage(LT,cx-R*g,cy-R*g,S*g,S*g);x.restore();}
+    x.restore();}
+  function pointerStep(now){PT=(now-lastMove<1400)?1:0;PS+=(PT-PS)*0.09;
+    if(PS<0.012&&!PT){PS=0;return;}
+    pvx=(pvx+(tX-PX)*0.14)*0.72;pvy=(pvy+(tY-PY)*0.14)*0.72;PX+=pvx;PY+=pvy;}
+  addEventListener('pointermove',function(e){tx=(e.clientX/innerWidth-.5);ty=(e.clientY/innerHeight-.5);
+    tX=e.clientX*D;tY=e.clientY*D;if(PS<0.02){PX=tX;PY=tY;pvx=pvy=0;}lastMove=performance.now();},{passive:true});
+  addEventListener('pointerup',function(e){if(e.pointerType==='touch')lastMove=-1e9;},{passive:true});
+  addEventListener('pointercancel',function(){lastMove=-1e9;},{passive:true});
+  document.documentElement.addEventListener('pointerleave',function(){lastMove=-1e9;});
   addEventListener('deviceorientation',function(e){if(e.gamma!=null){tx=Math.max(-.5,Math.min(.5,e.gamma/60));ty=Math.max(-.5,Math.min(.5,(e.beta-45)/60));}},{passive:true});
   document.addEventListener('visibilitychange',function(){run=!document.hidden;prev=performance.now();if(run)requestAnimationFrame(frame);});
   function frame(now){
@@ -715,6 +763,7 @@ CleverRoleChat.formHook=function(url,key){return function(d){
     var spin=window.crSpin||1;              // 1 = normal pace; bigger when the symbol is flicked; negative = reversed
     T+=dt; PH+=dt*spin*1.18; OT+=dt*Math.max(0.3,Math.abs(spin))*1.18;
     if(MODE==='contours'&&(skip++&1)){requestAnimationFrame(frame);return;}  // the field drifts slowly, so half the frames are plenty
+    pointerStep(now);
     render(dt,spin);
     requestAnimationFrame(frame);
   }
@@ -765,10 +814,12 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   }
   fit(); requestAnimationFrame(tick);
 })();
-(function(){var b=document.getElementById('bgCycle'),n=document.getElementById('bgName'),L=['gears','network','orbits','contours','ripples','lattice'],N={gears:'Gears',network:'Network',orbits:'Orbits',contours:'Contours',ripples:'Ripples',lattice:'Lattice'},t,turn=0;if(!b)return;
-  b.addEventListener('click',function(){var cur='gears';try{cur=localStorage.getItem('cr-bg')||'gears'}catch(e){}
-    var next=L[(L.indexOf(cur)+1)%L.length];window.crSetBackground&&window.crSetBackground(next);
-    turn+=60;b.querySelector('svg').style.transform='rotate('+turn+'deg)';n.textContent=N[next];n.classList.add('show');clearTimeout(t);t=setTimeout(function(){n.classList.remove('show');},1600);});})();
+/* Background switcher: cycles the six backgrounds. A small label names the new background for about 1.5s whenever the background actually changes
+   (switcher, reset, anything else); it is announced politely (aria-live). Nothing is shown if the background stays the same. */
+(function(){var b=document.getElementById('bgCycle'),n=document.getElementById('bgName'),L=['network','gears','orbits','contours','ripples','lattice'],N={gears:'Gears',network:'Network',orbits:'Orbits',contours:'Contours',ripples:'Ripples',lattice:'Lattice'},t,shown=(window.crGetBackground&&window.crGetBackground())||'network';if(!b||!n)return;
+  function show(m){n.textContent=N[m];n.classList.add('show');clearTimeout(t);t=setTimeout(function(){n.classList.remove('show');},1500);}
+  document.addEventListener('crbgchange',function(){var m=window.crGetBackground();if(m!==shown){shown=m;show(m);}});
+  b.addEventListener('click',function(){var cur=(window.crGetBackground&&window.crGetBackground())||'network';window.crSetBackground&&window.crSetBackground(L[(L.indexOf(cur)+1)%L.length]);});})();
 
 /* Colour button: 15 of the site's colour schemes (hex values from the platform's COLOUR_SCHEMES: light and dark accents).
    It tints ONLY the line art of the living background (and the chat accent). The page itself stays pure white or black.
@@ -801,6 +852,8 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   rng.value=K;rng.addEventListener('input',function(){K=+rng.value;save();paint();});
   new MutationObserver(paint).observe(root,{attributes:true,attributeFilter:['data-theme']});
   paint();
+  window.crResetTint=function(){idx=0;K=1;rng.value=1;try{localStorage.removeItem('cr-tint');}catch(e){}paint();};
+  window.crTintIsDefault=function(){return idx===0&&K===1;};
   btn.addEventListener('click',function(e){e.stopPropagation();var o=pop.hidden;window.crClosePops&&window.crClosePops();pop.hidden=!o;btn.setAttribute('aria-expanded',String(o));});
 })();
 
@@ -909,6 +962,8 @@ CleverRoleChat.formHook=function(url,key){return function(d){
     if(document.hidden){clearInterval(timer);timer=0;ctx.suspend&&ctx.suspend();}
     else if(cur){ctx.resume().then(function(){if(cur&&!timer){nextT=ctx.currentTime+0.08;var L=LP[cur],sd=60/L.bpm/4;
       timer=setInterval(function(){if(ctx.state!=='running')return;while(nextT<ctx.currentTime+0.2){L.step(stepN%64,nextT);nextT+=sd;stepN++;}},40);}});}});
+  window.crResetMusic=function(){cur=null;last=null;stopLoop();try{localStorage.removeItem('cr-music');}catch(e){}paint();};
+  window.crMusicIsOff=function(){return !cur;};
   paint();
 })();
 
@@ -925,6 +980,24 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   document.addEventListener('pointerdown',hide);document.addEventListener('keydown',function(e){if(e.key==='Escape')hide();});addEventListener('scroll',hide,true);addEventListener('resize',hide);
   new MutationObserver(function(){if(cur&&tip.classList.contains('on'))tip.textContent=cur.getAttribute('data-tip')||'';}).observe(document.body,{subtree:true,attributes:true,attributeFilter:['data-tip']});
 })();
+
+/* Reset: puts every visitor choice back to its default (Clever grey lines, strength 1, dark, Network background, chat art "Match background", music off),
+   clears the remembered choices and re-applies them live. It is dimmed while everything is already at default. */
+(function(){var b=document.getElementById('resetBtn');if(!b)return;var root=document.documentElement;
+  function atDefault(){try{return root.getAttribute('data-theme')!=='light'&&window.crTintIsDefault()&&window.crGetBackground()==='network'&&window.crChat.isDefaultFx()&&window.crMusicIsOff();}catch(e){return true;}}
+  function sync(){var d=atDefault();b.setAttribute('aria-disabled',String(d));}
+  function reset(){if(b.getAttribute('aria-disabled')==='true')return;
+    try{window.crResetTheme();window.crResetTint();window.crResetBackground();window.crChat.resetFx();window.crResetMusic();}catch(e){}
+    ['cr-theme','cr-tint','cr-bg','cr-chatfx','cr-music'].forEach(function(k){try{localStorage.removeItem(k);}catch(e){}});
+    window.crClosePops&&window.crClosePops();sync();}
+  b.addEventListener('click',reset);
+  document.addEventListener('click',function(){setTimeout(sync,30);},true);
+  document.addEventListener('crbgchange',sync);
+  new MutationObserver(sync).observe(root,{attributes:true,attributeFilter:['data-theme','style']});
+  sync();setTimeout(sync,300);
+})();
+
+try{localStorage.setItem('cr-seen','1')}catch(e){}
 </script>
 
 </body>
