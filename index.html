@@ -260,70 +260,76 @@ footer a:hover,footer button:hover{color:var(--fg)}
   });
 })();
 
-/* Living background, three styles: precision gears, a workflow network, or orbits. Flicking the symbol drives it faster. */
+/* Living background, six styles: precision gears, a workflow network, orbits, contours, ripples and a lattice.
+   Every style runs off the same phase as the spinning symbol (window.crSpin, eased in by window.crWake),
+   so it starts still with the symbol, and flicking the symbol speeds it up or turns it the other way. */
 (function(){
   var c=document.getElementById('field'), x=c.getContext('2d'); if(!x) return;
-  var root=document.documentElement, W=0,H=0,D=1, mx=0,my=0, tx=0,ty=0, run=true, prev=performance.now(), T=0;
+  var root=document.documentElement, W=0,H=0,D=1, mx=0,my=0, tx=0,ty=0, run=true, prev=performance.now(), T=0, PH=0, OT=0, AX=0, AY=0, skip=0;
+  var TAU=Math.PI*2;
   var still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var MODE=(function(){try{return localStorage.getItem('cr-bg')||'gears'}catch(e){return 'gears'}})();
-  window.crSetBackground=function(m){MODE=m;try{localStorage.setItem('cr-bg',m)}catch(e){};build();};
+  var MODES=['gears','network','orbits','contours','ripples','lattice'];
+  var MODE=(function(){try{return localStorage.getItem('cr-bg')||'gears'}catch(e){return 'gears'}})(); if(MODES.indexOf(MODE)<0)MODE='gears';
+  window.crSetBackground=function(m){if(MODES.indexOf(m)<0)return;MODE=m;try{localStorage.setItem('cr-bg',m)}catch(e){};build();if(still)render(0,1);};
+  // How strongly each style shows. Kept low on purpose: the background should be felt more than seen.
+  var FADE={gears:0.55,network:0.42,orbits:0.42,contours:0.5,ripples:0.55,lattice:0.5}, LIGHT=0.85;
   function ink(){return getComputedStyle(root).getPropertyValue('--fg').trim()||'#f4f4f2';}
   function rgb(hex){hex=hex.replace('#','');if(hex.length===3)hex=hex.split('').map(function(a){return a+a}).join('');var n=parseInt(hex,16);return [(n>>16)&255,(n>>8)&255,n&255];}
   var C=rgb(ink());
-  new MutationObserver(function(){C=rgb(ink());}).observe(root,{attributes:true,attributeFilter:['data-theme']});
+  new MutationObserver(function(){C=rgb(ink());if(still)render(0,1);}).observe(root,{attributes:true,attributeFilter:['data-theme']});
   function col(a){return 'rgba('+C[0]+','+C[1]+','+C[2]+','+a+')';}
-  var rnd=(function(s){return function(){s=(s*16807)%2147483647;return (s-1)/2147483646;};})(20261018);
+  function seed(s){return function(){s=(s*16807)%2147483647;return (s-1)/2147483646;};}
+  var rnd=seed(20261018);
+  // Everything is centred on the symbol itself, wherever the layout puts it.
+  var sym=document.getElementById('symbol');
+  function anchor(){var b=sym&&sym.getBoundingClientRect();if(b&&b.width){AX=(b.left+b.width/2)*D;AY=(b.top+b.height/2)*D;}else{AX=W/2;AY=H*0.42;}}
 
-  /* ---------- gears: a meshed train of fine-line gears, like an engineering drawing ---------- */
-  var gears=[];
-  function buildGears(){
-    gears=[]; rnd=(function(s){return function(){s=(s*16807)%2147483647;return (s-1)/2147483646;};})(7);
-    var U=Math.min(W,H)/D, m=Math.max(3.6,U/120)*D;            // gear module (tooth size)
-    var sizes=[52,14,30,10,44,18,24,12,60,16,36,20,28,11,48,15,22,40];
-    var cx=W*0.5, cy=H*0.46, pad=m*14, minX=-pad, maxX=W+pad, minY=-pad, maxY=H+pad;
-    var g0={x:cx,y:cy,n:sizes[0],th:0,th0:0,flip:0}; g0.r=m*g0.n/2; gears.push(g0);
-    // grow a single meshed train outwards until the whole page (plus a margin) is filled
-    for(var qi=0;qi<gears.length&&gears.length<140;qi++){
-      var p=gears[qi], start=rnd()*Math.PI*2, kids=0;
-      for(var t=0;t<14&&kids<3;t++){
-        var n=sizes[Math.floor(rnd()*sizes.length)], r=m*n/2, phi=start+t*(Math.PI*2/14)+rnd()*0.2, d=p.r+r;
-        var gx=p.x+Math.cos(phi)*d, gy=p.y+Math.sin(phi)*d, ok=gx>minX&&gx<maxX&&gy>minY&&gy<maxY;
-        for(var k=0;ok&&k<gears.length;k++){var q=gears[k];if(q===p)continue;if(Math.hypot(q.x-gx,q.y-gy)<q.r+r+m*2.6)ok=false;}
-        if(ok){var g={x:gx,y:gy,n:n,r:r,parent:p,flip:p.flip+1};
-          g.th0=phi+Math.PI+(p.r/r)*(phi-p.th0)+Math.PI/n; gears.push(g); kids++;}
-      }
-    }
-    gears.m=m;
+  /* ---------- gears: one connected train of fine-line gears, like an engineering drawing ----------
+     The train is laid out once in tooth units (module 1: pitch radius = teeth/2), so every gear is tangent to the gear
+     that drives it and all share one tooth size. On screen the whole train is scaled and centred on the symbol, never
+     rearranged, so it meshes the same way at every size. Meshing gears turn in opposite directions at a speed inversely
+     proportional to their tooth count, phased so each tooth sits in its neighbour's gap. The centre gear turns with the symbol. */
+  var GL=null, G0=48;
+  function layoutGears(){
+    var r=seed(7), RF=230, CL=3, sizes=[12,14,16,18,20,24,28,32,36,40,14,18,22,30], L=[];
+    L.push({x:0,y:0,n:G0,r:G0/2,th0:0,s:1,p:-1});
+    function add(pi,n,phi){var p=L[pi],R=n/2,d=p.r+R,gx=p.x+Math.cos(phi)*d,gy=p.y+Math.sin(phi)*d;
+      if(Math.hypot(gx,gy)+R>RF)return false;
+      // clear of every other gear by more than both tooth tips, so the only contact is with the driver
+      for(var k=0;k<L.length;k++){if(k===pi)continue;var q=L[k];if(Math.hypot(q.x-gx,q.y-gy)<q.r+R+CL)return false;}
+      L.push({x:gx,y:gy,n:n,r:R,p:pi,s:-p.s,th0:phi+Math.PI-Math.PI/n+(p.r/R)*(phi-p.th0)});return true;}
+    for(var qi=0;qi<L.length&&L.length<700;qi++){var st=r()*TAU,kids=0;for(var t=0;t<16&&kids<3;t++)if(add(qi,sizes[Math.floor(r()*sizes.length)],st+t*TAU/16+r()*0.15))kids++;}
+    for(var pass=0;pass<2;pass++)for(var q2=0;q2<L.length&&L.length<700;q2++)for(var t2=0;t2<24;t2++)add(q2,[10,12,14][Math.floor(r()*3)],t2*TAU/24+pass*0.13);
+    for(var i=0;i<L.length;i++){var g=L[i],n=g.n,ro=g.r+1,rr=g.r-1.25,pp=TAU/n,o=new Path2D(),d=new Path2D();
+      for(var k=0;k<n;k++){var a=k*pp,pts=[[rr,a-pp*0.5],[rr,a-pp*0.27],[ro,a-pp*0.14],[ro,a+pp*0.14],[rr,a+pp*0.27]];
+        for(var j=0;j<5;j++){var X=pts[j][0]*Math.cos(pts[j][1]),Y=pts[j][0]*Math.sin(pts[j][1]);(k||j)?o.lineTo(X,Y):o.moveTo(X,Y);}}
+      o.closePath();
+      d.moveTo(g.r*0.62,0);d.arc(0,0,g.r*0.62,0,TAU);var b=Math.max(1.6,g.r*0.16);d.moveTo(b,0);d.arc(0,0,b,0,TAU);
+      if(n>=20){var sp=n>=36?6:4;for(var s=0;s<sp;s++){var aa=s*TAU/sp;d.moveTo(Math.cos(aa)*g.r*0.18,Math.sin(aa)*g.r*0.18);d.lineTo(Math.cos(aa)*g.r*0.6,Math.sin(aa)*g.r*0.6);}}
+      g.o=o;g.d=d;}
+    return L;
   }
-  function gearPath(g,th){
-    var m=gears.m, n=g.n, ro=g.r+m, rr=g.r-1.25*m, p=Math.PI*2/n;
-    x.beginPath();
-    for(var k=0;k<n;k++){var a=th+k*p;
-      var pts=[[rr,a-p*0.5],[rr,a-p*0.27],[ro,a-p*0.14],[ro,a+p*0.14],[rr,a+p*0.27]];
-      for(var j=0;j<pts.length;j++){var R=pts[j][0],A=pts[j][1];var X=g.x+R*Math.cos(A),Y=g.y+R*Math.sin(A);(k===0&&j===0)?x.moveTo(X,Y):x.lineTo(X,Y);}
+  function buildGears(){if(!GL)GL=layoutGears();}
+  // pixels per tooth unit: from the short side of the screen, but never so small that the train stops short of a corner
+  function gearScale(){var cw=W/D,ch=H/D,need=Math.hypot(Math.max(AX,W-AX),Math.max(AY,H-AY))/D+20;
+    return Math.max(Math.min(10,Math.max(4.4,Math.min(cw,ch)/120)),need/200)*D;}
+  function drawGears(){
+    var k=gearScale(), ox=AX-mx*24*D, oy=AY-my*18*D, th=PH*0.12, show=[], seen={};
+    for(var i=0;i<GL.length;i++){var g=GL[i],X=ox+g.x*k,Y=oy+g.y*k,R=(g.r+1)*k;
+      if(X+R<0||X-R>W||Y+R<0||Y-R>H)continue;
+      // a gear on screen always brings its driver, so nothing is ever drawn without the gear it meshes with
+      for(var j=i;j>=0&&!seen[j];j=GL[j].p){seen[j]=1;show.push(j);}}
+    var lw=Math.max(1,D*0.8)/k, a=0.12;
+    for(var q=0;q<show.length;q++){var g=GL[show[q]],ang=g.th0+g.s*(G0/g.n)*th;
+      x.setTransform(k,0,0,k,ox+g.x*k,oy+g.y*k);x.lineWidth=lw;
+      // fine pitch circle, like a drafting line: neighbouring pitch circles touch exactly
+      x.setLineDash([2*D/k,5*D/k]);x.beginPath();x.arc(0,0,g.r,0,TAU);x.strokeStyle=col(a*0.35);x.stroke();x.setLineDash([]);
+      x.rotate(ang);
+      x.fillStyle=col(a*0.1);x.fill(g.o);x.strokeStyle=col(a);x.stroke(g.o);
+      x.strokeStyle=col(a*0.6);x.stroke(g.d);
     }
-    x.closePath();
+    x.setTransform(1,0,0,1,0,0);
   }
-  function drawGears(spin){
-    var lw=Math.max(1,D*0.8), ox=-mx*24*D, oy=-my*18*D, cx=W*0.5, cy=H*0.46;
-    x.save(); x.translate(ox,oy);
-    for(var i=0;i<gears.length;i++){var g=gears[i];
-      var ang=g.th0+gears[0].th*(gears[0].n/g.n)*((g.flip%2)?-1:1);
-      // very faint overall; a touch quieter right behind the symbol and words, fading to nothing at the edges (with the veil)
-      var e=Math.hypot((g.x-cx)/(W*0.5),(g.y-cy)/(H*0.5)), a=0.12*Math.max(0,1.25-e*0.55);
-      if(a<0.004)continue;
-      gearPath(g,ang); x.fillStyle=col(a*0.12); x.fill(); x.strokeStyle=col(a); x.lineWidth=lw; x.stroke();
-      // hub, bore and spokes
-      x.beginPath(); x.arc(g.x,g.y,g.r*0.62,0,Math.PI*2); x.strokeStyle=col(a*0.6); x.stroke();
-      x.beginPath(); x.arc(g.x,g.y,Math.max(3*D,g.r*0.16),0,Math.PI*2); x.stroke();
-      if(g.n>=20){var sp=g.n>=36?6:4;for(var s=0;s<sp;s++){var aa=ang+s*Math.PI*2/sp;x.beginPath();
-        x.moveTo(g.x+Math.cos(aa)*g.r*0.18,g.y+Math.sin(aa)*g.r*0.18);x.lineTo(g.x+Math.cos(aa)*g.r*0.6,g.y+Math.sin(aa)*g.r*0.6);x.stroke();}}
-      // fine pitch circle, like a drafting line
-      x.setLineDash([2*D,5*D]); x.beginPath(); x.arc(g.x,g.y,g.r,0,Math.PI*2); x.strokeStyle=col(a*0.4); x.stroke(); x.setLineDash([]);
-    }
-    x.restore();
-  }
-  function countFlips(g){var c=0;while(g.parent){c++;g=g.parent;}return c;}
 
   /* ---------- network: work moving between connected tasks ---------- */
   var nodes=[], edges=[], pulses=[];
@@ -377,10 +383,81 @@ footer a:hover,footer button:hover{color:var(--fg)}
     r=Math.max(b.width,b.height*0.8)*0.62*D,g=x.createRadialGradient(cx,cy,0,cx,cy,r);
     g.addColorStop(0,'rgba(0,0,0,0.75)');g.addColorStop(0.55,'rgba(0,0,0,0.5)');g.addColorStop(1,'rgba(0,0,0,0)');
     x.globalCompositeOperation='destination-out';x.fillStyle=g;x.fillRect(0,0,W,H);x.globalCompositeOperation='source-over';}
-  function build(){if(MODE==='gears')buildGears();else if(MODE==='network')buildNet();else buildOrbits();
+
+  /* ---------- contours: a slowly flowing topographic field, with the symbol as its summit ---------- */
+  var SEG={1:[3,0],2:[0,1],3:[3,1],4:[1,2],5:[3,0,1,2],6:[0,2],7:[3,2],8:[2,3],9:[0,2],10:[0,1,2,3],11:[1,2],12:[1,3],13:[0,1],14:[3,0]}, CF=null;
+  function drawContours(){
+    var s=Math.round(Math.max(14,Math.min(24,Math.min(W,H)/D/34))*D), cols=Math.ceil(W/s)+1, rows=Math.ceil(H/s)+1, n=cols*rows;
+    if(!CF||CF.length<n)CF=new Float32Array(n);
+    var u=Math.min(W,H), a=PH*0.035, ca=Math.cos(a), sa=Math.sin(a), ph=PH*0.16, cx=AX-mx*30*D, cy=AY-my*24*D;
+    for(var j=0;j<rows;j++)for(var i=0;i<cols;i++){var X=(i*s-cx)/u,Y=(j*s-cy)/u,xr=X*ca-Y*sa,yr=X*sa+Y*ca;
+      CF[j*cols+i]=1.15*Math.exp(-(X*X+Y*Y)*5)+0.34*Math.sin(xr*4.6+ph)+0.28*Math.sin(yr*3.9-ph*0.8+1.3)
+        +0.2*Math.sin((xr+yr)*7.3+ph*1.3+0.5)+0.12*Math.sin((xr-yr)*10.5+2.1-ph);}
+    var thin=new Path2D(), bold=new Path2D(), STEP=0.15;
+    for(var L=-1.05,li=0;L<1.9;L+=STEP,li++){var P=(li%5===0)?bold:thin;
+      for(var j2=0;j2<rows-1;j2++)for(var i2=0;i2<cols-1;i2++){var o=j2*cols+i2,v0=CF[o],v1=CF[o+1],v2=CF[o+cols+1],v3=CF[o+cols];
+        var id=(v0>L?1:0)|(v1>L?2:0)|(v2>L?4:0)|(v3>L?8:0);if(!id||id===15)continue;
+        var sg=SEG[id],x0=i2*s,y0=j2*s;
+        for(var e=0;e<sg.length;e+=2){var A=ept(sg[e]),B=ept(sg[e+1]);P.moveTo(A[0],A[1]);P.lineTo(B[0],B[1]);}
+      }}
+    function ept(k){var t;if(k===0){t=(L-v0)/(v1-v0);return [x0+t*s,y0];}if(k===1){t=(L-v1)/(v2-v1);return [x0+s,y0+t*s];}
+      if(k===2){t=(L-v3)/(v2-v3);return [x0+t*s,y0+s];}t=(L-v0)/(v3-v0);return [x0,y0+t*s];}
+    x.lineWidth=Math.max(1,D*0.75);x.strokeStyle=col(0.14);x.stroke(thin);
+    x.lineWidth=Math.max(1,D*1.1);x.strokeStyle=col(0.24);x.stroke(bold);
+  }
+
+  /* ---------- ripples: rings sent out from the symbol, faster as it spins and drawn back in when it reverses ---------- */
+  function drawRipples(){
+    var u=Math.min(W,H), S=Math.max(34*D,Math.min(72*D,u/13)), cx=AX-mx*20*D, cy=AY-my*16*D,
+      R=Math.hypot(Math.max(cx,W-cx),Math.max(cy,H-cy)), off=((PH*14*D)%S+S)%S;
+    x.lineWidth=Math.max(1,D*0.8);
+    for(var r=off;r<R;r+=S){var f=r/R, a=0.26*Math.pow(1-f,1.2)*Math.min(1,r/(S*1.6)); if(a<0.004)continue;
+      var N=Math.max(48,Math.min(220,Math.round(r/(5*D)))), w=S*0.1*f;
+      x.beginPath();
+      for(var k=0;k<=N;k++){var th=k*TAU/N, rr=r+w*(0.6*Math.sin(th*3+PH*0.25+r*0.004)+0.4*Math.sin(th*5-PH*0.18+1.7));
+        var X=cx+rr*Math.cos(th),Y=cy+rr*Math.sin(th);k?x.lineTo(X,Y):x.moveTo(X,Y);}
+      x.strokeStyle=col(a);x.stroke();
+      // a fine dotted echo between rings
+      var r2=r+S*0.5; if(r2<R){x.setLineDash([1.2*D,6*D]);x.beginPath();x.arc(cx,cy,r2,PH*0.05,PH*0.05+TAU);x.strokeStyle=col(a*0.55);x.stroke();x.setLineDash([]);}
+    }
+  }
+
+  /* ---------- lattice: a tessellation of tumbling blocks; each cell flips a sixth of a turn as a wave from the symbol reaches it ---------- */
+  function drawLattice(){
+    var h=Math.max(18,Math.min(34,Math.min(W,H)/D/22))*D, dx=Math.sqrt(3)*h, dy=1.5*h, ox=AX-mx*18*D, oy=AY-my*14*D,
+      i0=Math.floor(-ox/dx)-1, i1=Math.ceil((W-ox)/dx)+1, j0=Math.floor(-oy/dy)-1, j1=Math.ceil((H-oy)/dy)+1,
+      hex=new Path2D(), arms=new Path2D(), face=new Path2D(), V=[], k;
+    for(k=0;k<6;k++)V.push([Math.cos(Math.PI/6+k*Math.PI/3)*h,Math.sin(Math.PI/6+k*Math.PI/3)*h]);  // pointy-top hexagon
+    for(var j=j0;j<=j1;j++)for(var i=i0;i<=i1;i++){
+      var X=ox+i*dx+((j&1)?dx/2:0), Y=oy+j*dy;
+      hex.moveTo(X+V[0][0],Y+V[0][1]);for(k=1;k<6;k++)hex.lineTo(X+V[k][0],Y+V[k][1]);hex.closePath();
+      var d=Math.hypot(X-AX,Y-AY)/D, u=PH*0.32-d/240, st=Math.floor(u), f=u-st, e=f<0.6?0:(f-0.6)/0.4; e=e*e*(3-2*e);
+      var rot=(st+e)*Math.PI/3;
+      for(k=0;k<3;k++){var aa=rot+Math.PI/2+k*TAU/3;arms.moveTo(X,Y);arms.lineTo(X+Math.cos(aa)*h,Y+Math.sin(aa)*h);}
+      var b=rot+Math.PI*7/6;face.moveTo(X,Y);
+      for(k=0;k<3;k++){var ab=b+k*Math.PI/3;face.lineTo(X+Math.cos(ab)*h,Y+Math.sin(ab)*h);}face.closePath();
+    }
+    x.lineWidth=Math.max(1,D*0.7);x.fillStyle=col(0.035);x.fill(face);x.strokeStyle=col(0.07);x.stroke(hex);
+    x.lineWidth=Math.max(1,D*0.9);x.strokeStyle=col(0.15);x.stroke(arms);
+  }
+
+  function build(){if(MODE==='gears')buildGears();else if(MODE==='network')buildNet();else if(MODE==='orbits')buildOrbits();
     var ps=document.querySelectorAll('[data-bg]');for(var i=0;i<ps.length;i++)ps[i].setAttribute('aria-pressed',ps[i].getAttribute('data-bg')===MODE);}
-  function size(){D=Math.min(window.devicePixelRatio||1,2);W=c.width=Math.round(innerWidth*D);H=c.height=Math.round(innerHeight*D);build();}
-  size(); addEventListener('resize',size);
+  function render(dt,spin){
+    anchor();
+    x.setTransform(1,0,0,1,0,0); x.clearRect(0,0,W,H);
+    x.globalAlpha=FADE[MODE]*(root.getAttribute('data-theme')==='light'?LIGHT:1);
+    if(MODE==='gears')drawGears();
+    else if(MODE==='network')drawNet(dt,spin);
+    else if(MODE==='orbits')drawOrbits(OT);
+    else if(MODE==='contours')drawContours();
+    else if(MODE==='ripples')drawRipples();
+    else drawLattice();
+    x.setTransform(1,0,0,1,0,0); x.globalAlpha=1; quiet();
+  }
+  function size(){D=Math.min(window.devicePixelRatio||1,2);W=c.width=Math.round(innerWidth*D);H=c.height=Math.round(innerHeight*D);build();if(still)render(0,1);}
+  size(); addEventListener('resize',size); addEventListener('orientationchange',function(){setTimeout(size,250);});
+  if(still){addEventListener('load',function(){render(0,1);});setTimeout(function(){render(0,1);},1800);return;}  // reduced motion: one still picture, redrawn only when something changes
   addEventListener('pointermove',function(e){tx=(e.clientX/innerWidth-.5);ty=(e.clientY/innerHeight-.5);},{passive:true});
   addEventListener('deviceorientation',function(e){if(e.gamma!=null){tx=Math.max(-.5,Math.min(.5,e.gamma/60));ty=Math.max(-.5,Math.min(.5,(e.beta-45)/60));}},{passive:true});
   document.addEventListener('visibilitychange',function(){run=!document.hidden;prev=performance.now();if(run)requestAnimationFrame(frame);});
@@ -388,13 +465,9 @@ footer a:hover,footer button:hover{color:var(--fg)}
     if(!run)return;
     var dt=Math.min(0.05,(now-prev)/1000)*(window.crWake==null?1:window.crWake);prev=now; mx+=(tx-mx)*0.04; my+=(ty-my)*0.04;
     var spin=window.crSpin||1;              // 1 = normal pace; bigger when the symbol is flicked; negative = reversed
-    T+=dt*(still?0:1);
-    x.clearRect(0,0,W,H);
-    x.globalAlpha=MODE==='gears'?1:0.75;   // network and orbits are busier, so they sit further back
-    if(MODE==='gears'){if(gears.length){gears[0].th+=dt*0.12*spin*(still?0:1);}drawGears(spin);}
-    else if(MODE==='network')drawNet(still?0:dt,spin);
-    else drawOrbits(T*Math.max(0.3,Math.abs(spin)));
-    x.globalAlpha=1; quiet();
+    T+=dt; PH+=dt*spin; OT+=dt*Math.max(0.3,Math.abs(spin));
+    if(MODE==='contours'&&(skip++&1)){requestAnimationFrame(frame);return;}  // the field drifts slowly, so half the frames are plenty
+    render(dt,spin);
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
@@ -443,10 +516,10 @@ footer a:hover,footer button:hover{color:var(--fg)}
   }
   fit(); requestAnimationFrame(tick);
 })();
-(function(){var b=document.getElementById('bgCycle'),n=document.getElementById('bgName'),L=['gears','network','orbits'],N={gears:'Gears',network:'Network',orbits:'Orbits'},t,turn=0;if(!b)return;
+(function(){var b=document.getElementById('bgCycle'),n=document.getElementById('bgName'),L=['gears','network','orbits','contours','ripples','lattice'],N={gears:'Gears',network:'Network',orbits:'Orbits',contours:'Contours',ripples:'Ripples',lattice:'Lattice'},t,turn=0;if(!b)return;
   b.addEventListener('click',function(){var cur='gears';try{cur=localStorage.getItem('cr-bg')||'gears'}catch(e){}
     var next=L[(L.indexOf(cur)+1)%L.length];window.crSetBackground&&window.crSetBackground(next);
-    turn+=120;b.querySelector('svg').style.transform='rotate('+turn+'deg)';n.textContent=N[next];n.classList.add('show');clearTimeout(t);t=setTimeout(function(){n.classList.remove('show');},1600);});})();
+    turn+=60;b.querySelector('svg').style.transform='rotate('+turn+'deg)';n.textContent=N[next];n.classList.add('show');clearTimeout(t);t=setTimeout(function(){n.classList.remove('show');},1600);});})();
 </script>
 
 </body>
