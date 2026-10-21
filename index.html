@@ -199,7 +199,7 @@ footer a:hover,footer button:hover{color:var(--fg)}
 <h1>Privacy Policy</h1>
 <p class="dates">Last updated: 18 October 2026</p>
 <p class="intro">This website is run by Clever Role. Questions? Email <a href="mailto:hello@cleverrole.com">hello@cleverrole.com</a>.</p>
-<section><h2>What we collect</h2><p>This site has no accounts and no sign-in. If you contact us through the website chat or by email, we receive your name, your email address and your message. We use them only to reply to you.</p></section>
+<section><h2>What we collect</h2><p>This site has no accounts and no sign-in. If you contact us through the website chat or by email, we receive your name, your email address and your message. We use them only to reply to you. Messages sent through the chat are passed to an email delivery service so that they reach us, and are not used for anything else.</p></section>
 <section><h2>Cookies and tracking</h2><p>We use no advertising or analytics cookies, and we do not track you across other websites. Your browser stores your display choices (light or dark, background), and a small counter that limits how many chat messages can be sent each day. That information stays on your device.</p></section>
 <section><h2>Hosting</h2><p>Our hosting provider may keep standard technical logs, such as IP addresses, to keep the site secure and working.</p></section>
 <section><h2>Sharing</h2><p>We do not sell or rent your information, and we only share it where the law requires it.</p></section>
@@ -244,6 +244,136 @@ footer a:hover,footer button:hover{color:var(--fg)}
    Voice: a microphone button uses the browser's SpeechRecognition (hidden when unsupported). Nothing is
    recorded or stored by this page; the visitor still presses Send.
    ===================================================================================================== */
+/* ===== Clever Role chat brain: a rule-based question library, no AI and no network. =====
+   CRBrain.reply(text, ctx, strict) -> null | {text, chips:[{l, q|msg|view|send|no}], kind, pause}
+   ctx is a plain object the chat keeps for the visit: {last, counts, strikes, misses, probes, name}. Add answers in the E list below
+   (first match wins, so specific entries sit above general ones). Replies never name staff, tools, suppliers, places or prices. */
+var CRBrain=(function(){
+  var RUDE=/\b(f+u+c+k+\w*|f+[\W_]*c+k+\w*|sh+i+t+\w*|bull?sh\w*|c+u+n+t+\w*|bastard\w*|bitch\w*|dick(head)?s?|cock(sucker)?s?|pricks?|wank\w*|twats?|arse(hole)?s?|ass(hole)?s?|motherf\w*|piss(ed)?|slut\w*|whores?|retard\w*|nigg\w*|fag+\w*|kys|stfu|wtf)\b/i;
+  function disguise(t){return t.toLowerCase().replace(/[@4]/g,'a').replace(/[1!|]/g,'i').replace(/0/g,'o').replace(/3/g,'e').replace(/\$|5/g,'s').replace(/\*/g,'u');}
+  function rude(t){return RUDE.test(t)||RUDE.test(disguise(t));}
+  var CODE=/<\s*\/?\s*[a-z!][^>]*>|javascript:|data:text|\bon(error|load|click|focus|mouseover)\s*=|&lt;|%3c|\{\{|\$\{|\bunion\s+select\b|\bdrop\s+table\b|;\s*--|'\s*or\s*'?1'?\s*=\s*'?1|\/etc\/passwd|\.\.\/\.\.|\b(curl|wget)\s|\beval\s*\(|\balert\s*\(|document\.cookie|\bselect\s+\*\s+from\b|\bexec\s*\(/i;
+  function isCode(t){return CODE.test(t);}
+  var NONEN=/[Ѐ-ӿ؀-ۿऀ-ॿ぀-ヿ一-鿿가-힯]/;
+  function norm(t){return String(t).toLowerCase().replace(/[‘’`]/g,"'").replace(/'/g,'').replace(/[^a-z0-9 ]+/g,' ').replace(/\s+/g,' ').trim();}
+  var SYN={u:'you',r:'are',ur:'your',pls:'please',plz:'please',thx:'thanks',ty:'thanks',wat:'what',wut:'what',hw:'how',abt:'about',wen:'when',wher:'where',whos:'who'};
+  var VOC=('price pricing prices cost costs expensive cheap free trial demo join signup register invite invitation launch launching product service services contact email message reach phone call address located based founder founders team owner hiring jobs careers partnership partner partners press media privacy data details secure security safe customer support help robot human bot technology server database hosting password login account cancel refund billing business company businesses industry customers countries language english interested information available waitlist access early started start works work thanks thank hello morning afternoon evening goodbye pricing subscription discount quote plans').split(' ');
+  var VOCSET={};VOC.forEach(function(w){VOCSET[w]=1;});
+  function lev(a,b,max){if(Math.abs(a.length-b.length)>max)return max+1;var p=[],i,j;for(j=0;j<=b.length;j++)p[j]=j;
+    for(i=1;i<=a.length;i++){var c=[i],m=i;for(j=1;j<=b.length;j++){c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));if(c[j]<m)m=c[j];}if(m>max)return max+1;p=c;}return p[b.length];}
+  function fix(n){return n.split(' ').map(function(w){if(SYN[w])return SYN[w];if(w.length<5||VOCSET[w]||/\d/.test(w))return w;
+    var best=null,bd=w.length>=8?2:1;for(var i=0;i<VOC.length;i++){var d=lev(w,VOC[i],bd);if(d<bd||(d===bd&&!best)){best=VOC[i];if(d===0)break;if(d<bd)bd=d;}}return best||w;}).join(' ');}
+  var CH={about:{l:'What is Clever Role?',q:'about'},price:{l:'What does it cost?',q:'price'},join:{l:'When can I join?',q:'join'},contact:{l:'How do I get in touch?',q:'contact'},
+    msg:{l:'Leave a message',msg:'Something else'},privacy:{l:'Open Privacy',view:'privacy'},terms:{l:'Open Terms',view:'terms'},safe:{l:'Is it safe?',q:'security'},who:{l:'Who is behind it?',q:'team'}};
+  function hello(ctx){var h=new Date().getHours(),g=h<12?'Good morning':h<18?'Good afternoon':'Good evening';return g+(ctx&&ctx.name?', '+ctx.name:'')+'. How can I help?';}
+  var E=[
+  {id:'selfharm',kind:'care',re:/\b(kill (my ?self|me)|suicid\w*|end my life|want to die|hurt my ?self|self harm)\b/,
+   a:['I’m really sorry you’re going through something hard. I’m only a website helper, so please reach out to someone you trust or a local crisis line. In the US or Canada you can call or text 988, and in the UK you can call Samaritans on 116 123.']},
+  {id:'secreport',re:/\b(found|spotted|discovered|noticed|report\w*|disclos\w*)\b.*\b(bug|vulnerab\w*|security (issue|problem|hole|flaw|risk)|exploit)\b|\bsecurity (report|disclosure|issue|problem)\b|\bresponsible disclosure\b/,
+   a:['Thank you for looking out for us. Tap Leave a message and describe what you found in a few words. Please don’t include passwords or anyone’s private data.'],c:[{l:'Leave a message',msg:'Security'}]},
+  {id:'override',kind:'probe',re:/\b(ignore|disregard|forget|override|bypass) (all |any |your |my |the |previous |prior |above |earlier |these |those )*(instructions?|rules?|prompts?|guidelines?|restrictions?|filters?|programming)|\b(you are now|from now on you|pretend (to be|you are|youre)|act (as|like) (a|an|if|my|the)|role ?play|developer mode|jailbreak|do anything now|dan mode|system prompt|your prompt|your instructions|initial prompt|hidden (prompt|instructions?))\b/,
+   a:['I can’t do that. I’m here to answer questions about Clever Role and take messages. What would you like to know?','That’s not something I can change. I’m happy to help with questions about Clever Role, though.','I’ll stay as I am, thanks. Ask me about Clever Role, or tap Leave a message.'],c:['about','msg']},
+  {id:'logintrouble',re:/\b(forgot|forgotten|reset|lost|change)\b.*\bpassword\b|\bcant (log ?in|sign ?in|get in|access)\b|\blog ?in (problem|issue|trouble|error)\b|\blocked out\b/,
+   a:['Sorry about the trouble. Tap Leave a message, tell us what happened, and we’ll reply by email. Please don’t type your password here.'],c:[{l:'Leave a message',msg:'Something else'}]},
+  {id:'probe',kind:'probe',re:/\b(what|which) (tech\w*|stack|framework|language|database|db|server|servers|host\w*|cloud|provider|model|llm|ai|software|cms|library|libraries|platform|backend|front ?end|api) (are you|do you|is (this|it|your)|does (this|it|your)|you)|\b(what|which) (ai|llm|model|gpt|bot|software|engine)\b.*\b(you|this|it|using|use)\b|\b(built|made|coded|written|developed|hosted|running|powered) (with|on|using|by|in)\b|\b(api|access|secret|private|auth) ?keys?\b|\bsource ?code\b|\b(your|the) (code|config|configuration|database|server|backend|admin|credentials|logs|environment|env)\b|\b(ip|server|mac) address\b|\bssh\b|\bsql\b|\b(admin|administrator|root|superuser|sudo)\b|\bpasswords?\b|\bcredentials?\b|\bhack\w*|\bexploit\w*|\bpentest\w*|\bpenetration\b|\bxss\b|\binject\w*|\bbrute ?force\b|\bddos\b|\bbackdoor\b|\bdump\b|\benv file\b|\b(openai|anthropic|chatgpt|gpt ?[0-9]*|claude|llama|gemini|copilot|aws|azure|vercel|netlify|cloudflare|github|wordpress|react|node ?js|python)\b/,
+   a:['I can’t share how our site is built. I can tell you what Clever Role does, or take a message for the team.','That’s not something I can help with. Happy to answer questions about Clever Role, though.','I’ll keep that to myself. What would you like to know about Clever Role?'],c:['about','msg']},
+  {id:'inapp',kind:'inapp',re:/\b(sex\w*|porn\w*|nude\w*|naked|nsfw|horny|fetish|erotic|boobs?|penis|vagina|dildo|masturbat\w*|xxx|onlyfans|escorts?|hookers?|bomb|terror\w*|cocaine|meth|weapons?|guns?|murder|rape|nazi\w*)\b/,
+   a:['That’s not something I can help with. I can tell you about Clever Role or take a message for the team.','I’ll pass on that one. Is there something about Clever Role I can help with?','Let’s keep to Clever Role. What would you like to know?'],c:['about','msg']},
+  {id:'identity',re:/\b(are you|r you|youre|you a|am i (talking|speaking|chatting) (to|with)|is this)\b.*\b(bot|robot|human|ai|real|person|chatgpt|machine|automated|live)\b|\breal person\b|\bhuman being\b/,
+   a:['I’m an automated helper on this page. If you send a message, it goes to our team, who reply by email.','I’m a chat helper rather than a person. Your message goes to our team, who reply by email.'],c:['msg','contact']},
+  {id:'myname',re:/\b(what is your name|your name|who are you|who is this)\b/,
+   a:['I’m the helper on this page. What can I do for you?','I’m Clever Role’s website helper. What would you like to know?'],c:['about','price','join']},
+  {id:'hello',re:/^(hi|hello|hey|hiya|howdy|yo|hullo|greetings|good (morning|afternoon|evening|day)|sup)( there| team| you| all)?$/,fn:hello,c:['about','price','join']},
+  {id:'howru',re:/\bhow (are you|is it going|do you do|are things)\b|\bhows your day\b/,a:['Doing well, thank you for asking. What can I help you with?','All good here. What would you like to know?'],c:['about','join']},
+  {id:'thanks',kind:'social',re:/\b(thanks|thank you|cheers|much appreciated|appreciate it|great|awesome|perfect|brilliant|lovely|nice one|cool)\b/,
+   a:['You’re welcome. Anything else I can help with?','Happy to help. Anything else you’d like to know?','My pleasure. Just ask if there’s more.']},
+  {id:'bye',kind:'social',re:/\b(bye|goodbye|see you|see ya|cya|good night|talk later|gotta go|have a good (one|day|night))\b/,
+   a:['Take care, and thanks for stopping by.','Goodbye for now. We’d love to hear from you any time.']},
+  {id:'joke',re:/\b(joke|funny|make me laugh|riddle)\b/,
+   a:['Why did the computer go to the doctor? It had a virus. I’ll stick to answering questions.','I’d tell you a joke about our launch date, but it’s still a secret.'],c:['about','join']},
+  {id:'love',re:/\b(i love you|marry me|be my (friend|girlfriend|boyfriend)|you are (cute|cool|great|smart|awesome))\b/,
+   a:['That’s kind of you. I’m only a chat helper, but if you leave a message I’ll make sure the team sees your good mood.'],c:['msg']},
+  {id:'language',re:/\b(language|english only|speak (spanish|french|german|italian|chinese|japanese)|do you speak)\b/,
+   a:['I chat in English for now. Write to us in any language and we’ll do our best to reply.'],c:['msg']},
+  {id:'security',re:/\b(is it|are you|is this|are they) (safe|secure|legit|legitimate|real|trustworthy|a scam)\b|\b(safe|secure|security|encrypt\w*|trust\w*|legit|scam|real company|compliance|certified)\b/,
+   a:['Fair question. We’re careful with every detail, and we’ll share much more about how we protect customers at launch. If you’d like to ask something specific, leave a message.','Safety matters to us. We’ll share the full picture when we launch, and you’re welcome to ask anything specific by message.'],c:['privacy','msg']},
+  {id:'privacy',re:/\b(privacy|my (data|details|information|info)|gdpr|ccpa|cookies?|tracking|track(ed|ing)?|data protection|what happens to (my|the|what)|stored|store (my|the))\b/,
+   a:['We only use what you send to reply to you, and we don’t track you across other sites. Our Privacy page has the full picture.','Your details stay with us and are only used to reply to you. We use no advertising cookies. Our Privacy page explains it in full.'],c:['privacy','msg']},
+  {id:'terms',re:/\b(terms|conditions|legal|contract|agreement|liability|licen[cs]e)\b/,
+   a:['Our Terms of Use are short and plain. Tap below to read them.'],c:['terms','msg']},
+  {id:'support',re:/\b(i am a customer|im a customer|existing customer|my account|cancel\w*|refund\w*|invoice\w*|charged|billing|subscription problem|something is wrong|not working|doesnt work)\b/,
+   a:['Thanks for telling us. Tap Leave a message, describe what’s wrong, and we’ll reply by email. Please don’t include passwords or card numbers.'],c:[{l:'Leave a message',msg:'Something else'}]},
+  {id:'noPhone',re:/\b(phone|call you|call us|ring you|telephone|number|address|where are you|where is your|located|location|office|visit you|street|postal|mailing|mail you|whatsapp|text you|sms|fax)\b/,
+   a:['We keep things simple and reply by email, so there’s no phone line or office to visit. Leave a message and we’ll get back to you.','Everything goes through email, which keeps replies clear and recorded. Tap Leave a message and we’ll be in touch.'],c:['msg','join']},
+  {id:'team',re:/\b(who (runs|owns|founded|started|is behind|are the founders|is the ceo|are the owners|made|created|built)|founders?|ceo|owners?|your team|staff|employees|names?|managers?|directors?|who works)\b/,
+   a:['We’re a small team who care about getting this right. Leave a message and we’ll introduce ourselves properly.','The team prefers to introduce itself personally. Leave a message and we’ll say hello by email.'],c:['msg','about']},
+  {id:'jobs',re:/\b(hiring|jobs?|careers?|work for (you|us)|vacanc\w*|positions?|recruit\w*|intern\w*|apply for|resume|cv)\b/,
+   a:['Thanks for asking. Tap Leave a message, tell us a little about you, and the right person will reply.'],c:[{l:'Leave a message',msg:'Something else'}]},
+  {id:'partner',re:/\b(partner\w*|resellers?|affiliates?|collaborat\w*|integrat\w*|invest\w*|funding|sponsor\w*|white ?label|distribut\w*)\b/,
+   a:['Thanks for the interest. Choose Leave a message, tell us a little about your idea, and the right person will reply.'],c:[{l:'Leave a message',msg:'Partnership'}]},
+  {id:'press',re:/\b(press|media|journalists?|interview\w*|article|reporter|podcast|blogger|feature (you|us))\b/,
+   a:['Thanks for reaching out. Choose Leave a message, tell us what you’re working on and your deadline, and the right person will reply.'],c:[{l:'Leave a message',msg:'Media'}]},
+  {id:'numbers',re:/\bhow many (customers|users|clients|people|employees)\b|\b(revenue|valuation|turnover|profit|how big|market share)\b/,
+   a:['We don’t share company numbers. If you’d like to talk about working together, leave a message.'],c:['msg']},
+  {id:'compare',re:/\b(compare\w*|competitors?|alternative to|better than|versus|vs|different from|why (you|choose|should i))\b/,
+   a:['We can’t compare ourselves with others here. We’ll share what makes us different when we launch.'],c:['join','msg']},
+  {id:'countries',re:/\b(countries|regions?|available in|international|worldwide|overseas|abroad|usa|america|canada|uk|england|europe|australia|new zealand|india)\b/,
+   a:['We’re starting with businesses in a few countries. Leave a message and tell us where you are, and we’ll let you know.'],c:['msg','join']},
+  {id:'free',re:/\b(free|trial|demo|try (it|out)|test (it|drive)|sample|freebie)\b/,
+   a:['We’ll share how joining works when we open. Leave a message and we’ll be in touch.','There isn’t a public trial yet. Leave your email in a message and we’ll tell you when that changes.'],c:['join','msg']},
+  {id:'price',re:/\b(pric\w*|cost\w*|how much|expensive|cheap\w*|afford\w*|plans?|fees?|quote|discount\w*|pay|paid|rates?)\b/,
+   a:['We’ll share pricing when we launch. Tell us a little about your business and we’ll send the right details.','Pricing arrives with the launch. Leave a message about your business and we’ll make sure you get the right details first.'],c:['join','msg'],more:'join'},
+  {id:'join',re:/\b(when (can|will|do|does|is|are)|sign ?up|invite\w*|invitation|wait ?list|early access|register|get started|how (do|can) i (join|start|sign|get)|join|launch\w*|available|release|go live|opening)\b/,
+   a:['We’re opening to a small number of invited businesses first. Leave your email in a message and we’ll let you know when it’s your turn.','Launch is close. We’re inviting a small group of businesses first, and a message here puts you on our list.'],c:['price','msg'],more:'price'},
+  {id:'contact',re:/\b(contact\w*|reach\w*|get in touch|talk to|speak (to|with)|email\w*|someone|a person|human|support team|message you|write to you|send a message|leave a message|enquir\w*|inquir\w*|feedback|complain\w*)\b/,
+   a:['You’re in the right place. Tap Leave a message and we’ll reply by email.','Easy. Tap Leave a message, tell us what you need, and we’ll reply by email.'],c:['msg','about']},
+  {id:'how',re:/\b(how (does|do) (it|this|that|you) work|how it works|what happens (next|after)|process)\b/,
+   a:['We’ll share how everything works when we launch. Leave a message if you’d like to hear first.'],c:['join','msg']},
+  {id:'industry',re:/\b(do you work with|is it for|is this for|suitable for|good for|my business|my company|small business|startups?|enterprise|restaurant|cafe|clinic|garage|salon|plumber|electrician|builder|lawyer|accountant|shop|store|agency|retail|trades|industry)\b/,
+   a:['Clever Role is made for modern businesses of many kinds. Tell us about yours in a message and we’ll let you know how we can help.'],c:['msg','join']},
+  {id:'about',re:/\b(what (is|are) (clever role|cleverrole|this|you guys|this (site|company|business|place))|whats (clever role|this|it|your (product|service|business|company))|what do you (do|offer|sell|make|build|provide)|tell me (about|more)|about (you|clever role|the company|us)|what (is|are) (your|the) (product|service|solution)s?|products?|services?|solutions?)\b/,
+   a:['Clever Role builds intelligent digital solutions for modern businesses. We’re getting ready to launch and we’d love to tell you more.','We make intelligent digital solutions for modern businesses. The details are under wraps until launch, so leave a message and we’ll tell you first.'],c:['price','join','who'],more:'join'},
+  {id:'offtopic',re:/\b(weather|news|football|soccer|recipe|homework|translate|essay|poem|story|code|coding|program|maths?|calculate|stocks?|crypto|bitcoin|horoscope|lottery|movie|song|lyrics|capital of|president|prime minister)\b/,
+   a:['That’s outside what I can help with here. I can tell you about Clever Role or take a message for the team.','I’m only set up for questions about Clever Role. Want to hear about it, or leave a message?'],c:['about','msg']}
+  ];
+  var BYID={};E.forEach(function(e){BYID[e.id]=e;});
+  var RUDEA=['Let’s keep it friendly. I’m happy to help with a question about Clever Role.','I’ll gladly help if we keep things polite. What would you like to know?'];
+  var MISSA=['I’m not sure I understood that one. Could you ask it another way, or tap one of these?','That one’s beyond me, I’m afraid. Would you like me to pass your question to the team?'];
+  function build(e,ctx,pre){var n=ctx.counts[e.id]||0;ctx.counts[e.id]=n+1;var txt=e.fn?e.fn(ctx):e.a[n%e.a.length];
+    var cs=(e.c||[]).map(function(c){return typeof c==='string'?CH[c]:c;});
+    return {text:(pre||'')+txt,chips:cs,kind:e.kind||'answer',id:e.id};}
+  function reply(raw,ctx,strict){
+    ctx=ctx||{};ctx.counts=ctx.counts||{};ctx.strikes=ctx.strikes|0;ctx.misses=ctx.misses|0;ctx.probes=ctx.probes|0;
+    var t=String(raw||'').trim();
+    if(isCode(t)){ctx.probes++;if(ctx.probes>=4)return {text:'I’m going to pause the chat for now. You’re welcome to come back later.',pause:true,kind:'pause',chips:[]};
+      return {text:'That looks like computer code, and I can’t use it. Try asking in plain words.',chips:[CH.about,CH.msg],kind:'probe'};}
+    if(rude(t)){ctx.strikes++;if(ctx.strikes>=3)return {text:'I’m going to pause the chat for now. You’re welcome to come back later.',pause:true,kind:'pause',chips:[]};
+      return {text:RUDEA[(ctx.strikes-1)%RUDEA.length],chips:[CH.about,CH.msg],kind:'rude'};}
+    if(t.length>300)return strict?null:{text:'That’s a lot for a quick question. Could you shorten it, or tap Leave a message?',chips:[CH.msg],kind:'long'};
+    if(/https?:\/\/|www\./i.test(t))return {text:'I can’t open links, but I’m happy to answer questions in plain words.',chips:[CH.about,CH.msg],kind:'link'};
+    var n=fix(norm(t));
+    if(!n||n.replace(/[^a-z]/g,'').length<2)return strict?null:{text:'I didn’t quite catch that. Try asking in a sentence, or tap one of these.',chips:[CH.about,CH.join,CH.msg],kind:'miss'};
+    var nm=n.match(/\b(?:my name is|call me|im called) ([a-z]{2,20})\b/);
+    if(nm&&!/^(not|sorry|here|looking|interested|curious|just|new|from|with|a|an|the)$/.test(nm[1])){ctx.name=nm[1].charAt(0).toUpperCase()+nm[1].slice(1);return {text:'Nice to meet you, '+ctx.name+'. What can I help you with?',chips:[CH.about,CH.price,CH.join],kind:'answer'};}
+    var frus=/\b(useless|stupid|dumb|terrible|awful|waste of time|annoy\w*|frustrat\w*|angry|rubbish|hopeless|worst|ridiculous)\b/.test(n);
+    var pre=frus?'Sorry about that. ':'';
+    for(var i=0;i<E.length;i++){if(E[i].re.test(n)){var r=build(E[i],ctx,E[i].kind==='probe'||E[i].kind==='inapp'||E[i].kind==='care'||E[i].kind==='social'?'':pre);
+      if(r.kind==='probe'||r.kind==='inapp'){ctx.probes++;if(ctx.probes>=4)return {text:'I’m going to pause the chat for now. You’re welcome to come back later.',pause:true,kind:'pause',chips:[]};}
+      ctx.last=E[i].id;ctx.misses=0;return r;}}
+    if(NONEN.test(t)||/\b(hola|gracias|bonjour|merci|hallo|danke|ciao|obrigado|por favor|cuanto|combien)\b/.test(n)){return build(BYID.language,ctx,'');}
+    if(ctx.last&&BYID[ctx.last]&&n.split(' ').length<=6&&/^(and|so|ok|okay|but|what about|how about|why|really|more|tell me more|go on|then|what else)\b|\b(that|it|this)\b/.test(n)){
+      var le=BYID[ctx.last];if(le.more&&BYID[le.more])le=BYID[le.more];ctx.last=le.id;return build(le,ctx,pre);}
+    if(strict)return null;
+    if(frus)return {text:'Sorry about that. I\u2019m only a simple helper. Tap Leave a message and a person will look at it.',chips:[CH.msg],kind:'answer'};
+    ctx.misses++;
+    if(ctx.misses===1)return {text:pre+MISSA[0],chips:[CH.about,CH.price,CH.join,CH.msg],kind:'miss'};
+    if(ctx.misses===2)return {text:pre+MISSA[1],chips:[{l:'Yes, send it',send:true},{l:'No thanks',no:true}],kind:'miss'};
+    return {text:pre+'I’d rather a person answered that properly. Tap Leave a message and we’ll reply by email.',chips:[CH.msg],kind:'miss'};}
+  function byId(id,ctx){ctx=ctx||{};ctx.counts=ctx.counts||{};var e=BYID[id];if(!e)return null;ctx.last=id;return build(e,ctx,'');}
+  return {reply:reply,byId:byId,greeting:hello,isCode:isCode,isRude:rude,ENTRIES:E};
+})();
+/* ===== end of chat brain ===== */
+
 function CleverRoleChat(opts){
   opts=opts||{};
   var MAXLEN=1000, PER_DAY=3;
@@ -496,20 +626,21 @@ function CleverRoleChat(opts){
   function cmdOnly(ph){micStop();inp.disabled=false;sendBtn.disabled=true;inp.placeholder=ph;}  // the message has gone, but page commands still work
   function today(){return new Date().toISOString().slice(0,10);}
   function sentToday(){try{var s=JSON.parse(lsGet('cr-chat')||'{}');return s.d===today()?s.n:0;}catch(e){return 0;}}
-  function markSent(){lsSet('cr-chat',JSON.stringify({d:today(),n:sentToday()+1}));}
+  function markSent(){lsSet('cr-chat',JSON.stringify({d:today(),n:sentToday()+1}));lsSet('cr-chat-t',String(Date.now()));}
   var TOPICS=opts.topics||['Pricing','Partnership','Media','Something else'];
   function chips(){var w=doc.createElement('div');w.className='crc-chips';
     TOPICS.forEach(function(t){var b=doc.createElement('button');b.type='button';b.className='crc-chip';b.textContent=t;
-      b.addEventListener('click',function(){if(step!==0)return;w.remove();bubble(t,'them');data.topic=t;step=1;
+      b.addEventListener('click',function(){if(step!==0)return;w.remove();clearSmartChips();bubble(t,'them');data.topic=t;step=1;
         say('Thanks. Tell us a little about what you need. Please don’t include passwords, card numbers or other private details.',function(){ask('Type your message');count.hidden=false;});});
       w.appendChild(b);});
     log.appendChild(w);log.scrollTop=log.scrollHeight;}
   function open(){root.hidden=false;startFx();if(started){if(!inp.disabled)inp.focus();return;}
     started=true;openedAt=Date.now();lock('Choose a topic above');
+    if(paused){say('The chat is paused for now. You’re welcome to come back later.',function(){lock('Chat paused for now');});return;}
     if(sentToday()>=PER_DAY){say('Thanks for getting in touch again. You’ve already sent us a few messages today, so we’ll reply to those by email soon.',function(){lock('Message limit reached for today');});return;}
-    say('Hi, thanks for stopping by.',function(){
-      say('Pick a topic, tell us what you need, and we’ll reply by email.',function(){
-        say('What’s it about?',function(){step=0;chips();inp.disabled=false;inp.placeholder='Pick a topic, or say “dark mode” or “gears”';});});});}
+    say(CRBrain.greeting()+' Thanks for stopping by.',function(){
+      say('Ask me a question, or pick a topic and leave a message. We reply by email.',function(){
+        say('What would you like to know?',function(){step=0;chips();inp.disabled=false;inp.placeholder='Ask a question, or pick a topic';});});});}
   function close(){micStop();closePicker(false);root.hidden=true;stopFx();}
   if(opts.opener)opts.opener.addEventListener('click',open);
   q('.crc-x').addEventListener('click',close);
@@ -531,6 +662,37 @@ function CleverRoleChat(opts){
     return letters<10||words<3||/(.)\1{6,}/.test(t)||/https?:\/\/\S+.*https?:\/\/\S+.*https?:\/\//i.test(t);}
   function retry(v,msg,ph){inp.value=v;inp.dispatchEvent(new Event('input'));say(msg,function(){ask(ph);});}
 
+  /* ---------- smart answers: questions are answered from the library (CRBrain), no AI and no network ---------- */
+  var bctx={}, paused=false, LM={l:'Leave a message',msg:'Something else'};
+  try{if(Date.now()-(+lsGet('cr-chat-pause')||0)<3600000)paused=true;}catch(e){}
+  function clearSmartChips(){var o=log.querySelectorAll('.crc-smart');for(var i=0;i<o.length;i++)o[i].remove();}
+  function startMessage(topic){
+    if(step===1){say('Go ahead and type your message.');return;}
+    if(step>=2&&step<4){say('Let’s finish this message first.');return;}
+    if(step>=4){say('Your message is already on its way. Ask me anything else you like.');return;}
+    if(sentToday()>=PER_DAY){say('You’ve already sent us a few messages today, so we’ll reply to those by email soon.');return;}
+    var o=log.querySelector('.crc-chips:not(.crc-smart)');if(o)o.remove();clearSmartChips();
+    data.topic=topic;step=1;
+    say('Tell us a little about what you need. Please don’t include passwords, card numbers or other private details.',function(){ask('Type your message');count.hidden=false;});}
+  function showChips(list){clearSmartChips();if(!list||!list.length)return;var w=doc.createElement('div');w.className='crc-chips crc-smart';
+    list.slice(0,4).forEach(function(c){var b=doc.createElement('button');b.type='button';b.className='crc-chip';b.textContent=c.l;
+      b.addEventListener('click',function(){w.remove();chosen(c);});w.appendChild(b);});
+    log.appendChild(w);log.scrollTop=log.scrollHeight;}
+  function answer(r){if(!r)return;say(r.text,function(){
+    if(r.pause){paused=true;lsSet('cr-chat-pause',String(Date.now()));lock('Chat paused for now');return;}
+    showChips(r.chips);});}
+  function chosen(c){bubble(c.l,'them');
+    if(c.q)answer(CRBrain.byId(c.q,bctx));
+    else if(c.msg)startMessage(c.msg);
+    else if(c.view){window.crShowView&&window.crShowView(c.view);say(c.view==='terms'?'Here are our Terms of Use. Say “home” whenever you want to go back.':'Here’s our Privacy Policy. Say “home” whenever you want to go back.');}
+    else if(c.send){
+      if(step===0){var o=log.querySelector('.crc-chips:not(.crc-smart)');if(o)o.remove();data.topic='Question';data.message=String(bctx.lastQ||'').slice(0,300).replace(/https?:\/\/\S+|www\.\S+/gi,'[link removed]');step=2;count.hidden=true;
+        say('Thanks. Who are we talking to?',function(){ask('Your name');});}
+      else say('Let’s finish what we’re doing first.');}
+    else if(c.no)say('No problem. Ask me something else, or tap Leave a message whenever you like.',function(){showChips([LM]);});}
+  function smart(v,strict){var r=CRBrain.reply(v,bctx,strict);if(!r)return false;clearBox();bubble(v,'them');if(r.kind==='miss')bctx.lastQ=v;answer(r);return true;}
+  function questionish(v){return v.split(/\s+/).length<=14&&(/\?\s*$/.test(v)||/^(what|who|when|where|why|how|is|are|do|does|can|could|will|would|tell me)\b/i.test(v));}
+
   /* ===== SEND HOOK (the one place that delivers a message) =====
      opts.sendHook(data) receives {topic, name, email, message} and returns a Promise (or value) of:
        true    delivered by the site's own service
@@ -540,6 +702,7 @@ function CleverRoleChat(opts){
   var sendHook=opts.sendHook||CleverRoleChat.mailtoHook(MAIL);
   function deliver(){
     if(hp.value||Date.now()-openedAt<4000)return Promise.resolve(true);  // bot trap: hidden field filled, or far too fast for a person
+    if(Date.now()-(+lsGet('cr-chat-t')||0)<60000)return Promise.resolve('wait');  // one message a minute
     return Promise.resolve().then(function(){return sendHook(data);}).catch(function(){return false;});
   }
   /* ---------- page commands: the chat doubles as a way to move around the page and change how it looks (home, privacy, terms, dark, light,
@@ -568,8 +731,8 @@ function CleverRoleChat(opts){
       if(!pick&&has(/ (on|play|start|some) /))pick=loops[0];
       if(pick){w.crSetMusic&&w.crSetMusic(pick[0]);return ok('Playing '+pick[1]+'. Say \u201cmusic off\u201d to stop it.');}
       return ok('Music choices: '+loops.map(function(l){return l[1];}).join(', ')+'. Say one, or \u201cmusic off\u201d.');}
-    if(has(/ (dark|darker|night|dim) /)&&!has(/ background /)){w.crSetTheme&&w.crSetTheme('dark');return ok('Dark it is.');}
-    if(has(/ (light|lighter|bright|brighter|day) /)&&!has(/ background /)){w.crSetTheme&&w.crSetTheme('light');return ok('Light it is.');}
+    if(has(/ (dark|darker|dim) /)&&!has(/ background /)){w.crSetTheme&&w.crSetTheme('dark');return ok('Dark it is.');}
+    if(has(/ (light|lighter|bright|brighter) /)&&!has(/ background /)){w.crSetTheme&&w.crSetTheme('light');return ok('Light it is.');}
     if(has(/ (dark|black) background /)){w.crSetTheme&&w.crSetTheme('dark');return ok('Dark it is.');}
     if(has(/ (light|white|bright) background /)){w.crSetTheme&&w.crSetTheme('light');return ok('Light it is.');}
     var bg=null;BGS.forEach(function(m){if(!bg&&has(new RegExp(' '+m+' ')))bg=m;});
@@ -583,24 +746,27 @@ function CleverRoleChat(opts){
   }
   cf.addEventListener('submit',function(e){
     e.preventDefault(); micStop(); var v=inp.value.trim(); if(!v)return; if(command(v))return;
-    if(sent){clearBox();say('Your message is already on its way. For anything else, email '+MAIL+'.');return;}
-    if(step<1){clearBox();if(step===0)say('Pick one of the topics above to leave a message. Or ask me for something like \u201cdark mode\u201d, \u201cgears background\u201d or \u201cshow terms\u201d.');return;}
+    if(paused){clearBox();return;}
+    if(step===0||step>=4||(step===1&&questionish(v))){if(smart(v,step===1))return;}
+    if(step<1){clearBox();return;}
+    if(step===1&&CRBrain.isCode(v)){retry(v,'That looks like computer code, and I can\u2019t send it. Could you put your message in plain words?','Reword your message');return;}
     inp.value='';inp.style.height='auto';sendBtn.disabled=true;inp.disabled=true;
     if(rude(v)){retry(v,'We’d love to help, but please keep it friendly. Could you reword your message without the strong language?','Reword your message');return;}
     if(hasCard(v)||hasSecret(v)){retry(v,'For your safety, please don’t share card numbers, passwords or other private details here. Could you remove that part and send it again?','Remove the private details');return;}
     if(step===1){
       if(v.length>MAXLEN){retry(v,'That’s a little long for a first message. Could you keep it under '+MAXLEN+' characters? We can go into detail by email.','Shorten your message');return;}
       if(gibberish(v)){retry(v,'Could you add a little more detail about what you’re looking for? It helps us send the right reply.','Add a bit more detail');return;}
-      bubble(v,'them');data.message=v;step=2;count.hidden=true;say('Thanks. Who are we talking to?',function(){ask('Your name');});}
+      bubble(v,'them');data.message=v.replace(/https?:\/\/\S+|www\.\S+/gi,'[link removed]');step=2;count.hidden=true;say('Thanks. Who are we talking to?',function(){ask('Your name');});}
     else if(step===2){
       if(v.length>80||!/[a-z]/i.test(v)){retry(v,'Could you just give us your name, please?','Your name');return;}
       bubble(v,'them');data.name=v;step=3;say('Nice to meet you, '+v.split(' ')[0]+'. What’s the best email to reply to?',function(){ask('you@company.com','email');});}
     else if(step===3){
       if(v.length>120||!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(v)){retry(v,'That email doesn’t look quite right. Could you check it?','you@company.com');return;}
       bubble(v,'them');data.email=v;step=4;sent=true;say('Sending your message…',function(){deliver().then(function(ok){
-        if(ok==='mail'){markSent();say('Your email app should now open with your message ready to send. If it doesn’t, email us at '+MAIL+'.',function(){cmdOnly('Message ready in your email app');});}
-        else if(ok){markSent();say('Done. Your message is with us and we’ll reply to '+data.email+' soon.',function(){cmdOnly('Message sent');});}
-        else{sent=false;say('Sorry, that didn’t go through. Please email us at '+MAIL+'.');}
+        if(ok==='mail'){markSent();say('Your email app should now open with your message ready to send. If it doesn’t, email us at '+MAIL+'.',function(){cmdOnly('Ask me anything else');});}
+        else if(ok==='wait'){sent=false;step=3;say('You’ve just sent a message, so please give it a minute and try again.',function(){ask('you@company.com','email');});}
+        else if(ok){markSent();say('Done. Your message is with us and we’ll reply to '+data.email+' soon.',function(){cmdOnly('Message sent. Ask me anything else');});}
+        else{sent=false;step=3;say('Sorry, that didn’t go through. Please send your email address again to retry, or write to us at '+MAIL+'.',function(){ask('you@company.com','email');});}
       });});}
   });
   function resetFx(){fxs='match';fxc='scheme';try{ls&&ls.removeItem('cr-chatfx');}catch(e){}applyFxColour();paintPicker();if(!root.hidden)drawFx(performance.now(),true);}
@@ -614,7 +780,7 @@ CleverRoleChat.mailtoHook=function(addr){return function(d){
 CleverRoleChat.formHook=function(url,key){return function(d){
   return fetch(url,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},
     body:JSON.stringify({access_key:key,subject:'cleverrole.com: '+d.topic+' from '+d.name,from_name:'cleverrole.com',name:d.name,email:d.email,replyto:d.email,topic:d.topic,message:d.message})})
-    .then(function(r){return r.ok;});};};
+    .then(function(r){return r.json();}).then(function(j){return !!(j&&j.success);});};};
 /* ===== end of Clever Role chat widget ===== */
 
 (function(){
@@ -635,7 +801,7 @@ CleverRoleChat.formHook=function(url,key){return function(d){
 
   /* Chat: the reusable widget below (CleverRoleChat). SEND_URL stays empty until a form-delivery service is set up;
      until then Send opens the visitor's email app with the message ready (mailto:hello@cleverrole.com). */
-  var SEND_URL='', SEND_KEY='';
+  var SEND_URL='https://api.web3forms.com/submit', SEND_KEY='6583268c-9d10-47f7-84a3-bdbdb5f9cfe2';
   window.crChat=CleverRoleChat({opener:document.getElementById('openForm'),avatar:'data:image/png;base64,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',
     sendHook: SEND_URL?CleverRoleChat.formHook(SEND_URL,SEND_KEY):CleverRoleChat.mailtoHook('hello@cleverrole.com')});
 })();
