@@ -171,6 +171,7 @@ footer a:hover,footer button:hover{color:var(--fg)}
 .pop input[type=range]:focus-visible{outline:2px solid var(--fg);outline-offset:3px;border-radius:6px}
 .bgo{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0 0 10px}
 .bgo button{font:inherit;font-size:11.5px;color:var(--fg);background:transparent;border:1px solid var(--line);border-radius:10px;padding:6px 4px;cursor:pointer;transition:background .2s,border-color .2s}
+.bgo button:last-child:nth-child(3n+1){grid-column:1/-1}
 .bgo button:hover{background:color-mix(in srgb,var(--fg) 8%,transparent)}
 .bgo button[aria-pressed="true"]{border-color:var(--acc,var(--fg));background:color-mix(in srgb,var(--acc,var(--fg)) 12%,transparent)}
 @media (prefers-reduced-motion:reduce){#musicBtn .eq b{animation:none;height:9px}.pop{animation:none}}
@@ -569,7 +570,8 @@ function CleverRoleChat(opts){
       var s=Math.max(0,Math.sin((X*0.5+Y*0.9)/(10*u)-t*1.1)),a=0.12+0.6*s*s*s;
       fctx.beginPath();for(k=0;k<6;k++){var ang=Math.PI/6+k*Math.PI/3;k?fctx.lineTo(X+Math.cos(ang)*R*0.92,Y+Math.sin(ang)*R*0.92):fctx.moveTo(X+Math.cos(ang)*R*0.92,Y+Math.sin(ang)*R*0.92);}
       fctx.closePath();fctx.strokeStyle=rg(c,a);fctx.stroke();if(s>.6){fctx.fillStyle=rg(c,(s-.6)*.25);fctx.fill();}}}
-  var ART={gears:artGears,network:artNetwork,orbits:artOrbits,contours:artContours,ripples:artRipples,lattice:artLattice};
+  function artSilk(c,t,w,h,u){var i,k;fctx.lineWidth=1;for(i=0;i<5;i++){fctx.beginPath();for(k=0;k<=w;k+=4){var y=h*(0.2+i*0.15)+Math.sin(k/w*TAU*1.3+t*0.5+i*0.5)*h*0.14;k?fctx.lineTo(k,y):fctx.moveTo(k,y);}fctx.strokeStyle=rg(c,i%2?.3:.5);fctx.stroke();}}
+  var ART={gears:artGears,network:artNetwork,orbits:artOrbits,contours:artContours,ripples:artRipples,lattice:artLattice,silk:artSilk};
   function pageBg(){var m='network';try{if(window.crGetBackground)m=window.crGetBackground()||m;}catch(e){}return ART[m]?m:'network';}
   function drawFx(now,once){
     if(!fctx)return; if(!FW||!FH)fxSize(); var t=(now-FT0)/1000, c=accRgb(), w=FW, h=FH, u=h/56, i, k;
@@ -730,14 +732,14 @@ function CleverRoleChat(opts){
   /* ---------- page commands: the chat doubles as a way to move around the page and change how it looks (home, privacy, terms, dark, light,
      a background, a line colour, bolder or fainter lines, bigger or smaller, more or less, music on or off, reset). Nothing else: no account or
      payment actions, no settings outside this page. Works at every step, typed or spoken. Anything it doesn't recognise goes on as a normal message. */
-  var BGS=['network','gears','orbits','contours','ripples','lattice'];
+  var BGS=['network','gears','orbits','contours','ripples','lattice','silk'];
   function clearBox(){inp.value='';inp.style.height='auto';sendBtn.disabled=true;}
   function command(raw){
     var t=' '+raw.toLowerCase().replace(/[^a-z0-9 ]+/g,' ').replace(/\s+/g,' ').trim()+' ', w=window;
     if(t.length>70)return false;
     if(step===1&&t.trim().split(' ').length>5)return false;  // a real message, not a command: leave it alone
     var has=function(re){return re.test(t);}, ok=function(msg){clearBox();bubble(raw,'them');say(msg);return true;};
-    if(has(/^ (help|what can you do|what can i say|commands|options) $/))return ok('I can take you to Privacy, Terms or Home, switch to dark or light, change the background (Network, Gears, Orbits, Contours, Ripples, Lattice), pick a line colour, make the lines bolder, fainter, bigger, smaller, more or less, turn the music on or off, or reset everything. Or just pick a topic and leave us a message.');
+    if(has(/^ (help|what can you do|what can i say|commands|options) $/))return ok('I can take you to Privacy, Terms or Home, switch to dark or light, change the background (Network, Gears, Orbits, Contours, Ripples, Lattice, Silk), pick a line colour, make the lines bolder, fainter, bigger, smaller, more or less, turn the music on or off, or reset everything. Or just pick a topic and leave us a message.');
     if(has(/ (reset|defaults?|start over|undo everything) /)){w.crResetAll&&w.crResetAll();return ok('Everything is back to the way it started.');}
     if(has(/ privacy /)&&!has(/ (my|our|their|question|about|concern|issue|problem) /)){w.crShowView&&w.crShowView('privacy');return ok('Here\u2019s our Privacy Policy. Say \u201chome\u201d whenever you want to go back.');}
     if(has(/ (terms|conditions) /)&&!has(/ (my|our|their|question|about|concern|issue|problem) /)){w.crShowView&&w.crShowView('terms');return ok('Here are our Terms of Use. Say \u201chome\u201d whenever you want to go back.');}
@@ -831,7 +833,7 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   openFromLink();addEventListener('hashchange',openFromLink);
 })();
 
-/* Living background, six styles: precision gears, a workflow network, orbits, contours, ripples and a lattice.
+/* Living background, seven styles: precision gears, a workflow network, orbits, contours, ripples, a lattice and silk.
    Every style runs off the same phase as the spinning symbol (window.crSpin, eased in by window.crWake),
    so it starts still with the symbol, and flicking the symbol speeds it up or turns it the other way. */
 (function(){
@@ -839,13 +841,13 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   var root=document.documentElement, W=0,H=0,D=1, mx=0,my=0, tx=0,ty=0, run=true, prev=performance.now(), T=0, PH=0, OT=0, AX=0, AY=0, skip=0;
   var TAU=Math.PI*2;
   var still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var MODES=['network','gears','orbits','contours','ripples','lattice'];  // Network is the home state; the switcher cycles in this order
+  var MODES=['network','gears','orbits','contours','ripples','lattice','silk'];  // Network is the home state; the switcher cycles in this order
   var MODE=(function(){try{return localStorage.getItem('cr-bg')||'network'}catch(e){return 'network'}})(); if(MODES.indexOf(MODE)<0)MODE='network';
   window.crGetBackground=function(){return MODE;};
   window.crResetBackground=function(){MODE='network';try{localStorage.removeItem('cr-bg')}catch(e){};build();if(still)render(0,1);try{document.dispatchEvent(new Event('crbgchange'));}catch(e){}};
   window.crSetBackground=function(m){if(MODES.indexOf(m)<0)return;MODE=m;try{localStorage.setItem('cr-bg',m)}catch(e){};build();if(still)render(0,1);try{document.dispatchEvent(new Event('crbgchange'));}catch(e){}};
   // How strongly each style shows. Kept low on purpose: the background should be felt more than seen.
-  var FADE={gears:0.72,network:0.56,orbits:0.56,contours:0.64,ripples:0.7,lattice:0.65}, LIGHT=0.85, K=1, DN=1, LWK=1;  // a modest step up from v18 (about a quarter stronger)
+  var FADE={gears:0.72,network:0.56,orbits:0.56,contours:0.64,ripples:0.7,lattice:0.65,silk:0.65}, LIGHT=0.85, K=1, DN=1, LWK=1;  // a modest step up from v18 (about a quarter stronger)
   function ink(){return getComputedStyle(root).getPropertyValue('--fg').trim()||'#f4f4f2';}
   function rgb(hex){hex=hex.replace('#','');if(hex.length===3)hex=hex.split('').map(function(a){return a+a}).join('');var n=parseInt(hex,16);return [(n>>16)&255,(n>>8)&255,n&255];}
   // Line colour: the page sets --tint ("r, g, b") from the colour button; empty means the page's own ink. --tintk scales line strength.
@@ -989,6 +991,20 @@ CleverRoleChat.formHook=function(url,key){return function(d){
     }
   }
 
+  /* ---------- silk: rows of fine threads that sway together, fuller near the symbol and calmer towards the edges; every fifth is bolder ---------- */
+  function drawSilk(){
+    var u=Math.min(W,H), gap=Math.max(14,Math.min(26,u/D/30))*D/DN, cx=AX-mx*30*D, cy=AY-my*24*D, st=6*D, rows=Math.ceil(H/gap)+4, ph=PH*0.2;
+    x.lineWidth=LWK*Math.max(1,D*0.75);
+    for(var j=-2;j<rows;j++){
+      var y0=j*gap, f=(y0-cy)/u, env=Math.exp(-f*f*4), amp=gap*(0.8+2.6*env);
+      x.beginPath();
+      for(var X=-st;X<=W+st;X+=st){
+        var xx=(X-cx)/u, Y=y0+amp*(0.55*Math.sin(xx*4.8+ph+j*0.18)+0.3*Math.sin(xx*8.6-ph*0.7+j*0.27)+0.15*Math.sin(xx*14.2+ph*1.4));
+        X===-st?x.moveTo(X,Y):x.lineTo(X,Y);
+      }
+      x.strokeStyle=col((j%5===0?0.24:0.12)*(0.55+0.45*env)); x.stroke();
+    }
+  }
   /* ---------- lattice: a tessellation of tumbling blocks; each cell flips a sixth of a turn as a wave from the symbol reaches it ---------- */
   function drawLattice(){
     var h=Math.max(18,Math.min(34,Math.min(W,H)/D/22))*D/DN, dx=Math.sqrt(3)*h, dy=1.5*h, ox=AX-mx*18*D, oy=AY-my*14*D,
@@ -1019,6 +1035,7 @@ CleverRoleChat.formHook=function(url,key){return function(d){
     else if(MODE==='orbits')drawOrbits(OT);
     else if(MODE==='contours')drawContours();
     else if(MODE==='ripples')drawRipples();
+    else if(MODE==='silk')drawSilk();
     else drawLattice();
     x.setTransform(1,0,0,1,0,0); x.globalAlpha=1; if(PS>0.012)lens(); quiet();
   }
@@ -1117,7 +1134,7 @@ CleverRoleChat.formHook=function(url,key){return function(d){
 })();
 /* Background switcher: cycles the six backgrounds. A small label names the new background for about 1.5s whenever the background actually changes
    (switcher, reset, anything else); it is announced politely (aria-live). Nothing is shown if the background stays the same. */
-(function(){var b=document.getElementById('bgCycle'),n=document.getElementById('bgName'),L=['network','gears','orbits','contours','ripples','lattice'],N={gears:'Gears',network:'Network',orbits:'Orbits',contours:'Contours',ripples:'Ripples',lattice:'Lattice'},t,shown=(window.crGetBackground&&window.crGetBackground())||'network';if(!b||!n)return;
+(function(){var b=document.getElementById('bgCycle'),n=document.getElementById('bgName'),L=['network','gears','orbits','contours','ripples','lattice','silk'],N={gears:'Gears',network:'Network',orbits:'Orbits',contours:'Contours',ripples:'Ripples',lattice:'Lattice',silk:'Silk'},t,shown=(window.crGetBackground&&window.crGetBackground())||'network';if(!b||!n)return;
   function show(m){n.textContent=N[m];n.classList.add('show');clearTimeout(t);t=setTimeout(function(){n.classList.remove('show');},1500);}
   document.addEventListener('crbgchange',function(){var m=window.crGetBackground();if(m!==shown){shown=m;show(m);}});
   var pp=document.getElementById('bgPop'),opts=pp&&pp.querySelector('.bgo'),nmEl=document.getElementById('bgNm');
