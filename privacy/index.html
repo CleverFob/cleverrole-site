@@ -181,7 +181,7 @@ footer a:hover,footer button:hover{color:var(--fg)}
     <button class="theme" id="musicBtn" type="button" aria-label="Music off. Open music menu" aria-haspopup="true" aria-expanded="false" data-tip="Music"><svg class="note" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg><em class="eq" aria-hidden="true"><b></b><b></b><b></b></em></button>
     <button class="theme" id="colorBtn" type="button" aria-label="Lines: colour, strength, scale, density" aria-haspopup="true" aria-expanded="false" data-tip="Lines: colour, strength, scale, density"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="drop" d="M12 3.2c-3.4 4-6 7-6 10.3a6 6 0 0 0 12 0C18 10.200 15.400 7.200 12 3.200z"/></svg></button>
     <div class="pop" id="musicPop" hidden role="menu" aria-label="Music"><h2>Music</h2><div class="list"></div><p class="note-s">Plays only when you pick a loop. Made live in your browser.</p></div>
-    <div class="pop" id="colorPop" hidden aria-label="Line colour"><h2>Lines</h2><div class="grid"></div><div class="nm"></div><div class="rl"><label for="tintK">Strength</label><output id="tintKo" for="tintK">Default</output></div><input id="tintK" type="range" min="0.4" max="8" step="0.1" value="1" aria-label="Line strength, fainter to bolder"><div class="rl"><label for="tintD">Scale</label><output id="tintDo" for="tintD">Default</output></div><input id="tintD" type="range" min="0.6" max="1.8" step="0.1" value="1" aria-label="Line scale, smaller to bigger"><div class="rl"><label for="tintA">Density</label><output id="tintAo" for="tintA">Default</output></div><input id="tintA" type="range" min="0.2" max="1" step="0.05" value="1" aria-label="Line density, how much of the drawing shows"></div>
+    <div class="pop" id="colorPop" hidden aria-label="Line colour"><h2>Lines</h2><div class="grid"></div><div class="nm"></div><div class="rl"><label for="tintK">Strength</label><output id="tintKo" for="tintK">Default</output></div><input id="tintK" type="range" min="0.4" max="8" step="0.1" value="2" aria-label="Line strength, fainter to bolder"><div class="rl"><label for="tintD">Scale</label><output id="tintDo" for="tintD">Default</output></div><input id="tintD" type="range" min="0.6" max="1.8" step="0.1" value="1" aria-label="Line scale, smaller to bigger"><div class="rl"><label for="tintA">Density</label><output id="tintAo" for="tintA">Default</output></div><input id="tintA" type="range" min="0.2" max="1" step="0.05" value="1" aria-label="Line density, how much of the drawing shows"></div>
     <button class="theme" id="bgCycle" type="button" aria-label="Change background" data-tip="Change background"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 3.5 8 12 12.500 20.500 8 12 3.500z"/><path d="m3.500 12 8.500 4.500 8.500-4.500"/><path d="m3.500 16 8.500 4.500 8.500-4.500"/></svg></button>
     <button class="theme reset" id="resetBtn" type="button" aria-label="Reset to default" aria-disabled="true" data-tip="Reset to default"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg></button>
   </div>
@@ -1110,7 +1110,7 @@ CleverRoleChat.formHook=function(url,key){return function(d){
     ['cyber-punk','Cyber Punk','#7c3aed','#a855f7'],['aurora','Aurora','#059669','#34d399'],['wildfire','Wildfire','#b91c1c','#f87171'],['hologram','Hologram','#0891b2','#67e8f9'],
     ['ocean','Ocean','#0284c7','#38bdf8'],['violet','Violet','#7c3aed','#a78bfa'],['rose','Rose','#be185d','#f472b6'],['crimson','Crimson','#dc2626','#f87171'],
     ['amber','Amber','#b45309','#fbbf24'],['emerald','Emerald','#047857','#34d399'],['teal','Teal','#0d9488','#2dd4bf']];
-  var idx=0, K=1, SC=1, AL=1;
+  var idx=0, K=2, SC=1, AL=1;
   try{var sv=JSON.parse(localStorage.getItem('cr-tint')||'null');if(sv){if(sv.i>=0&&sv.i<S.length)idx=sv.i|0;if(sv.k>=0.4&&sv.k<=8)K=+sv.k;if(sv.s>=0.6&&sv.s<=1.8)SC=+sv.s;if(sv.a>=0.2&&sv.a<=1)AL=+sv.a;}}catch(e){}
   function save(){try{localStorage.setItem('cr-tint',JSON.stringify({i:idx,k:K,s:SC,a:AL}));}catch(e){}}
   function rgb(h){var n=parseInt(h.slice(1),16);return [(n>>16)&255,(n>>8)&255,n&255];}
@@ -1119,7 +1119,7 @@ CleverRoleChat.formHook=function(url,key){return function(d){
     var neutral=idx===0, hex=neutral?(light()?'#0a0a0a':'#f4f4f2'):(light()?S[idx][2]:S[idx][3]), c=rgb(hex), lum=(0.299*c[0]+0.587*c[1]+0.114*c[2])/255;
     root.style.setProperty('--tint',neutral?'':c.join(', '));
     root.style.setProperty('--tintk',String(K));root.style.setProperty('--tints',String(SC));root.style.setProperty('--tinta',String(AL));
-    ko.textContent=K===1?'Default':(K<1?'Fainter':'Bolder')+' '+K.toFixed(1)+'×';do_.textContent=SC===1?'Default':(SC<1?'Smaller':'Bigger')+' '+SC.toFixed(1)+'×';ao.textContent=AL===1?'Default':Math.round(AL*100)+'%';
+    ko.textContent=K===2?'Default':(K<2?'Fainter':'Bolder')+' '+K.toFixed(1)+'×';do_.textContent=SC===1?'Default':(SC<1?'Smaller':'Bigger')+' '+SC.toFixed(1)+'×';ao.textContent=AL===1?'Default':Math.round(AL*100)+'%';
     root.style.setProperty('--acc',hex);root.style.setProperty('--acc-rgb',c.join(','));
     root.style.setProperty('--acc-ink',lum>0.58?'#000':'#fff');
     btn.style.setProperty('--sw',hex);
@@ -1135,8 +1135,8 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   rngA.value=AL;rngA.addEventListener('input',function(){AL=+rngA.value;save();paint();});
   new MutationObserver(paint).observe(root,{attributes:true,attributeFilter:['data-theme']});
   paint();
-  window.crResetTint=function(){idx=0;K=1;SC=1;AL=1;rng.value=1;rngD.value=1;rngA.value=1;try{localStorage.removeItem('cr-tint');}catch(e){}paint();};
-  window.crTintIsDefault=function(){return idx===0&&K===1&&SC===1&&AL===1;};
+  window.crResetTint=function(){idx=0;K=2;SC=1;AL=1;rng.value=2;rngD.value=1;rngA.value=1;try{localStorage.removeItem('cr-tint');}catch(e){}paint();};
+  window.crTintIsDefault=function(){return idx===0&&K===2&&SC===1&&AL===1;};
   // For the chat: pick a colour by name, or nudge strength / scale / density a step (dir is +1 or -1). Returns what it did, for the reply.
   window.crTintNames=function(){return S.map(function(x){return x[1];});};
   window.crSetTint=function(name){var i=S.findIndex(function(x){return x[1].toLowerCase()===String(name).toLowerCase();});if(i<0)return false;idx=i;save();paint();return S[i][1];};
@@ -1272,7 +1272,7 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   new MutationObserver(function(){if(cur&&tip.classList.contains('on'))tip.textContent=cur.getAttribute('data-tip')||'';}).observe(document.body,{subtree:true,attributes:true,attributeFilter:['data-tip']});
 })();
 
-/* Reset: puts every visitor choice back to its default (Clever grey lines, strength 1, dark, Network background, chat art "Match background", music off),
+/* Reset: puts every visitor choice back to its default (Clever grey lines, strength Bolder 2.0×, dark, Network background, chat art "Match background", music off),
    clears the remembered choices and re-applies them live. It is dimmed while everything is already at default. */
 (function(){var b=document.getElementById('resetBtn');if(!b)return;var root=document.documentElement;
   function atDefault(){try{return root.getAttribute('data-theme')!=='light'&&window.crTintIsDefault()&&window.crGetBackground()==='network'&&window.crChat.isDefaultFx()&&window.crMusicIsOff();}catch(e){return true;}}
