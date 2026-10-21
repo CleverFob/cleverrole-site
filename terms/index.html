@@ -441,7 +441,8 @@ function CleverRoleChat(opts){
   '.crc-listen[hidden]{display:none}.crc-listen i{width:7px;height:7px;border-radius:50%;background:var(--c-acc);animation:crc-live 1.1s ease-in-out infinite}'+
   '.crc-in{flex:none;display:flex;align-items:flex-end;gap:6px;margin:0 var(--crc-pad) 4px;padding:4px 4px 4px 12px;border:var(--crc-bw) solid var(--c-line);border-radius:var(--crc-radius-sm);transition:border-color .2s}'+
   '.crc-in:focus-within{border-color:rgba(var(--c-acc-rgb),.65)}'+
-  '.crc-in textarea{flex:1;min-width:0;font:inherit;font-size:16px;color:var(--c-fg);background:transparent;border:0;outline:0;resize:none;max-height:120px;min-height:22px;padding:5px 0;line-height:1.4}'+
+  '.crc-in textarea{flex:1;min-width:0;font:inherit;font-size:16px;color:var(--c-fg);background:transparent;border:0;outline:0;resize:none;max-height:120px;min-height:22px;padding:5px 0;line-height:1.4;overflow-y:auto;text-overflow:ellipsis;white-space:nowrap}'+
+  '.crc-in textarea:not(:placeholder-shown){white-space:pre-wrap}'+
   '.crc-in textarea::placeholder{color:var(--c-mut)}'+
   '.crc-mic,.crc-send{width:30px;height:30px;flex:none;border-radius:50%;display:grid;place-items:center;cursor:pointer;padding:0;transition:opacity .2s,background .2s,color .2s,border-color .2s}'+
   '.crc-mic{border:var(--crc-bw) solid var(--c-line);background:transparent;color:var(--c-mut)}'+
@@ -765,7 +766,7 @@ function CleverRoleChat(opts){
       bubble(v,'them');data.email=v;step=4;sent=true;say('Sending your message…',function(){deliver().then(function(ok){
         if(ok==='mail'){markSent();say('Your email app should now open with your message ready to send. If it doesn’t, email us at '+MAIL+'.',function(){cmdOnly('Ask me anything else');});}
         else if(ok==='wait'){sent=false;step=3;say('You’ve just sent a message, so please give it a minute and try again.',function(){ask('you@company.com','email');});}
-        else if(ok){markSent();say('Done. Your message is with us and we’ll reply to '+data.email+' soon.',function(){cmdOnly('Message sent. Ask me anything else');});}
+        else if(ok){markSent();say('Done. Your message is with us and we’ll reply to '+data.email+' soon.',function(){cmdOnly('Ask me anything else');});}
         else{sent=false;step=3;say('Sorry, that didn’t go through. Please send your email address again to retry, or write to us at '+MAIL+'.',function(){ask('you@company.com','email');});}
       });});}
   });
