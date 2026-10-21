@@ -594,7 +594,9 @@ function CleverRoleChat(opts){
   function note(t){bubble(t,'us');}
   function micState(on){listening=on;micBtn.classList.toggle('on',on);micBtn.setAttribute('aria-pressed',String(on));
     micBtn.setAttribute('aria-label',on?'Stop listening':'Speak your message');micBtn.setAttribute('data-tip',on?'Stop listening':'Speak your message');listenEl.hidden=!on;}
-  function micStop(){userStop=true;if(rec){try{rec.stop();}catch(e){}}micState(false);}
+  var gotAudio=false, gotSpeech=false, watch=[];
+  function clearWatch(){watch.forEach(clearTimeout);watch=[];}
+  function micStop(){userStop=true;clearWatch();if(rec){try{rec.stop();}catch(e){}}micState(false);}
   var ERR={'not-allowed':'The microphone is blocked. Allow it from the lock icon in the address bar, then tap the microphone again.',
     'service-not-allowed':'The microphone is blocked. Allow it from the lock icon in the address bar, then tap the microphone again.',
     'no-speech':'We didn’t hear anything. Check your microphone and try again, or just type.',
@@ -604,16 +606,21 @@ function CleverRoleChat(opts){
   function micStart(){
     if(inp.disabled){note('Choose a topic first, then tap the microphone to speak your message.');return;}
     var r;try{r=new SR();}catch(e){micBtn.hidden=true;return;}
-    rec=r;gotText=false;lastErr='';userStop=false;baseText=inp.value?inp.value.replace(/\s+$/,'')+' ':'';
+    rec=r;gotText=false;gotAudio=false;gotSpeech=false;clearWatch();lastErr='';userStop=false;baseText=inp.value?inp.value.replace(/\s+$/,'')+' ':'';
     r.lang=navigator.language||'en-US';r.interimResults=true;r.continuous=true;r.maxAlternatives=1;
     r.onstart=function(){if(rec===r)micState(true);};
+    r.onaudiostart=function(){if(rec===r)gotAudio=true;};
+    r.onspeechstart=function(){if(rec===r){gotSpeech=true;clearWatch();}};
     r.onresult=function(ev){if(rec!==r)return;var s='';for(var i=0;i<ev.results.length;i++)s+=ev.results[i][0].transcript;
-      s=s.replace(/^\s+/,'');if(s)gotText=true;inp.value=(baseText+s).slice(0,MAXLEN+200);inp.dispatchEvent(new Event('input'));inp.scrollTop=inp.scrollHeight;};
-    r.onerror=function(ev){if(rec!==r)return;var e=ev&&ev.error||'';if(e==='aborted'&&userStop)return;lastErr=e||'error';micState(false);
+      s=s.replace(/^\s+/,'');if(s){gotText=true;gotSpeech=true;clearWatch();}inp.value=(baseText+s).slice(0,MAXLEN+200);inp.dispatchEvent(new Event('input'));inp.scrollTop=inp.scrollHeight;};
+    r.onerror=function(ev){if(rec!==r)return;var e=ev&&ev.error||'';if(e==='aborted'&&userStop)return;lastErr=e||'error';clearWatch();micState(false);
       note(ERR[e]||'The microphone stopped unexpectedly ('+(e||'unknown')+'). Please try again or type instead.');};
-    r.onend=function(){if(rec!==r)return;micState(false);rec=null;
+    r.onend=function(){if(rec!==r)return;clearWatch();micState(false);rec=null;
       if(!gotText&&!lastErr&&!userStop)note(ERR['no-speech']);if(!inp.disabled&&!still)inp.focus();};
-    try{r.start();micState(true);}catch(e){rec=null;micState(false);note('The microphone couldn’t start. Please try again or type instead.');}
+    try{r.start();micState(true);}catch(e){rec=null;micState(false);note('The microphone couldn’t start. Please try again or type instead.');return;}
+    // Watchdogs: never sit on "Listening" with nothing happening. If the browser never opens the microphone, or opens it but hears no speech, say so and stop.
+    watch.push(setTimeout(function(){if(rec===r&&!gotAudio&&!gotText){lastErr='no-audio';micStop();note('The microphone didn’t start. Check that this site is allowed to use it (lock icon in the address bar) and that the right microphone is selected, or just type.');}},6000));
+    watch.push(setTimeout(function(){if(rec===r&&!gotSpeech&&!gotText){lastErr='no-speech';micStop();note('The microphone is on but we can’t hear any speech. Check the right microphone is selected in your browser or system settings, or just type.');}},12000));
   }
   if(SR){micBtn.hidden=false;micBtn.addEventListener('click',function(){if(listening){micStop();return;}micStart();});}
 
