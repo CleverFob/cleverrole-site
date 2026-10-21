@@ -550,7 +550,7 @@ function CleverRoleChat(opts){
     var glow=[];for(i=0;i<8;i++){var e=NET.E[(i*3+1)%NET.E.length],ph=(t*0.35+i*0.23)%1,A2=NET.P[e[0]],B2=NET.P[e[1]];
       var X=A2[0]+(B2[0]-A2[0])*ph,Y=A2[1]+(B2[1]-A2[1])*ph;fctx.beginPath();fctx.arc(X,Y,1.8,0,TAU);fctx.fillStyle=rg(mixW(c,.5),.95);fctx.fill();if(ph>.9)glow[e[1]]=1;}
     for(i=0;i<NET.P.length;i++){var p=NET.P[i];fctx.beginPath();fctx.arc(p[0],p[1],glow[i]?3.4:2.4,0,TAU);fctx.strokeStyle=rg(c,glow[i]?.95:.6);fctx.stroke();}}
-  function artOrbits(c,t,w,h,u){[0.16,0.5,0.84].forEach(function(f,k){artOrbitOne(c,t+k*2.1,w,h,u,w*f);});}
+  function artOrbits(c,t,w,h,u){[0.66,0.8,0.94].forEach(function(f,k){artOrbitOne(c,t+k*2.1,w,h,u,w*f);});}
   function artOrbitOne(c,t,w,h,u,cx){var cy=h*0.52,i,j;fctx.lineWidth=1;
     for(i=0;i<3;i++){var rx=(15+i*11)*u,ry=rx*0.38,a=-0.35+i*0.5;fctx.beginPath();fctx.ellipse(cx,cy,rx,ry,a,0,TAU);fctx.strokeStyle=rg(c,.38-i*.07);fctx.stroke();
       for(var b=0;b<2;b++){var th0=t*(0.9-i*0.2)*(i%2?-1:1)+i*2+b*Math.PI;for(j=0;j<7;j++){var th=th0-j*0.09*(i%2?-1:1),ex=rx*Math.cos(th),ey=ry*Math.sin(th),X=cx+ex*Math.cos(a)-ey*Math.sin(a),Y=cy+ex*Math.sin(a)+ey*Math.cos(a);
@@ -573,7 +573,7 @@ function CleverRoleChat(opts){
     if(!fctx)return; if(!FW||!FH)fxSize(); var t=(now-FT0)/1000, c=accRgb(), w=FW, h=FH, u=h/56, i, k;
     fctx.setTransform(FD,0,0,FD,0,0);fctx.clearRect(0,0,w,h);
     if(fxs==='match'){ART[pageBg()](c,t,w,h,u);}
-    else if(fxs==='orbit'){var cx=w*0.5,cy=h*0.5;
+    else if(fxs==="orbit"){var cx=w*0.82,cy=h*0.5;
       var g=fctx.createRadialGradient(cx,cy,0,cx,cy,h*0.9);g.addColorStop(0,rg(c,.3));g.addColorStop(1,rg(c,0));fctx.fillStyle=g;fctx.fillRect(0,0,w,h);
       for(i=0;i<6;i++){var rx=h*(0.45+i*0.5),ry=rx*0.3,a=t*0.35*(i%2?-1:1)+i;fctx.beginPath();fctx.ellipse(cx,cy,rx,ry,a,0,TAU);fctx.strokeStyle=rg(c,.4-i*.06);fctx.lineWidth=1;fctx.stroke();
         var th=t*(1.1-i*0.2)*(i%2?-1:1)+i*1.7,X=cx+rx*Math.cos(th)*Math.cos(a)-ry*Math.sin(th)*Math.sin(a),Y=cy+rx*Math.cos(th)*Math.sin(a)+ry*Math.sin(th)*Math.cos(a);
