@@ -900,8 +900,8 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   var lc=document.getElementById('lkSym'), lx=lc&&lc.getContext('2d'), ldrawn=-1;
   function lfit(){var d=Math.min(window.devicePixelRatio||1,2), w=Math.round(lc.clientWidth*d)||CELL; if(lc.width!==w){lc.width=lc.height=w;ldrawn=-1;}}
   function lcell(j){j=((j%N)+N)%N;var s=Math.floor(j/PER);if(!ready[s])return;var i=j-s*PER;lx.drawImage(sheets[s],(i%COLS)*CELL,Math.floor(i/COLS)*CELL,CELL,CELL,0,0,lc.width,lc.height);}
-  // The small header symbol keeps a visible thickness when side-on: near the two edge-on frames (30 and 90) the neighbouring angles are layered on top.
-  function lstack(f){f=((f%N)+N)%N;var d=Math.min(Math.abs(f-30),Math.abs(f-90),N-Math.abs(f-30),N-Math.abs(f-90)),k=d<10?Math.round((10-d)*0.7):0;for(var o=-k;o<=k;o++)lcell(f+o);lcell(f);}
+  // The small header symbol is the same plain official frame as the symbol on the sign-in page (no layering).
+  function lstack(f){lcell(f);}
   function drawLock(){var pf=Math.floor(pos),fr=pos-pf,f=((pf%N)+N)%N,key=f*16+Math.round(fr*16);if(key===ldrawn||!ready[Math.floor(f/PER)])return;lfit();lx.clearRect(0,0,lc.width,lc.height);lx.imageSmoothingEnabled=true;lx.imageSmoothingQuality='high';lstack(f);if(fr>0.03){lx.globalAlpha=fr;lstack(f+1);lx.globalAlpha=1;}ldrawn=key;}
   function frame(s,i){x.drawImage(sheets[s],(i%COLS)*CELL,Math.floor(i/COLS)*CELL,CELL,CELL,0,0,c.width,c.height);}
   function tick(now){
