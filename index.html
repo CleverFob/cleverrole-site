@@ -276,7 +276,7 @@ var CRBrain=(function(){
     var best=null,bd=w.length>=8?2:1;for(var i=0;i<VOC.length;i++){var d=lev(w,VOC[i],bd);if(d<bd||(d===bd&&!best)){best=VOC[i];if(d===0)break;if(d<bd)bd=d;}}return best||w;}).join(' ');}
   var CH={about:{l:'What is Clever Role?',q:'about'},price:{l:'What does it cost?',q:'price'},join:{l:'When can I join?',q:'join'},contact:{l:'How do I get in touch?',q:'contact'},
     msg:{l:'Leave a message',msg:'Something else'},privacy:{l:'Open Privacy',view:'privacy'},terms:{l:'Open Terms',view:'terms'},safe:{l:'Is it safe?',q:'security'},who:{l:'Who is behind it?',q:'team'}};
-  function hello(ctx){var h=new Date().getHours(),g=h<12?'Good morning':h<18?'Good afternoon':'Good evening';return g+(ctx&&ctx.name?', '+ctx.name:'')+'. How can I help?';}
+  function hello(ctx){var h=new Date().getHours(),g=h<12?'Good morning':h<18?'Good afternoon':'Good evening';return g+(ctx&&ctx.name?', '+ctx.name:'')+'. Ask me anything, or tap a button below.';}
   var E=[
   {id:'selfharm',kind:'care',re:/\b(kill (my ?self|me)|suicid\w*|end my life|want to die|hurt my ?self|self harm)\b/,
    a:['I’m really sorry you’re going through something hard. I’m only a website helper, so please reach out to someone you trust or a local crisis line. In the US or Canada you can call or text 988, and in the UK you can call Samaritans on 116 123.']},
