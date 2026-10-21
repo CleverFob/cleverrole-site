@@ -638,9 +638,9 @@ function CleverRoleChat(opts){
     started=true;openedAt=Date.now();lock('Choose a topic above');
     if(paused){say('The chat is paused for now. You’re welcome to come back later.',function(){lock('Chat paused for now');});return;}
     if(sentToday()>=PER_DAY){say('Thanks for getting in touch again. You’ve already sent us a few messages today, so we’ll reply to those by email soon.',function(){lock('Message limit reached for today');});return;}
-    say(CRBrain.greeting()+' Thanks for stopping by.',function(){
-      say('Ask me a question, or pick a topic and leave a message. We reply by email.',function(){
-        say('What would you like to know?',function(){step=0;chips();inp.disabled=false;inp.placeholder='Ask a question, or pick a topic';});});});}
+    say(CRBrain.greeting(),function(){
+      step=0;inp.disabled=false;inp.placeholder='Type a question';
+      showChips([{l:'What is Clever Role?',q:'about'},{l:'When can I join?',q:'join'},LM]);});}
   function close(){micStop();closePicker(false);root.hidden=true;stopFx();}
   if(opts.opener)opts.opener.addEventListener('click',open);
   q('.crc-x').addEventListener('click',close);
