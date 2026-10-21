@@ -421,8 +421,9 @@ function CleverRoleChat(opts){
   '.crc-fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:var(--crc-art-opacity)}'+
   '.crc-av{position:relative;width:28px;height:28px;border-radius:50%;border:var(--crc-bw) solid var(--c-line);display:grid;place-items:center;flex:none;background:var(--c-bg)}'+
   '.crc-av img{width:14px;height:auto;filter:var(--mark-filter,none)}'+
-  '.crc-who{position:relative;flex:1;min-width:0}'+
-  '.crc-who b{display:block;font-size:15px;font-weight:650;letter-spacing:-.015em;line-height:1.2;text-shadow:0 0 8px var(--c-pan),0 0 3px var(--c-pan),0 0 1px var(--c-pan)}'+
+  '.crc-head::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(to right,var(--c-pan) 0,color-mix(in srgb,var(--c-pan) 88%,transparent) 55%,transparent 100%)}'+
+  '.crc-who{position:relative;flex:0 1 auto;min-width:0;margin-right:auto;padding:4px 11px 5px;border-radius:12px;background:color-mix(in srgb,var(--c-pan) 80%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 0 0 1px color-mix(in srgb,var(--c-fg) 8%,transparent)}'+
+  '.crc-who b{display:block;font-size:15px;font-weight:700;letter-spacing:-.015em;line-height:1.2;text-shadow:0 0 8px var(--c-pan),0 0 3px var(--c-pan),0 0 1px var(--c-pan)}'+
   '.crc-who span{display:block;margin-top:1px;font-size:12px;color:var(--c-mut);text-shadow:0 0 8px var(--c-pan),0 0 3px var(--c-pan),0 0 1px var(--c-pan)}'+
   '.crc-ib{position:relative;flex:none;width:var(--crc-ctl);height:var(--crc-ctl);display:grid;place-items:center;background:var(--c-pan);border:var(--crc-bw) solid transparent;color:var(--c-mut);cursor:pointer;border-radius:50%;padding:0;font:inherit;font-size:19px;line-height:1;transition:color .2s,border-color .2s,box-shadow .2s}'+
   '.crc-ib:hover,.crc-ib[aria-expanded="true"]{color:var(--c-fg);border-color:rgba(var(--c-acc-rgb),.4);box-shadow:0 0 12px -4px rgba(var(--c-acc-rgb),.6)}'+
@@ -470,7 +471,7 @@ function CleverRoleChat(opts){
   var st=doc.createElement('style');st.id='crc-css';st.textContent=css;doc.head.appendChild(st);
 
   /* ---------- markup ---------- */
-  var T=opts.title||'Leave a message.', SUB=opts.subtitle||'We reply by email.', MAIL=opts.email||'hello@cleverrole.com';
+  var T=opts.title||'Ask Clever Role', SUB=opts.subtitle||'Quick answers, or leave a note', MAIL=opts.email||'hello@cleverrole.com';
   var root=doc.createElement('section');root.className='crc';root.hidden=true;root.setAttribute('role','dialog');root.setAttribute('aria-label',opts.label||'Leave a message');
   root.innerHTML=''+
    '<div class="crc-head"><canvas class="crc-fx" aria-hidden="true"></canvas>'+
