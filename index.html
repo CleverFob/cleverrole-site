@@ -160,7 +160,17 @@ footer a:hover,footer button:hover{color:var(--fg)}
 .nm{font-size:13px;font-weight:650;margin:2px 2px 8px}
 .pop label{display:block;font-size:11px;color:var(--muted);margin:6px 2px 4px}
 .pop .rl{display:flex;justify-content:space-between;align-items:baseline}.pop .rl output{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;margin:6px 2px 4px}
-.pop input[type=range]{width:100%;accent-color:var(--acc,var(--fg))}
+.pop input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;margin:0 0 4px;padding:0;background:transparent;cursor:pointer;--pct:50%}
+.pop input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:4px;background:linear-gradient(to right,var(--acc,var(--fg)) var(--pct),color-mix(in srgb,var(--fg) 22%,transparent) var(--pct))}
+.pop input[type=range]::-moz-range-track{height:4px;border-radius:4px;background:color-mix(in srgb,var(--fg) 22%,transparent)}
+.pop input[type=range]::-moz-range-progress{height:4px;border-radius:4px;background:var(--acc,var(--fg))}
+.pop input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;margin-top:-6px;border-radius:50%;background:var(--fg);border:2px solid var(--bg);box-shadow:0 0 0 1px var(--acc,var(--fg)),0 2px 8px rgba(0,0,0,.4)}
+.pop input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--fg);border:2px solid var(--bg);box-shadow:0 0 0 1px var(--acc,var(--fg)),0 2px 8px rgba(0,0,0,.4)}
+.pop input[type=range]:focus-visible{outline:2px solid var(--fg);outline-offset:3px;border-radius:6px}
+.bgo{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0 0 10px}
+.bgo button{font:inherit;font-size:11.5px;color:var(--fg);background:transparent;border:1px solid var(--line);border-radius:10px;padding:6px 4px;cursor:pointer;transition:background .2s,border-color .2s}
+.bgo button:hover{background:color-mix(in srgb,var(--fg) 8%,transparent)}
+.bgo button[aria-pressed="true"]{border-color:var(--acc,var(--fg));background:color-mix(in srgb,var(--acc,var(--fg)) 12%,transparent)}
 @media (prefers-reduced-motion:reduce){#musicBtn .eq b{animation:none;height:9px}.pop{animation:none}}
 @media (prefers-reduced-motion:reduce){.symbol,.word,.tag,.soon,.line,.symwrap::before,.symwrap::after{animation:none;opacity:1}.bgname{transition:none}}
 </style>
@@ -179,10 +189,11 @@ footer a:hover,footer button:hover{color:var(--fg)}
     <span class="bgname" id="bgName" role="status" aria-live="polite" aria-atomic="true"></span>
     <button class="theme" id="themeToggle" type="button" aria-label="Switch to light" data-tip="Switch to light"><span></span></button>
     <button class="theme" id="musicBtn" type="button" aria-label="Music off. Open music menu" aria-haspopup="true" aria-expanded="false" data-tip="Music"><svg class="note" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg><em class="eq" aria-hidden="true"><b></b><b></b><b></b></em></button>
-    <button class="theme" id="colorBtn" type="button" aria-label="Lines: colour, strength, scale, density" aria-haspopup="true" aria-expanded="false" data-tip="Lines: colour, strength, scale, density"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="drop" d="M12 3.2c-3.4 4-6 7-6 10.3a6 6 0 0 0 12 0C18 10.200 15.400 7.200 12 3.200z"/></svg></button>
+    <button class="theme" id="colorBtn" type="button" aria-label="Line colour" aria-haspopup="true" aria-expanded="false" data-tip="Line colour"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="drop" d="M12 3.2c-3.4 4-6 7-6 10.3a6 6 0 0 0 12 0C18 10.200 15.400 7.200 12 3.200z"/></svg></button>
     <div class="pop" id="musicPop" hidden role="menu" aria-label="Music"><h2>Music</h2><div class="list"></div><p class="note-s">Plays only when you pick a loop. Made live in your browser.</p></div>
-    <div class="pop" id="colorPop" hidden aria-label="Line colour"><h2>Lines</h2><div class="grid"></div><div class="nm"></div><div class="rl"><label for="tintK">Strength</label><output id="tintKo" for="tintK">Default</output></div><input id="tintK" type="range" min="0.4" max="3.6" step="0.1" value="2" aria-label="Line strength, fainter to bolder"><div class="rl"><label for="tintD">Scale</label><output id="tintDo" for="tintD">Default</output></div><input id="tintD" type="range" min="0.6" max="1.4" step="0.1" value="1" aria-label="Line scale, smaller to bigger"><div class="rl"><label for="tintA">Density</label><output id="tintAo" for="tintA">Default</output></div><input id="tintA" type="range" min="0.1" max="0.9" step="0.05" value="0.5" aria-label="Line density, how much of the drawing shows"></div>
-    <button class="theme" id="bgCycle" type="button" aria-label="Change background" data-tip="Change background"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 3.5 8 12 12.500 20.500 8 12 3.500z"/><path d="m3.500 12 8.500 4.500 8.500-4.500"/><path d="m3.500 16 8.500 4.500 8.500-4.500"/></svg></button>
+    <div class="pop" id="colorPop" hidden aria-label="Line colour"><h2>Lines</h2><div class="grid"></div></div>
+    <button class="theme" id="bgCycle" type="button" aria-label="Background" aria-haspopup="true" aria-expanded="false" data-tip="Background"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 3.5 8 12 12.500 20.500 8 12 3.500z"/><path d="m3.500 12 8.500 4.500 8.500-4.500"/><path d="m3.500 16 8.500 4.500 8.500-4.500"/></svg></button>
+    <div class="pop" id="bgPop" hidden aria-label="Background"><h2>Background</h2><div class="bgo"></div><div class="nm" id="bgNm"></div><div class="rl"><label for="tintK">Strength</label><output id="tintKo" for="tintK">Default</output></div><input id="tintK" type="range" min="0.4" max="3.6" step="0.1" value="2" aria-label="Line strength, fainter to bolder"><div class="rl"><label for="tintD">Scale</label><output id="tintDo" for="tintD">Default</output></div><input id="tintD" type="range" min="0.6" max="1.4" step="0.1" value="1" aria-label="Line scale, smaller to bigger"><div class="rl"><label for="tintA">Density</label><output id="tintAo" for="tintA">Default</output></div><input id="tintA" type="range" min="0.1" max="0.9" step="0.05" value="0.5" aria-label="Line density, how much of the drawing shows"></div>
     <button class="theme reset" id="resetBtn" type="button" aria-label="Reset to default" aria-disabled="true" data-tip="Reset to default"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg></button>
   </div>
 
@@ -1106,7 +1117,11 @@ CleverRoleChat.formHook=function(url,key){return function(d){
 (function(){var b=document.getElementById('bgCycle'),n=document.getElementById('bgName'),L=['network','gears','orbits','contours','ripples','lattice'],N={gears:'Gears',network:'Network',orbits:'Orbits',contours:'Contours',ripples:'Ripples',lattice:'Lattice'},t,shown=(window.crGetBackground&&window.crGetBackground())||'network';if(!b||!n)return;
   function show(m){n.textContent=N[m];n.classList.add('show');clearTimeout(t);t=setTimeout(function(){n.classList.remove('show');},1500);}
   document.addEventListener('crbgchange',function(){var m=window.crGetBackground();if(m!==shown){shown=m;show(m);}});
-  b.addEventListener('click',function(){var cur=(window.crGetBackground&&window.crGetBackground())||'network';window.crSetBackground&&window.crSetBackground(L[(L.indexOf(cur)+1)%L.length]);});})();
+  var pp=document.getElementById('bgPop'),opts=pp&&pp.querySelector('.bgo'),nmEl=document.getElementById('bgNm');
+  function mark(){var m=(window.crGetBackground&&window.crGetBackground())||'network';if(nmEl)nmEl.textContent=N[m]||'';if(opts)Array.prototype.forEach.call(opts.children,function(x){x.setAttribute('aria-pressed',String(x.getAttribute('data-m')===m));});}
+  if(opts)L.forEach(function(m){var x=document.createElement('button');x.type='button';x.setAttribute('data-m',m);x.textContent=N[m];x.addEventListener('click',function(){window.crSetBackground&&window.crSetBackground(m);mark();});opts.appendChild(x);});
+  document.addEventListener('crbgchange',mark);mark();
+  b.addEventListener('click',function(e){e.stopPropagation();if(!pp)return;var o=pp.hidden;window.crClosePops&&window.crClosePops();pp.hidden=!o;b.setAttribute('aria-expanded',String(o));mark();});})();
 
 /* Colour button: 15 of the site's colour schemes (hex values from the platform's COLOUR_SCHEMES: light and dark accents).
    It tints ONLY the line art of the living background (and the chat accent). The page itself stays pure white or black.
@@ -1132,9 +1147,10 @@ CleverRoleChat.formHook=function(url,key){return function(d){
     btn.style.setProperty('--sw',hex);
     var bs=pop.querySelectorAll('.sw');for(var i=0;i<bs.length;i++){bs[i].setAttribute('aria-pressed',String(+bs[i].getAttribute('data-i')===idx));
       bs[i].style.background=(i===0?(light()?'#0a0a0a':'#f4f4f2'):(light()?S[i][2]:S[i][3]));}
-    nm.textContent=S[idx][1];
+    sl(rng,K);sl(rngD,SC);sl(rngA,AL);
   }
-  var grid=pop.querySelector('.grid'), nm=pop.querySelector('.nm'), rng=pop.querySelector('#tintK'), rngD=pop.querySelector('#tintD'), ko=pop.querySelector('#tintKo'), do_=pop.querySelector('#tintDo'), rngA=pop.querySelector('#tintA'), ao=pop.querySelector('#tintAo');
+  function sl(r,v){r.style.setProperty('--pct',((v-r.min)/(r.max-r.min)*100)+'%');}
+  var grid=pop.querySelector('.grid'), $=function(i){return document.getElementById(i);}, rng=$('tintK'), rngD=$('tintD'), ko=$('tintKo'), do_=$('tintDo'), rngA=$('tintA'), ao=$('tintAo');
   S.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.className='sw';b.setAttribute('data-i',i);b.title=s[1];b.setAttribute('aria-label','Colour scheme: '+s[1]);
     b.addEventListener('click',function(){idx=i;save();paint();});grid.appendChild(b);});
   rng.value=K;rng.addEventListener('input',function(){K=+rng.value;save();paint();});
@@ -1155,7 +1171,7 @@ CleverRoleChat.formHook=function(url,key){return function(d){
 
 /* Popovers: only one open at a time; closed by a click elsewhere or Escape. */
 (function(){
-  var pops=[['musicBtn','musicPop'],['colorBtn','colorPop']];
+  var pops=[['musicBtn','musicPop'],['colorBtn','colorPop'],['bgCycle','bgPop']];
   window.crClosePops=function(){pops.forEach(function(p){var b=document.getElementById(p[0]),m=document.getElementById(p[1]);if(m&&!m.hidden){m.hidden=true;b&&b.setAttribute('aria-expanded','false');}});};
   document.addEventListener('click',function(e){if(!e.target.closest||!e.target.closest('.pop'))window.crClosePops();});
   document.addEventListener('keydown',function(e){if(e.key==='Escape')window.crClosePops();});
