@@ -195,7 +195,7 @@ footer a:hover,footer button:hover{color:var(--fg)}
     <div class="pop" id="musicPop" hidden role="menu" aria-label="Music"><h2>Music</h2><div class="list"></div><p class="note-s">Plays only when you pick a loop. Made live in your browser.</p></div>
     <div class="pop" id="colorPop" hidden aria-label="Line colour"><h2>Lines</h2><div class="grid"></div></div>
     <button class="theme" id="bgCycle" type="button" aria-label="Background" aria-haspopup="true" aria-expanded="false" data-tip="Background"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 3.5 8 12 12.500 20.500 8 12 3.500z"/><path d="m3.500 12 8.500 4.500 8.500-4.500"/><path d="m3.500 16 8.500 4.500 8.500-4.500"/></svg></button>
-    <div class="pop" id="bgPop" hidden aria-label="Background"><h2>Background</h2><div class="bgo"></div><div class="nm" id="bgNm"></div><div class="rl"><label for="tintK">Strength</label><output id="tintKo" for="tintK">Default</output></div><input id="tintK" type="range" min="0.4" max="3.6" step="0.1" value="2" aria-label="Line strength, fainter to bolder"><div class="rl"><label for="tintD">Scale</label><output id="tintDo" for="tintD">Default</output></div><input id="tintD" type="range" min="0.6" max="1.4" step="0.1" value="1" aria-label="Line scale, smaller to bigger"><div class="rl"><label for="tintA">Density</label><output id="tintAo" for="tintA">Default</output></div><input id="tintA" type="range" min="0.1" max="0.9" step="0.05" value="0.5" aria-label="Line density, how much of the drawing shows"></div>
+    <div class="pop" id="bgPop" hidden aria-label="Background"><h2>Background</h2><div class="bgo"></div><div class="nm" id="bgNm"></div><div class="rl"><label for="tintK">Strength</label><output id="tintKo" for="tintK">Default</output></div><input id="tintK" type="range" min="0.4" max="3.6" step="0.1" value="2" aria-label="Line strength, fainter to bolder"><div class="rl"><label for="tintD">Scale</label><output id="tintDo" for="tintD">Default</output></div><input id="tintD" type="range" min="0.6" max="1.4" step="0.1" value="1" aria-label="Line scale, smaller to bigger"><div class="rl"><label for="tintA">Density</label><output id="tintAo" for="tintA">Default</output></div><input id="tintA" type="range" min="0" max="1" step="0.05" value="0.5" aria-label="Line density, how much of the drawing shows"></div>
     <button class="theme reset" id="resetBtn" type="button" aria-label="Reset to default" aria-disabled="true" data-tip="Reset to default"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg></button>
   </div>
 
@@ -850,7 +850,7 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   function rgb(hex){hex=hex.replace('#','');if(hex.length===3)hex=hex.split('').map(function(a){return a+a}).join('');var n=parseInt(hex,16);return [(n>>16)&255,(n>>8)&255,n&255];}
   // Line colour: the page sets --tint ("r, g, b") from the colour button; empty means the page's own ink. --tintk scales line strength.
   var C=rgb(ink());
-  function tint(){var cs=getComputedStyle(root),t=cs.getPropertyValue('--tint').trim();C=t?t.split(',').map(Number):rgb(ink());K=parseFloat(cs.getPropertyValue('--tintk'))||1;LWK=Math.max(1,1+(K-1)*0.22);var d=1/(parseFloat(cs.getPropertyValue('--tints'))||1);if(Math.abs(d-DN)>1e-6){DN=d;build();}c.style.opacity=String(Math.max(0.05,Math.min(1,parseFloat(cs.getPropertyValue('--tinta'))||1)));}
+  function tint(){var cs=getComputedStyle(root),t=cs.getPropertyValue('--tint').trim();C=t?t.split(',').map(Number):rgb(ink());K=parseFloat(cs.getPropertyValue('--tintk'))||1;LWK=Math.max(1,1+(K-1)*0.22);var d=1/(parseFloat(cs.getPropertyValue('--tints'))||1);if(Math.abs(d-DN)>1e-6){DN=d;build();}c.style.opacity=String((function(v){return isNaN(v)?1:Math.max(0,Math.min(1,v));})(parseFloat(cs.getPropertyValue('--tinta'))));}
   new MutationObserver(function(){tint();if(still)render(0,1);}).observe(root,{attributes:true,attributeFilter:['data-theme','style']});
   function col(a){return 'rgba('+C[0]+','+C[1]+','+C[2]+','+Math.min(1,a*K)+')';}  // strength scales every line's own opacity, so it can go well past the default
   function seed(s){return function(){s=(s*16807)%2147483647;return (s-1)/2147483646;};}
@@ -1136,8 +1136,8 @@ CleverRoleChat.formHook=function(url,key){return function(d){
     ['ocean','Ocean','#0284c7','#38bdf8'],['violet','Violet','#7c3aed','#a78bfa'],['rose','Rose','#be185d','#f472b6'],['crimson','Crimson','#dc2626','#f87171'],
     ['amber','Amber','#b45309','#fbbf24'],['emerald','Emerald','#047857','#34d399'],['teal','Teal','#0d9488','#2dd4bf']];
   var idx=0, K=2, SC=1, AL=0.5;
-  try{var sv=JSON.parse(localStorage.getItem('cr-tint')||'null');if(sv){if(sv.i>=0&&sv.i<S.length)idx=sv.i|0;if(sv.k>=0.4&&sv.k<=3.6)K=+sv.k;if(sv.s>=0.6&&sv.s<=1.4)SC=+sv.s;if(sv.a>=0.1&&sv.a<=0.9)AL=+sv.a;}}catch(e){}
-  function save(){try{localStorage.setItem('cr-tint',JSON.stringify({i:idx,k:K,s:SC,a:AL}));}catch(e){}}
+  try{var sv=JSON.parse(localStorage.getItem('cr-tint')||'null');if(sv&&sv.v===2){if(sv.i>=0&&sv.i<S.length)idx=sv.i|0;if(sv.k>=0.4&&sv.k<=3.6)K=+sv.k;if(sv.s>=0.6&&sv.s<=1.4)SC=+sv.s;if(sv.a>=0&&sv.a<=1)AL=+sv.a;}}catch(e){}
+  function save(){try{localStorage.setItem('cr-tint',JSON.stringify({v:2,i:idx,k:K,s:SC,a:AL}));}catch(e){}}
   function rgb(h){var n=parseInt(h.slice(1),16);return [(n>>16)&255,(n>>8)&255,n&255];}
   function light(){return root.getAttribute('data-theme')==='light';}
   function paint(){
@@ -1167,7 +1167,7 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   window.crTintNames=function(){return S.map(function(x){return x[1];});};
   window.crSetTint=function(name){var i=S.findIndex(function(x){return x[1].toLowerCase()===String(name).toLowerCase();});if(i<0)return false;idx=i;save();paint();return S[i][1];};
   window.crTintNudge=function(what,dir){var r=function(v,lo,hi){return Math.round(Math.max(lo,Math.min(hi,v))*100)/100;};
-    if(what==='strength'){K=r(K*(dir>0?1.5:1/1.5),0.4,3.6);rng.value=K;}else if(what==='scale'){SC=r(SC+(dir>0?0.2:-0.2),0.6,1.4);rngD.value=SC;}else if(what==='density'){AL=r(AL+(dir>0?0.2:-0.2),0.1,0.9);rngA.value=AL;}else return false;
+    if(what==='strength'){K=r(K*(dir>0?1.5:1/1.5),0.4,3.6);rng.value=K;}else if(what==='scale'){SC=r(SC+(dir>0?0.2:-0.2),0.6,1.4);rngD.value=SC;}else if(what==='density'){AL=r(AL+(dir>0?0.2:-0.2),0,1);rngA.value=AL;}else return false;
     save();paint();return what==='strength'?ko.textContent:what==='scale'?do_.textContent:ao.textContent;};
   btn.addEventListener('click',function(e){e.stopPropagation();var o=pop.hidden;window.crClosePops&&window.crClosePops();pop.hidden=!o;btn.setAttribute('aria-expanded',String(o));});
 })();
