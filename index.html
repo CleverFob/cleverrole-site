@@ -465,6 +465,9 @@ function CleverRoleChat(opts){
   '.crc-mic:hover{color:var(--c-fg);border-color:rgba(var(--c-acc-rgb),.5)}'+
   '.crc-mic[hidden]{display:none}.crc-mic.on{color:var(--c-ink);background:var(--c-acc);border-color:var(--c-acc);animation:crc-live 1.1s ease-in-out infinite}'+
   '.crc-send{border:0;background:var(--c-acc);color:var(--c-ink)}'+
+  '.crc-send:not(:disabled):hover,.crc-send:focus-visible{box-shadow:0 0 0 3px rgba(var(--c-acc-rgb),.38);filter:brightness(1.12);outline:0}'+
+  '.crc-send:disabled:hover{box-shadow:0 0 0 2px rgba(var(--c-acc-rgb),.25)}'+
+  '.crc-send{transition:opacity .2s,background .2s,color .2s,box-shadow .2s,filter .2s}'+
   '.crc-send:disabled{opacity:.25;cursor:default}.crc-mic:disabled{opacity:.3;cursor:default}'+
   '.crc-count{font-size:11px;color:var(--c-mut);text-align:right;padding:0 var(--crc-pad) 2px}.crc-count.over{color:#e5484d}.crc-count[hidden]{display:none}'+
   '.crc-foot{flex:none;font-size:11px;color:var(--c-mut);text-align:center;padding:2px 12px 10px}.crc-foot a{color:var(--c-mut)}'+
