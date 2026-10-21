@@ -471,7 +471,7 @@ function CleverRoleChat(opts){
   var st=doc.createElement('style');st.id='crc-css';st.textContent=css;doc.head.appendChild(st);
 
   /* ---------- markup ---------- */
-  var T=opts.title||'Ask Clever Role', SUB=opts.subtitle||'Quick answers, or leave a note', MAIL=opts.email||'hello@cleverrole.com';
+  var T=opts.title||'How can we help?', SUB=opts.subtitle||'Ask, or leave a message', MAIL=opts.email||'hello@cleverrole.com';
   var root=doc.createElement('section');root.className='crc';root.hidden=true;root.setAttribute('role','dialog');root.setAttribute('aria-label',opts.label||'Leave a message');
   root.innerHTML=''+
    '<div class="crc-head"><canvas class="crc-fx" aria-hidden="true"></canvas>'+
