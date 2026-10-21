@@ -100,7 +100,8 @@ html[data-view="privacy"] .stage,html[data-view="terms"] .stage{grid-template-co
 .symbol{width:calc(var(--w) * 1.008);aspect-ratio:1;max-width:100%;filter:contrast(1.15) var(--mark-filter);
   margin:calc(var(--w) * -0.09) 0 calc(var(--w) * -0.177);  /* frames carry empty space; this leaves the official symbol-to-wordmark gap */
   opacity:0;animation:settle .75s .05s cubic-bezier(.2,.8,.2,1) forwards}
-#symbol{cursor:grab;touch-action:pan-y;-webkit-user-select:none;user-select:none}
+#symbol{cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+#symbol.drag{cursor:grabbing}
 #symbol.drag{cursor:grabbing}
 .word{width:var(--w);position:relative;height:auto;filter:var(--mark-filter);opacity:0;animation:rise .5s .4s ease forwards}
 .soon{font-size:11px;font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--muted);margin:6px 0 0;padding-left:.32em;opacity:0;animation:rise .5s .95s ease forwards}
@@ -885,13 +886,14 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   function fit(){var d=Math.min(window.devicePixelRatio||1,2), w=Math.round(c.clientWidth*d)||CELL; if(c.width!==w){c.width=c.height=w;drawn=-1;}}
   addEventListener('resize',fit);
   function pxToFrames(){return N/((c.clientWidth||300)*1.4);}
-  c.addEventListener('pointerdown',function(e){var hn=document.getElementById('spinHint');clearTimeout(window._hintT);if(hn){hn.classList.remove('back');hn.classList.add('used');}drag=true;hold=0;wake=1;c.classList.add('drag');lastX=e.clientX;lastT=e.timeStamp;dragV=0;try{c.setPointerCapture(e.pointerId);}catch(_){}});
+  c.addEventListener('contextmenu',function(e){e.preventDefault();});c.addEventListener('dragstart',function(e){e.preventDefault();});
+  c.addEventListener('pointerdown',function(e){if(e.pointerType==='mouse'&&e.button!==0)return;var hn=document.getElementById('spinHint');clearTimeout(window._hintT);if(hn){hn.classList.remove('back');hn.classList.add('used');}drag=true;hold=0;wake=1;c.classList.add('drag');lastX=e.clientX;lastT=e.timeStamp;dragV=0;try{c.setPointerCapture(e.pointerId);}catch(_){}});
   c.addEventListener('pointermove',function(e){if(!drag)return;var dx=e.clientX-lastX, dt=Math.max(1,e.timeStamp-lastT)/1000;
     var df=dx*pxToFrames(); pos+=df; dragV=dragV*0.6+(df/dt)*0.4; lastX=e.clientX;lastT=e.timeStamp;});
   function end(){if(!drag)return;drag=false;c.classList.remove('drag');
     vel=Math.max(-720,Math.min(720,dragV)); if(Math.abs(vel)>BASE*0.25)dir=vel>0?1:-1;
     clearTimeout(window._hintT);window._hintT=setTimeout(function(){var hn=document.getElementById('spinHint');if(hn){hn.classList.remove('used');hn.classList.add('back');}},5000);}
-  c.addEventListener('pointerup',end);c.addEventListener('pointercancel',end);c.addEventListener('lostpointercapture',end);
+  c.addEventListener('pointerup',end);c.addEventListener('pointercancel',end);c.addEventListener('lostpointercapture',end);addEventListener('pointerup',end);addEventListener('blur',end);
   document.addEventListener('visibilitychange',function(){run=!document.hidden;prev=performance.now();if(run)requestAnimationFrame(tick);});
   // Every fresh visit (including coming back with the browser's Back button) starts still for 2 seconds, then eases up to the normal pace, in the normal direction.
   addEventListener('pageshow',function(e){if(e.persisted){dir=1;vel=0;hold=performance.now()+HOLD;wake=still?1:0;drag=false;dragV=0;window.crSpin=0;window.crWake=wake;}});
