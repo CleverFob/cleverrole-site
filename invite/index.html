@@ -57,8 +57,7 @@ button.go[disabled]{opacity:.5;cursor:default}
       <label for="country">Country<select id="country" name="country" required>
         <option value="">Choose</option><option>United States</option><option>Canada</option><option>United Kingdom</option><option>Australia</option><option>New Zealand</option><option>Somewhere else</option></select></label>
     </div>
-    <label for="google">Google sign-in email <small>Optional. Only if you will connect Google or Gmail to Clever Role. Not needed for Microsoft 365 or other email.</small><input id="google" name="googleEmail" type="email" autocomplete="off"></label>
-    <label for="heard">How did you hear about us? <small>Optional.</small><input id="heard" name="heardFrom" type="text"></label>
+        <label for="heard">How did you hear about us? <small>Optional.</small><input id="heard" name="heardFrom" type="text"></label>
     <label class="chk" for="adviser"><input id="adviser" type="checkbox"><span>I am an accountant, bookkeeper or IT adviser and may refer clients.</span></label>
     <label class="chk" for="consent"><input id="consent" type="checkbox" required><span>Email me about my invitation and about Clever Role. I can unsubscribe at any time. See the <a href="/privacy">Privacy policy</a>.</span></label>
     <div class="hp" aria-hidden="true"><label>Website<input type="text" name="website" id="website" tabindex="-1" autocomplete="off"></label></div>
@@ -84,17 +83,16 @@ f.addEventListener('submit',function(e){
   e.preventDefault();
   var v=function(id){return document.getElementById(id).value.trim()};
   if(!v('name')||!v('business')||!ok(v('email'))||!v('country')){say('Please fill in your name, business, email and country.','bad');return}
-  if(v('google')&&!ok(v('google'))){say('That Google email does not look right.','bad');return}
   if(!document.getElementById('consent').checked){say('Please tick the box so we can email you.','bad');return}
   var heard=v('heard'),ad=document.getElementById('adviser').checked;
-  var body={email:v('email'),name:v('name'),businessName:v('business'),country:v('country'),googleEmail:v('google'),
+  var body={email:v('email'),name:v('name'),businessName:v('business'),country:v('country'),
     heardFrom:(ad?'Adviser. ':'')+heard,sourceTag:src,consent:true,sourcePage:'holding-page',website:v('website')};
   go.disabled=true;say('Sending…');
   function finish(){f.style.display='none';var d=document.getElementById('done');d.style.display='block';d.focus()}
   function mailFallback(){
     return fetch(MAIL_URL,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},
       body:JSON.stringify({access_key:MAIL_KEY,subject:'Invite request: '+body.businessName,from_name:'Clever Role invite form',
-        name:body.name,email:body.email,business:body.businessName,country:body.country,google_email:body.googleEmail,
+        name:body.name,email:body.email,business:body.businessName,country:body.country,
         heard_from:body.heardFrom,source:body.sourceTag,consent:'yes',botcheck:body.website})})
       .then(function(r){if(!r.ok)throw 0;finish()});
   }
