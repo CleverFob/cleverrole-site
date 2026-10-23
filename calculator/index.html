@@ -1,0 +1,60 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hours-back calculator · Clever Role</title><meta name="description" content="A quick, rough picture of the hours you could get back from enquiries and admin."><meta name="robots" content="noindex"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><style>
+@font-face{font-family:'Inter Variable';font-style:normal;font-display:swap;font-weight:100 900;src:url(/inter.woff2) format('woff2-variations');}
+/* One quiet column on the same black stage as the home page: wordmark, a short promise, six fields, one button. */
+:root{--bg:#000;--fg:#f4f4f2;--muted:#8a8c8c;--line:#2a2c2d;--panel:#0d0e0f;--ok:#7bd88f;--bad:#ff8a80;--mark-filter:invert(0);--face:'Inter Variable',system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;color-scheme:dark}
+:root[data-theme="light"]{--bg:#fff;--fg:#0a0a0a;--muted:#6b6d6e;--line:#dcdddc;--panel:#f6f6f5;--ok:#1a7f37;--bad:#b3261e;--mark-filter:invert(1);color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--face);line-height:1.5;
+ padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 32px}
+.wrap{max-width:520px;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:40px}
+.top img{height:26px;width:auto;filter:var(--mark-filter)}
+.theme{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:transparent;cursor:pointer;display:grid;place-items:center;padding:0}
+.theme span{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--fg);background:linear-gradient(90deg,var(--fg) 50%,transparent 50%)}
+:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+h1{font-size:clamp(26px,6vw,34px);line-height:1.15;letter-spacing:-.02em;font-weight:600;margin:0 0 10px;text-wrap:balance}
+.lede{color:var(--muted);margin:0 0 28px;font-size:16px}
+form{display:grid;gap:16px}
+label{display:grid;gap:6px;font-size:13px;font-weight:600;letter-spacing:.01em}
+label small{font-weight:400;color:var(--muted);font-size:12.5px}
+input[type=text],input[type=email],select{font:inherit;font-weight:400;font-size:16px;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;width:100%}
+input::placeholder{color:var(--muted)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.chk{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:start;font-weight:400;font-size:14px}
+.chk input{width:18px;height:18px;margin:2px 0 0;accent-color:var(--fg)}
+.chk a{color:var(--fg)}
+button.go{font:inherit;font-weight:600;font-size:16px;border:0;border-radius:999px;padding:14px 22px;background:var(--fg);color:var(--bg);cursor:pointer}
+button.go[disabled]{opacity:.5;cursor:default}
+.msg{min-height:1.4em;font-size:14px}
+.msg.ok{color:var(--ok)}.msg.bad{color:var(--bad)}
+.fine{color:var(--muted);font-size:12.5px;margin:6px 0 0}
+.fine a{color:var(--muted)}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.done{display:none;border:1px solid var(--line);border-radius:14px;padding:22px;background:var(--panel)}
+.done h2{margin:0 0 6px;font-size:20px}.done p{margin:0;color:var(--muted)}
+@media(max-width:480px){.row{grid-template-columns:1fr}}
+.sl{display:grid;gap:6px;margin-bottom:18px}.sl .v{font-size:20px;font-weight:600;letter-spacing:-.01em}
+input[type=range]{width:100%;accent-color:var(--fg)}
+.res{border:1px solid var(--line);border-radius:14px;padding:22px;background:var(--panel);margin:8px 0 18px}
+.big{font-size:clamp(34px,9vw,48px);font-weight:600;letter-spacing:-.03em;line-height:1.05}
+.res p{margin:6px 0 0;color:var(--muted)}.res .two{display:flex;gap:28px;flex-wrap:wrap;margin-top:14px}.res .two b{display:block;font-size:22px;font-weight:600;color:var(--fg)}
+a.go{display:inline-block;text-decoration:none;font-weight:600;font-size:16px;border-radius:999px;padding:14px 22px;background:var(--fg);color:var(--bg)}
+</style></head><body><div class="wrap">
+<div class="top"><a href="/" aria-label="Clever Role home"><img src="/wordmark.png" alt="Clever Role"></a><button class="theme" id="themeToggle" type="button" aria-label="Switch theme"><span></span></button></div>
+<h1>How many hours could you get back?</h1>
+<p class="lede">Four quick sliders. A rough picture of the time that goes on enquiries and admin, and what it's worth.</p>
+<div class="sl"><label for="a">Enquiries you answer each week <small>emails, messages, calls</small></label><div class="v" id="av"></div><input id="a" type="range" min="0" max="100" value="25"></div>
+<div class="sl"><label for="b">Minutes spent on each one</label><div class="v" id="bv"></div><input id="b" type="range" min="1" max="30" value="8"></div>
+<div class="sl"><label for="c">Hours a week on invoices, bookings and chasing</label><div class="v" id="cv"></div><input id="c" type="range" min="0" max="30" value="6"></div>
+<div class="sl"><label for="d">What an hour of your time is worth</label><div class="v" id="dv"></div><input id="d" type="range" min="10" max="150" step="5" value="50"></div>
+<div class="res"><div class="big" id="h"></div><p>hours a month could be handled for you</p><div class="two"><div><b id="m"></b>per month in your time</div><div><b id="y"></b>per year</div></div><p style="font-size:12.5px;margin-top:14px">A rough estimate: we assume about 70% of this work can be handled for you. Your own numbers will differ.</p></div>
+<a class="go" href="/invite/?s=calculator">Request an invite</a>
+<p class="fine">No sign-up needed to see your answer. Nothing is sent unless you ask for an invite.</p></div>
+<script>
+const $=i=>document.getElementById(i);function u(){const a=+$('a').value,b=+$('b').value,c=+$('c').value,d=+$('d').value;
+$('av').textContent=a;$('bv').textContent=b+' min';$('cv').textContent=c+' hours';$('dv').textContent='$'+d;
+const hrs=(a*b/60+c)*4.33*0.7;$('h').textContent=Math.round(hrs);$('m').textContent='$'+Math.round(hrs*d).toLocaleString();$('y').textContent='$'+Math.round(hrs*d*12).toLocaleString()}
+document.querySelectorAll('input').forEach(i=>i.oninput=u);u();
+var root=document.documentElement;try{if(localStorage.getItem('cr-theme')==='light')root.setAttribute('data-theme','light')}catch(e){}
+document.getElementById('themeToggle').onclick=function(){var l=root.getAttribute('data-theme')==='light';if(l)root.removeAttribute('data-theme');else root.setAttribute('data-theme','light');try{if(l)localStorage.removeItem('cr-theme');else localStorage.setItem('cr-theme','light')}catch(e){}};
+</script></body></html>
