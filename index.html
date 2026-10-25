@@ -736,7 +736,7 @@ function CleverRoleChat(opts){
   /* ---------- page commands: the chat doubles as a way to move around the page and change how it looks (home, privacy, terms, dark, light,
      a background, a line colour, bolder or fainter lines, bigger or smaller, more or less, music on or off, reset). Nothing else: no account or
      payment actions, no settings outside this page. Works at every step, typed or spoken. Anything it doesn't recognise goes on as a normal message. */
-  var BGS=['network','gears','orbits','contours','ripples','lattice','silk'];
+  var BGS=['network','satin','constellation','horizon','handoff','gears','orbits','contours','ripples','lattice','silk'];
   function clearBox(){inp.value='';inp.style.height='auto';sendBtn.disabled=true;}
   function command(raw){
     var t=' '+raw.toLowerCase().replace(/[^a-z0-9 ]+/g,' ').replace(/\s+/g,' ').trim()+' ', w=window;
@@ -837,7 +837,7 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   openFromLink();addEventListener('hashchange',openFromLink);
 })();
 
-/* Living background, seven styles: precision gears, a workflow network, orbits, contours, ripples, a lattice and silk.
+/* Living background, the same twelve as the app (Off, Satin, Constellation, Horizon, Handoff, Gears, Network, Orbits, Contours, Ripples, Lattice, Silk).
    Every style runs off the same phase as the spinning symbol (window.crSpin, eased in by window.crWake),
    so it starts still with the symbol, and flicking the symbol speeds it up or turns it the other way. */
 (function(){
@@ -845,13 +845,13 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   var root=document.documentElement, W=0,H=0,D=1, mx=0,my=0, tx=0,ty=0, run=true, prev=performance.now(), T=0, PH=0, OT=0, AX=0, AY=0, skip=0;
   var TAU=Math.PI*2;
   var still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var MODES=['network','gears','orbits','contours','ripples','lattice','silk'];  // Network is the home state; the switcher cycles in this order
+  var MODES=['network','off','satin','constellation','horizon','handoff','gears','orbits','contours','ripples','lattice','silk'];  // Network is the home state; the switcher cycles in this order
   var MODE=(function(){try{return localStorage.getItem('cr-bg')||'network'}catch(e){return 'network'}})(); if(MODES.indexOf(MODE)<0)MODE='network';
   window.crGetBackground=function(){return MODE;};
   window.crResetBackground=function(){MODE='network';try{localStorage.removeItem('cr-bg')}catch(e){};build();if(still)render(0,1);try{document.dispatchEvent(new Event('crbgchange'));}catch(e){}};
   window.crSetBackground=function(m){if(MODES.indexOf(m)<0)return;MODE=m;try{localStorage.setItem('cr-bg',m)}catch(e){};build();if(still)render(0,1);try{document.dispatchEvent(new Event('crbgchange'));}catch(e){}};
   // How strongly each style shows. Kept low on purpose: the background should be felt more than seen.
-  var FADE={gears:0.72,network:0.56,orbits:0.56,contours:0.64,ripples:0.7,lattice:0.65,silk:0.65}, LIGHT=0.85, K=1, DN=1, LWK=1;  // a modest step up from v18 (about a quarter stronger)
+  var FADE={off:0,satin:0.9,constellation:0.75,horizon:0.8,handoff:0.85,gears:0.72,network:0.56,orbits:0.56,contours:0.64,ripples:0.7,lattice:0.65,silk:0.65}, LIGHT=0.85, K=1, DN=1, LWK=1;  // a modest step up from v18 (about a quarter stronger)
   function ink(){return getComputedStyle(root).getPropertyValue('--fg').trim()||'#f4f4f2';}
   function rgb(hex){hex=hex.replace('#','');if(hex.length===3)hex=hex.split('').map(function(a){return a+a}).join('');var n=parseInt(hex,16);return [(n>>16)&255,(n>>8)&255,n&255];}
   // Line colour: the page sets --tint ("r, g, b") from the colour button; empty means the page's own ink. --tintk scales line strength.
@@ -1028,13 +1028,91 @@ CleverRoleChat.formHook=function(url,key){return function(d){
     x.lineWidth=LWK*Math.max(1,D*0.9);x.strokeStyle=col(0.15);x.stroke(arms);
   }
 
-  function build(){if(MODE==='gears')buildGears();else if(MODE==='network')buildNet();else if(MODE==='orbits')buildOrbits();
+  /* ---------- the four added 23 Oct 2026 in the app (Satin, Constellation, Horizon, Handoff), so both pickers offer the same
+     twelve backgrounds (Jason, 25 Oct). Ported from the app's backdrop.js; Off draws nothing. ---------- */
+  function drawSatin(){
+    var IV=1/DN, T=PH*0.0955, n=Math.max(5,Math.round(8/IV)), gap=H/n, st=6*D, ox=-mx*26*D, oy=-my*20*D;
+    x.lineWidth=LWK*Math.max(1,D*0.8);
+    for(var b=-1;b<=n;b++){
+      var y0=(b+0.6)*gap+oy*(0.4+(b&1)*0.3), amp=gap*(0.55+0.12*(b%3))*IV, w=gap*0.32, ph=T*(0.12+((b+7)%7)*0.02)+b, X, Y;
+      x.beginPath();
+      for(X=-st;X<=W+st;X+=st){Y=y0+Math.sin((X-ox)/(W*0.22)+ph)*amp+Math.sin((X-ox)/(W*0.095)-ph*1.3)*amp*0.25;X===-st?x.moveTo(X,Y):x.lineTo(X,Y);}
+      for(X=W+st;X>=-st;X-=st){x.lineTo(X,y0+w+Math.sin((X-ox)/(W*0.234)+ph+0.5)*amp+Math.sin((X-ox)/(W*0.11)-ph)*amp*0.2);}
+      x.closePath();
+      var sw=W*0.32, sx=((T*W*0.0625+(b+2)*W*0.14)%(W+sw*2))-sw, g=x.createLinearGradient(sx-sw,0,sx+sw,0);
+      g.addColorStop(0,col(0.03));g.addColorStop(0.5,col(0.2));g.addColorStop(1,col(0.03));
+      x.fillStyle=g;x.fill();x.strokeStyle=col(0.1);x.stroke();
+    }
+  }
+  var stars=[];
+  function buildConstellation(){
+    var IV=1/DN, r=seed(4242); stars=[];
+    var n=Math.max(28,Math.min(130,Math.round((W*H)/(D*D)/11000/(IV*IV))));
+    for(var i=0;i<n;i++){var a=r()*TAU,v=(6+r()*8)*D;stars.push({x:r()*W,y:r()*H,vx:Math.cos(a)*v,vy:Math.sin(a)*v,r:(1.1+r()*1.6)*D,z:0.4+r()});}
+  }
+  function drawConstellation(dt,spin){
+    var IV=1/DN, L=120*D*IV, go=dt*Math.max(0.3,Math.abs(spin)), ox=-mx*26*D, oy=-my*20*D, m=24*D, P=[], i, j, s;
+    for(i=0;i<stars.length;i++){s=stars[i];s.x+=s.vx*go;s.y+=s.vy*go;
+      if(s.x<-m)s.x+=W+m*2;else if(s.x>W+m)s.x-=W+m*2;if(s.y<-m)s.y+=H+m*2;else if(s.y>H+m)s.y-=H+m*2;
+      P.push([s.x+ox*s.z,s.y+oy*s.z,s]);}
+    x.lineWidth=LWK*Math.max(1,D*0.7);
+    for(i=0;i<P.length;i++)for(j=i+1;j<P.length;j++){var dx=P[i][0]-P[j][0],dy=P[i][1]-P[j][1];if(dx>L||dx<-L||dy>L||dy<-L)continue;
+      var d=Math.hypot(dx,dy);if(d>=L)continue;x.strokeStyle=col(0.28*(1-d/L));x.beginPath();x.moveTo(P[i][0],P[i][1]);x.lineTo(P[j][0],P[j][1]);x.stroke();}
+    for(i=0;i<P.length;i++){x.fillStyle=col(0.22+0.16*P[i][2].z);x.beginPath();x.arc(P[i][0],P[i][1],P[i][2].r*Math.sqrt(IV),0,TAU);x.fill();}
+  }
+  function drawHorizon(){
+    var IV=1/DN, T=PH*0.0955, ox=-mx*26*D, oy=-my*12*D, hz=H*0.4+oy, cx=W/2+ox, base=(W/14)*IV, top=base/15, i, k;
+    var N=Math.ceil(W/2/base)+3, rows=Math.max(10,Math.round(16/IV)), off=(T*0.25)%1;
+    x.lineWidth=LWK*Math.max(1,D*0.75); x.strokeStyle=col(0.14); x.beginPath();
+    for(i=-N;i<=N;i++){x.moveTo(cx+i*top,hz);x.lineTo(cx+i*base*1.15+ox*0.6,H);} x.stroke();
+    for(k=0;k<rows;k++){var z=(k+off)/rows,Y=hz+(H-hz)*z*z;x.strokeStyle=col(0.04+0.2*z);x.beginPath();x.moveTo(0,Y);x.lineTo(W,Y);x.stroke();}
+    var sw=W*0.25, sx=((T*W*0.094)%(W+sw*2))-sw, g=x.createLinearGradient(sx-sw,0,sx+sw,0);
+    g.addColorStop(0,col(0));g.addColorStop(0.5,col(0.12));g.addColorStop(1,col(0)); x.fillStyle=g; x.fillRect(0,hz,W,H-hz);
+    var hg=x.createLinearGradient(0,hz-H*0.1,0,hz); hg.addColorStop(0,col(0)); hg.addColorStop(1,col(0.1)); x.fillStyle=hg; x.fillRect(0,hz-H*0.1,W,H*0.1);
+  }
+  var lanes=[], items=[], hubGlow=0, hr=seed(23);
+  function buildHandoff(){
+    var IV=1/DN; lanes=[]; items=[]; hubGlow=0; hr=seed(23);
+    var n=Math.max(10,Math.round(26/IV)), i;
+    for(i=0;i<n;i++)lanes.push({a:(i/n)*TAU+(hr()-0.5)*0.3,bend:(hr()-0.5)*0.7,r:0.95+hr()*0.3,z:0.5+hr()});
+    for(i=0;i<Math.round(n*2.2);i++)items.push({l:Math.floor(hr()*n),t:hr(),out:hr()<0.3,s:0.045+hr()*0.035});
+  }
+  function lanePt(L,t,ox,oy){
+    var R=Math.hypot(W,H)*0.55*L.r, sx=AX+Math.cos(L.a)*R*1.15, sy=AY+Math.sin(L.a)*R*0.85, dx=AX-sx, dy=AY-sy;
+    var cxp=(sx+AX)/2-dy*L.bend, cyp=(sy+AY)/2+dx*L.bend, u=1-t, z=L.z*(1-t)+0.3*t;
+    return [u*u*sx+2*u*t*cxp+t*t*AX+ox*z, u*u*sy+2*u*t*cyp+t*t*AY+oy*z, sx+ox*L.z, sy+oy*L.z, cxp+ox*(L.z+0.3)/2, cyp+oy*(L.z+0.3)/2];
+  }
+  function drawHandoff(dt,spin){
+    var IV=1/DN, ox=-mx*30*D, oy=-my*24*D, hx=AX+ox*0.3, hy=AY+oy*0.3, sz=4*D*Math.sqrt(IV), i, p;
+    x.lineWidth=LWK*Math.max(1,D*0.8);
+    for(i=0;i<lanes.length;i++){p=lanePt(lanes[i],0,ox,oy);x.beginPath();x.moveTo(p[2],p[3]);x.quadraticCurveTo(p[4],p[5],hx,hy);x.strokeStyle=col(0.13);x.stroke();}
+    var go=dt*(1+Math.abs(spin)*0.5);
+    for(i=0;i<items.length;i++){var it=items[i],L=lanes[it.l];if(!L)continue;
+      if(!it.out){it.t+=go*it.s*(0.6+it.t);
+        if(it.t>=1){hubGlow=1;it.out=true;it.t=1;it.l=(it.l+Math.floor(lanes.length/2)+Math.floor(hr()*3)-1+lanes.length)%lanes.length;continue;}
+        for(var tl=0;tl<6;tl++){var tt=Math.max(0,it.t-tl*0.012),q=lanePt(L,tt,ox,oy),s2=tl?sz*0.55:sz;x.fillStyle=col(tl?(0.2+0.35*tt)*(1-tl/6):0.45+0.5*tt);x.fillRect(q[0]-s2/2,q[1]-s2/2,s2,s2);}
+      }else{it.t-=go*it.s*1.1;
+        if(it.t<=0){it.out=false;it.t=0;it.l=Math.floor(hr()*lanes.length);continue;}
+        var w=lanePt(L,it.t,ox,oy),k=sz*1.3;x.beginPath();x.moveTo(w[0]-k,w[1]);x.lineTo(w[0]-k*0.3,w[1]+k*0.7);x.lineTo(w[0]+k,w[1]-k*0.8);x.strokeStyle=col(0.3+0.65*it.t);x.stroke();}
+    }
+    hubGlow*=Math.exp(-dt*1.4);
+    var r=11*D*Math.sqrt(IV), pulse=1+0.06*Math.sin(PH*0.5);
+    x.beginPath();x.arc(hx,hy,r*pulse,0,TAU);x.fillStyle=col(0.05+0.35*hubGlow);x.fill();x.strokeStyle=col(0.35+0.55*hubGlow);x.stroke();
+    x.beginPath();x.arc(hx,hy,r*2.2*pulse,0,TAU);x.strokeStyle=col(0.18+0.3*hubGlow);x.stroke();
+  }
+
+  function build(){if(MODE==='constellation')buildConstellation();else if(MODE==='handoff')buildHandoff();else if(MODE==='gears')buildGears();else if(MODE==='network')buildNet();else if(MODE==='orbits')buildOrbits();
     var ps=document.querySelectorAll('[data-bg]');for(var i=0;i<ps.length;i++)ps[i].setAttribute('aria-pressed',ps[i].getAttribute('data-bg')===MODE);}
   function render(dt,spin){
     anchor();
     x.setTransform(1,0,0,1,0,0); x.clearRect(0,0,W,H);
     x.globalAlpha=Math.min(1,FADE[MODE]*(root.getAttribute('data-theme')==='light'?LIGHT:1));
-    if(MODE==='gears')drawGears();
+    if(MODE==='off'){}
+    else if(MODE==='satin')drawSatin();
+    else if(MODE==='constellation')drawConstellation(dt,spin);
+    else if(MODE==='horizon')drawHorizon();
+    else if(MODE==='handoff')drawHandoff(dt,spin);
+    else if(MODE==='gears')drawGears();
     else if(MODE==='network')drawNet(dt,spin);
     else if(MODE==='orbits')drawOrbits(OT);
     else if(MODE==='contours')drawContours();
@@ -1136,9 +1214,9 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   }
   fit(); if(lc)lfit(); addEventListener('resize',function(){if(lc)lfit();}); requestAnimationFrame(tick);
 })();
-/* Background switcher: cycles the six backgrounds. A small label names the new background for about 1.5s whenever the background actually changes
+/* Background switcher: cycles the twelve backgrounds. A small label names the new background for about 1.5s whenever the background actually changes
    (switcher, reset, anything else); it is announced politely (aria-live). Nothing is shown if the background stays the same. */
-(function(){var b=document.getElementById('bgCycle'),n=document.getElementById('bgName'),L=['network','gears','orbits','contours','ripples','lattice','silk'],N={gears:'Gears',network:'Network',orbits:'Orbits',contours:'Contours',ripples:'Ripples',lattice:'Lattice',silk:'Silk'},t,shown=(window.crGetBackground&&window.crGetBackground())||'network';if(!b||!n)return;
+(function(){var b=document.getElementById('bgCycle'),n=document.getElementById('bgName'),L=['off','satin','constellation','horizon','handoff','gears','network','orbits','contours','ripples','lattice','silk'],N={off:'Off',satin:'Satin',constellation:'Constellation',horizon:'Horizon',handoff:'Handoff',gears:'Gears',network:'Network',orbits:'Orbits',contours:'Contours',ripples:'Ripples',lattice:'Lattice',silk:'Silk'},t,shown=(window.crGetBackground&&window.crGetBackground())||'network';if(!b||!n)return;
   function show(m){n.textContent=N[m];n.classList.add('show');clearTimeout(t);t=setTimeout(function(){n.classList.remove('show');},1500);}
   document.addEventListener('crbgchange',function(){var m=window.crGetBackground();if(m!==shown){shown=m;show(m);}});
   var pp=document.getElementById('bgPop'),opts=pp&&pp.querySelector('.bgo'),nmEl=document.getElementById('bgNm');
