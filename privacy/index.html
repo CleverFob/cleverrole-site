@@ -23,7 +23,7 @@
 <meta name="theme-color" content="#000000">
 <link rel="canonical" href="https://cleverrole.com/privacy/">
 <meta name="robots" content="index, follow">
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","name":"Clever Role","url":"https://cleverrole.com/","logo":"https://cleverrole.com/og-icon.png","email":"hello@cleverrole.com"},{"@type":"WebSite","name":"Clever Role","url":"https://cleverrole.com/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","name":"Clever Role","url":"https://cleverrole.com/","logo":"https://cleverrole.com/og-icon.png"},{"@type":"WebSite","name":"Clever Role","url":"https://cleverrole.com/"}]}</script>
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <style>
@@ -211,25 +211,25 @@ footer a:hover,footer button:hover{color:var(--fg)}
   <article class="legalpane privacy" id="legalPrivacy" tabindex="-1" aria-label="Privacy Policy">
 <p class="eyebrow">Legal</p>
 <h1>Privacy Policy</h1>
-<p class="dates">Last updated: 18 October 2026</p>
-<p class="intro">This website is run by Clever Role. Questions? Email <a href="mailto:hello@cleverrole.com">hello@cleverrole.com</a>.</p>
+<p class="dates">Last updated: 28 October 2026</p>
+<p class="intro">This website is run by Clever Role. Questions? Tap <b>Get in touch</b> at the bottom of this page.</p>
 <section><h2>What we collect</h2><p>This site has no accounts and no sign-in. If you contact us through the website chat or by email, we receive your name, your email address and your message. We use them only to reply to you. Messages sent through the chat are passed to an email delivery service so that they reach us, and are not used for anything else.</p></section>
 <section><h2>Cookies and tracking</h2><p>We use no advertising or analytics cookies, and we do not track you across other websites. Your browser stores your display choices (light or dark, background), and a small counter that limits how many chat messages can be sent each day. That information stays on your device.</p></section>
 <section><h2>Hosting</h2><p>Our hosting provider may keep standard technical logs, such as IP addresses, to keep the site secure and working.</p></section>
 <section><h2>Sharing</h2><p>We do not sell or rent your information, and we only share it where the law requires it.</p></section>
-<section><h2>Your rights</h2><p>You can ask to see, correct or delete what you have sent us. Email <a href="mailto:hello@cleverrole.com">hello@cleverrole.com</a>.</p></section>
+<section><h2>Your rights</h2><p>You can ask to see, correct or delete what you have sent us. Tap <b>Get in touch</b> at the bottom of this page.</p></section>
 <section><h2>Changes</h2><p>If this policy changes, we will update the date at the top of this page.</p></section>
   </article>
   <article class="legalpane terms" id="legalTerms" tabindex="-1" aria-label="Terms of Use">
 <p class="eyebrow">Legal</p>
 <h1>Terms of Use</h1>
-<p class="dates">Last updated: 18 October 2026</p>
+<p class="dates">Last updated: 28 October 2026</p>
 <p class="intro">This website is provided by Clever Role for general information. It is provided &quot;as is&quot;, and we may change or remove it at any time.</p>
 <section><h2>Using the contact chat</h2><p>Please use the contact chat respectfully. Don’t send unlawful, abusive or spam messages, and don’t send passwords, payment details or other sensitive information.</p></section>
 <section><h2>Our content</h2><p>All content, names and logos on this site belong to Clever Role. Please don’t copy or reuse them without our permission.</p></section>
 <section><h2>Liability</h2><p>To the extent the law allows, we are not liable for any loss arising from your use of this website.</p></section>
 <section><h2>Governing law</h2><p>These terms are governed by the laws of the country where Clever Role is registered.</p></section>
-<section><h2>Contact</h2><p><a href="mailto:hello@cleverrole.com">hello@cleverrole.com</a></p></section>
+<section><h2>Contact</h2><p>Tap <b>Get in touch</b> at the bottom of this page.</p></section>
   </article>
 
   <footer>
@@ -245,7 +245,7 @@ footer a:hover,footer button:hover{color:var(--fg)}
 /* =====================================================================================================
    CLEVER ROLE CHAT WIDGET  (self-contained and reusable: copy this whole section to another site)
    -----------------------------------------------------------------------------------------------------
-   Usage:  CleverRoleChat({ opener: buttonElement, avatar: 'logo.png', sendHook: CleverRoleChat.mailtoHook('hello@cleverrole.com') });
+   Usage:  CleverRoleChat({ opener: buttonElement, avatar: 'logo.png', sendHook: CleverRoleChat.formHook(url, key) });
    It injects its own CSS and markup, so nothing else on the page is needed. It reads these optional CSS
    variables from the host page (with fallbacks): --bg --fg --muted --line --panel, and for the accent
    --acc (hex), --acc-rgb ("r, g, b") and --acc-ink (text colour on the accent). Change them and it follows,
@@ -475,7 +475,7 @@ function CleverRoleChat(opts){
   var st=doc.createElement('style');st.id='crc-css';st.textContent=css;doc.head.appendChild(st);
 
   /* ---------- markup ---------- */
-  var T=opts.title||'How can we help?', SUB=opts.subtitle||'Ask, or leave a message', MAIL=opts.email||'hello@cleverrole.com';
+  var T=opts.title||'How can we help?', SUB=opts.subtitle||'Ask, or leave a message', MAIL=opts.email||'';
   var root=doc.createElement('section');root.className='crc';root.hidden=true;root.setAttribute('role','dialog');root.setAttribute('aria-label',opts.label||'Leave a message');
   root.innerHTML=''+
    '<div class="crc-head"><canvas class="crc-fx" aria-hidden="true"></canvas>'+
@@ -788,17 +788,17 @@ function CleverRoleChat(opts){
     else if(step===3){
       if(v.length>120||!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(v)){retry(v,'That email doesn’t look quite right. Could you check it?','you@company.com');return;}
       bubble(v,'them');data.email=v;step=4;sent=true;say('Sending your message…',function(){deliver().then(function(ok){
-        if(ok==='mail'){markSent();say('Your email app should now open with your message ready to send. If it doesn’t, email us at '+MAIL+'.',function(){cmdOnly('Ask me anything else');});}
+        if(ok==='mail'){markSent();say('Your email app should now open with your message ready to send.',function(){cmdOnly('Ask me anything else');});}
         else if(ok==='wait'){sent=false;step=3;say('You’ve just sent a message, so please give it a minute and try again.',function(){ask('you@company.com','email');});}
         else if(ok){markSent();say('Done. Your message is with us and we’ll reply to '+data.email+' soon.',function(){cmdOnly('Ask me anything else');});}
-        else{sent=false;step=3;say('Sorry, that didn’t go through. Please send your email address again to retry, or write to us at '+MAIL+'.',function(){ask('you@company.com','email');});}
+        else{sent=false;step=3;say('Sorry, that didn’t go through. Please send your email address again to retry in a minute.',function(){ask('you@company.com','email');});}
       });});}
   });
   function resetFx(){fxs='match';fxc='scheme';try{ls&&ls.removeItem('cr-chatfx');}catch(e){}applyFxColour();paintPicker();if(!root.hidden)drawFx(performance.now(),true);}
   return {open:open,close:close,el:root,resetFx:resetFx,isDefaultFx:function(){return fxs==='match'&&fxc==='scheme';}};
 }
-/* Send hooks. mailtoHook opens the visitor's email app with the message ready (used for now).
-   formHook posts JSON to a form-delivery service when one is set up (not used yet). */
+/* Send hooks. mailtoHook opens the visitor's email app with the message ready (not used on this site).
+   formHook posts JSON to the form-delivery service (used on this site). */
 CleverRoleChat.mailtoHook=function(addr){return function(d){
   location.href='mailto:'+addr+'?subject='+encodeURIComponent(d.topic+' from '+d.name)+'&body='+encodeURIComponent(d.message+'\n\n'+d.name+' <'+d.email+'>');
   return 'mail';};};
@@ -824,11 +824,11 @@ CleverRoleChat.formHook=function(url,key){return function(d){
   });
 
 
-  /* Chat: the reusable widget below (CleverRoleChat). SEND_URL stays empty until a form-delivery service is set up;
-     until then Send opens the visitor's email app with the message ready (mailto:hello@cleverrole.com). */
+  /* Chat: the reusable widget below (CleverRoleChat), sending through the form-delivery service at SEND_URL.
+     Messages go only through the form service: no email address is written anywhere on this site (Jason, 28 Oct: hide email). */
   var SEND_URL='https://api.web3forms.com/submit', SEND_KEY='6583268c-9d10-47f7-84a3-bdbdb5f9cfe2';
   window.crChat=CleverRoleChat({opener:document.getElementById('openForm'),avatar:'data:image/png;base64,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',
-    sendHook: SEND_URL?CleverRoleChat.formHook(SEND_URL,SEND_KEY):CleverRoleChat.mailtoHook('hello@cleverrole.com')});
+    sendHook: CleverRoleChat.formHook(SEND_URL,SEND_KEY)});
   /* cleverrole.com/#chat opens the chat on arrival (used by the email signature's Chat with us link). */
   function openFromLink(){if(/^#chat$/i.test(location.hash))setTimeout(function(){window.crChat&&window.crChat.open();},500);}
   openFromLink();addEventListener('hashchange',openFromLink);
