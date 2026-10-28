@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Request an invite · Clever Role</title>
+<meta name="description" content="Clever Role is opening to a small first group of businesses. Ask for an invite.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
+@font-face{font-family:'Inter Variable';font-style:normal;font-display:swap;font-weight:100 900;src:url(/inter.woff2) format('woff2-variations');}
+/* One quiet column on the same black stage as the home page: wordmark, a short promise, six fields, one button. */
+:root{--bg:#000;--fg:#f4f4f2;--muted:#8a8c8c;--line:#2a2c2d;--panel:#0d0e0f;--ok:#7bd88f;--bad:#ff8a80;--mark-filter:invert(0);--face:'Inter Variable',system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;color-scheme:dark}
+:root[data-theme="light"]{--bg:#fff;--fg:#0a0a0a;--muted:#6b6d6e;--line:#dcdddc;--panel:#f6f6f5;--ok:#1a7f37;--bad:#b3261e;--mark-filter:invert(1);color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--face);line-height:1.5;
+ padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 32px}
+.wrap{max-width:520px;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:40px}
+.top img{height:26px;width:auto;filter:var(--mark-filter)}
+.theme{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:transparent;cursor:pointer;display:grid;place-items:center;padding:0}
+.theme span{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--fg);background:linear-gradient(90deg,var(--fg) 50%,transparent 50%)}
+:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+h1{font-size:clamp(26px,6vw,34px);line-height:1.15;letter-spacing:-.02em;font-weight:600;margin:0 0 10px;text-wrap:balance}
+.lede{color:var(--muted);margin:0 0 28px;font-size:16px}
+form{display:grid;gap:16px}
+label{display:grid;gap:6px;font-size:13px;font-weight:600;letter-spacing:.01em}
+label small{font-weight:400;color:var(--muted);font-size:12.5px}
+input[type=text],input[type=email],select{font:inherit;font-weight:400;font-size:16px;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;width:100%}
+input::placeholder{color:var(--muted)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.chk{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:start;font-weight:400;font-size:14px}
+.chk input{width:18px;height:18px;margin:2px 0 0;accent-color:var(--fg)}
+.chk a{color:var(--fg)}
+button.go{font:inherit;font-weight:600;font-size:16px;border:0;border-radius:999px;padding:14px 22px;background:var(--fg);color:var(--bg);cursor:pointer}
+button.go[disabled]{opacity:.5;cursor:default}
+.msg{min-height:1.4em;font-size:14px}
+.msg.ok{color:var(--ok)}.msg.bad{color:var(--bad)}
+.fine{color:var(--muted);font-size:12.5px;margin:6px 0 0}
+.fine a{color:var(--muted)}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.done{display:none;border:1px solid var(--line);border-radius:14px;padding:22px;background:var(--panel)}
+.done h2{margin:0 0 6px;font-size:20px}.done p{margin:0;color:var(--muted)}
+@media(max-width:480px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a href="/" aria-label="Clever Role home"><img src="/wordmark.png" alt="Clever Role"></a><button class="theme" id="themeToggle" type="button" aria-label="Switch theme"><span></span></button></div>
+  <h1>We are opening to a small first group of businesses.</h1>
+  <p class="lede">Tell us a little about your business and we will email you when a place is ready.</p>
+  <form id="f" novalidate>
+    <label for="name">Your name<input id="name" name="name" type="text" autocomplete="name" required></label>
+    <label for="business">Business name<input id="business" name="businessName" type="text" autocomplete="organization" required></label>
+    <div class="row">
+      <label for="email">Email<input id="email" name="email" type="email" autocomplete="email" required></label>
+      <label for="country">Country<select id="country" name="country" required>
+        <option value="">Choose</option><option>United States</option><option>Canada</option><option>United Kingdom</option><option>Australia</option><option>New Zealand</option><option>Somewhere else</option></select></label>
+    </div>
+        <label for="heard">How did you hear about us? <small>Optional.</small><input id="heard" name="heardFrom" type="text"></label>
+    <label class="chk" for="adviser"><input id="adviser" type="checkbox"><span>I am an accountant, bookkeeper or IT adviser and may refer clients.</span></label>
+    <label class="chk" for="consent"><input id="consent" type="checkbox" required><span>Email me about my invitation and about Clever Role. I can unsubscribe at any time. See the <a href="/privacy">Privacy policy</a>.</span></label>
+    <div class="hp" aria-hidden="true"><label>Website<input type="text" name="website" id="website" tabindex="-1" autocomplete="off"></label></div>
+    <button class="go" id="go" type="submit">Request an invite</button>
+    <div class="msg" id="msg" role="status" aria-live="polite"></div>
+  </form>
+  <div class="done" id="done" role="status" tabindex="-1"><h2>Thank you. You are on the list.</h2><p>We will email you when a place is ready. Nothing else to do for now.</p></div>
+  <p class="fine"><a href="/">Back to the home page</a></p>
+</div>
+<script>
+(function(){
+var root=document.documentElement;
+try{var th=localStorage.getItem('cr-theme');if(th==='light')root.setAttribute('data-theme','light')}catch(e){}
+document.getElementById('themeToggle').onclick=function(){var l=root.getAttribute('data-theme')==='light';if(l)root.removeAttribute('data-theme');else root.setAttribute('data-theme','light');try{if(l)localStorage.removeItem('cr-theme');else localStorage.setItem('cr-theme','light')}catch(e){}};
+/* Where the sign-up goes: the same waiting list as the app (one list). If the app does not answer yet, the request is emailed to hello@ so nothing is lost. */
+var LIST_URL='https://app.cleverrole.com/api/public/waiting-list';
+var MAIL_URL='https://api.web3forms.com/submit',MAIL_KEY='6583268c-9d10-47f7-84a3-bdbdb5f9cfe2';
+var f=document.getElementById('f'),msg=document.getElementById('msg'),go=document.getElementById('go');
+var src='';try{src=(new URLSearchParams(location.search).get('s')||'').slice(0,60)}catch(e){}
+function say(t,c){msg.textContent=t;msg.className='msg '+(c||'')}
+function ok(s){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)}
+f.addEventListener('submit',function(e){
+  e.preventDefault();
+  var v=function(id){return document.getElementById(id).value.trim()};
+  if(!v('name')||!v('business')||!ok(v('email'))||!v('country')){say('Please fill in your name, business, email and country.','bad');return}
+  if(!document.getElementById('consent').checked){say('Please tick the box so we can email you.','bad');return}
+  var heard=v('heard'),ad=document.getElementById('adviser').checked;
+  var body={email:v('email'),name:v('name'),businessName:v('business'),country:v('country'),
+    heardFrom:(ad?'Adviser. ':'')+heard,sourceTag:src,consent:true,sourcePage:'holding-page',website:v('website')};
+  go.disabled=true;say('Sending…');
+  function finish(){f.style.display='none';var d=document.getElementById('done');d.style.display='block';d.focus()}
+  function mailFallback(){
+    return fetch(MAIL_URL,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},
+      body:JSON.stringify({access_key:MAIL_KEY,subject:'Invite request: '+body.businessName,from_name:'Clever Role invite form',
+        name:body.name,email:body.email,business:body.businessName,country:body.country,
+        heard_from:body.heardFrom,source:body.sourceTag,consent:'yes',botcheck:body.website})})
+      .then(function(r){if(!r.ok)throw 0;finish()});
+  }
+  fetch(LIST_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+    .then(function(r){return r.json().then(function(j){return {r:r,j:j}})})
+    .then(function(x){
+      if(x.r.ok&&x.j&&x.j.ok){finish();return}
+      if(x.r.status>=400&&x.r.status<500&&x.j&&x.j.error){go.disabled=false;say(x.j.error,'bad');return}
+      return mailFallback();
+    })
+    .catch(function(){return mailFallback()})
+    .catch(function(){go.disabled=false;say('Sorry, that did not send. Please try again in a minute.','bad')});
+});
+})();
+</script>
+</body>
+</html>
