@@ -1,6 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- The public website at site go: the pages listed in the app's src/lib/seo.js PUBLIC_PAGES, the
+     Status page and each Role page. Public website addresses only, never the app. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://cleverrole.com/</loc><lastmod>2026-10-20</lastmod><priority>1.0</priority></url>
-  <url><loc>https://cleverrole.com/privacy/</loc><lastmod>2026-10-20</lastmod><priority>0.3</priority></url>
-  <url><loc>https://cleverrole.com/terms/</loc><lastmod>2026-10-20</lastmod><priority>0.3</priority></url>
+  <url><loc>https://cleverrole.com/</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://cleverrole.com/role-store</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://cleverrole.com/how-it-works</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://cleverrole.com/pricing</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://cleverrole.com/pricing?view=custom</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cleverrole.com/about</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://cleverrole.com/contact</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://cleverrole.com/security</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://cleverrole.com/blog</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://cleverrole.com/help-centre</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://cleverrole.com/status</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://cleverrole.com/sitemap</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://cleverrole.com/privacy</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://cleverrole.com/terms</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://cleverrole.com/role-store?role=business_monitor</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cleverrole.com/role-store?role=support_desk</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cleverrole.com/role-store?role=content_campaign_publishing</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cleverrole.com/role-store?role=lead_magnet_qualification</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cleverrole.com/role-store?role=website_enquiry_chat</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cleverrole.com/role-store?role=speed_to_lead</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cleverrole.com/role-store?role=lead_follow_up</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cleverrole.com/role-store?role=appointment_demo_booking</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cleverrole.com/role-store?role=customer_onboarding_role</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cleverrole.com/role-store?role=customer_support_triage</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cleverrole.com/role-store?role=finance_revenue_operations</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cleverrole.com/role-store?role=customer_success</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
 </urlset>
