@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- The public website at site go: the pages listed in the app's src/lib/seo.js PUBLIC_PAGES, the
-     Status page and each Role page. Public website addresses only, never the app. -->
+<!-- The public website at site go: the pages listed in the app's src/lib/seo.js PUBLIC_PAGES and each Role
+     page (Status is noindex, so not listed). Public website addresses only, never the app. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://cleverrole.com/</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>
   <url><loc>https://cleverrole.com/role-store</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
@@ -12,7 +12,6 @@
   <url><loc>https://cleverrole.com/security</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://cleverrole.com/blog</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://cleverrole.com/help-centre</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://cleverrole.com/status</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://cleverrole.com/sitemap</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://cleverrole.com/privacy</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
   <url><loc>https://cleverrole.com/terms</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
