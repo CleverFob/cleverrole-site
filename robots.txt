@@ -1,3 +1,5 @@
-# Clever Role is private until launch (Jay, 2 Nov 2026: `noindex public site`). Nothing here may be listed.
+# Clever Role is private until launch. Every page carries noindex, nofollow, so search engines may visit
+# but must not list anything. Do not block crawling here: a blocked page can never be seen to say noindex,
+# and an old listing would stay. (Jay, 9 Nov 2026)
 User-agent: *
-Disallow: /
+Allow: /
