@@ -280,8 +280,6 @@ var CRBrain=(function(){
   var CH={about:{l:'What is Clever Role?',q:'about'},price:{l:'What does it cost?',q:'price'},join:{l:'When can I join?',q:'join'},contact:{l:'How do I get in touch?',q:'contact'},
     msg:{l:'Leave a message',msg:'Something else'},privacy:{l:'Open Privacy',view:'privacy'},terms:{l:'Open Terms',view:'terms'},safe:{l:'Is it safe?',q:'security'},who:{l:'Who is behind it?',q:'team'}};
   function hello(ctx){var h=new Date().getHours(),g=h<12?'Good morning':h<18?'Good afternoon':'Good evening';return g+(ctx&&ctx.name?', '+ctx.name:'')+'. Ask me anything, or tap a button below.';}
-  /* Lock-down until launch (Jay, 11 Nov 2026): anything about the product, pricing, how it works, countries, trials or comparisons gets this one invite-only line and nothing else. */
-  var INV=['We’re opening to a small number of invited businesses first. Leave a message and we’ll be in touch when it’s your turn.'];
   var E=[
   {id:'selfharm',kind:'care',re:/\b(kill (my ?self|me)|suicid\w*|end my life|want to die|hurt my ?self|self harm)\b/,
    a:['I’m really sorry you’re going through something hard. I’m only a website helper, so please reach out to someone you trust or a local crisis line. In the US or Canada you can call or text 988, and in the UK you can call Samaritans on 116 123.']},
@@ -332,23 +330,23 @@ var CRBrain=(function(){
   {id:'numbers',re:/\bhow many (customers|users|clients|people|employees)\b|\b(revenue|valuation|turnover|profit|how big|market share)\b/,
    a:['We don’t share company numbers. If you’d like to talk about working together, leave a message.'],c:['msg']},
   {id:'compare',re:/\b(compare\w*|competitors?|alternative to|better than|versus|vs|different from|why (you|choose|should i))\b/,
-   a:INV,c:['join','msg']},
+   a:['We can’t compare ourselves with others here. We’ll share what makes us different when we launch.'],c:['join','msg']},
   {id:'countries',re:/\b(countries|regions?|available in|international|worldwide|overseas|abroad|usa|america|canada|uk|england|europe|australia|new zealand|india)\b/,
-   a:INV,c:['msg','join']},
+   a:['We’re starting with businesses in a few countries. Leave a message and tell us where you are, and we’ll let you know.'],c:['msg','join']},
   {id:'free',re:/\b(free|trial|demo|try (it|out)|test (it|drive)|sample|freebie)\b/,
-   a:INV,c:['join','msg']},
+   a:['We’ll share how joining works when we open. Leave a message and we’ll be in touch.','There isn’t a public trial yet. Leave your email in a message and we’ll tell you when that changes.'],c:['join','msg']},
   {id:'price',re:/\b(pric\w*|cost\w*|how much|expensive|cheap\w*|afford\w*|plans?|fees?|quote|discount\w*|pay|paid|rates?)\b/,
-   a:INV,c:['join','msg'],more:'join'},
+   a:['We’ll share pricing when we launch. Tell us a little about your business and we’ll send the right details.','Pricing arrives with the launch. Leave a message about your business and we’ll make sure you get the right details first.'],c:['join','msg'],more:'join'},
   {id:'join',re:/\b(when (can|will|do|does|is|are)|sign ?up|invite\w*|invitation|wait ?list|early access|register|get started|how (do|can) i (join|start|sign|get)|join|launch\w*|available|release|go live|opening)\b/,
-   a:INV,c:['price','msg'],more:'price'},
+   a:['We’re opening to a small number of invited businesses first. Leave your email in a message and we’ll let you know when it’s your turn.','Launch is close. We’re inviting a small group of businesses first, and a message here puts you on our list.'],c:['price','msg'],more:'price'},
   {id:'contact',re:/\b(contact\w*|reach\w*|get in touch|talk to|speak (to|with)|email\w*|someone|a person|human|support team|message you|write to you|send a message|leave a message|enquir\w*|inquir\w*|feedback|complain\w*)\b/,
    a:['You’re in the right place. Tap Leave a message and we’ll reply by email.','Easy. Tap Leave a message, tell us what you need, and we’ll reply by email.'],c:['msg','about']},
   {id:'how',re:/\b(how (does|do) (it|this|that|you) work|how it works|what happens (next|after)|process)\b/,
-   a:INV,c:['join','msg']},
+   a:['We’ll share how everything works when we launch. Leave a message if you’d like to hear first.'],c:['join','msg']},
   {id:'industry',re:/\b(do you work with|is it for|is this for|suitable for|good for|my business|my company|small business|startups?|enterprise|restaurant|cafe|clinic|garage|salon|plumber|electrician|builder|lawyer|accountant|shop|store|agency|retail|trades|industry)\b/,
-   a:INV,c:['msg','join']},
+   a:['Clever Role is made for modern businesses of many kinds. Tell us about yours in a message and we’ll let you know how we can help.'],c:['msg','join']},
   {id:'about',re:/\b(what (is|are) (clever role|cleverrole|this|you guys|this (site|company|business|place))|whats (clever role|this|it|your (product|service|business|company))|what do you (do|offer|sell|make|build|provide)|tell me (about|more)|about (you|clever role|the company|us)|what (is|are) (your|the) (product|service|solution)s?|products?|services?|solutions?)\b/,
-   a:INV,c:['price','join','who'],more:'join'},
+   a:['Clever Role builds intelligent digital solutions for modern businesses. We’re getting ready to launch and we’d love to tell you more.','We make intelligent digital solutions for modern businesses. The details are under wraps until launch, so leave a message and we’ll tell you first.'],c:['price','join','who'],more:'join'},
   {id:'offtopic',re:/\b(weather|news|football|soccer|recipe|homework|translate|essay|poem|story|code|coding|program|maths?|calculate|stocks?|crypto|bitcoin|horoscope|lottery|movie|song|lyrics|capital of|president|prime minister)\b/,
    a:['That’s outside what I can help with here. I can tell you about Clever Role or take a message for the team.','I’m only set up for questions about Clever Role. Want to hear about it, or leave a message?'],c:['about','msg']}
   ];
