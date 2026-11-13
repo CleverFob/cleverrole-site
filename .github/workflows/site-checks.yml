@@ -1,0 +1,21 @@
+name: Site checks
+
+# Fast, free checks on every pull request: pages exist, links and pictures resolve,
+# the site stays hidden from search until launch, wording rules hold. Reads files only.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  site-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tests/site-checks.test.mjs
