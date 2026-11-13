@@ -280,8 +280,8 @@ var CRBrain=(function(){
   var CH={about:{l:'What is Clever Role?',q:'about'},price:{l:'What does it cost?',q:'price'},join:{l:'When can I join?',q:'join'},contact:{l:'How do I get in touch?',q:'contact'},
     msg:{l:'Leave a message',msg:'Something else'},privacy:{l:'Open Privacy',view:'privacy'},terms:{l:'Open Terms',view:'terms'},safe:{l:'Is it safe?',q:'security'},who:{l:'Who is behind it?',q:'team'}};
   function hello(ctx){var h=new Date().getHours(),g=h<12?'Good morning':h<18?'Good afternoon':'Good evening';return g+(ctx&&ctx.name?', '+ctx.name:'')+'. Ask me anything, or tap a button below.';}
-  /* Lock-down until launch (Jay, 11 Nov 2026): anything about the product, pricing, how it works, countries, trials or comparisons gets this one invite-only line and nothing else. */
-  var INV=['We’re opening to a small number of invited businesses first. Leave a message and we’ll be in touch when it’s your turn.'];
+  /* HELD LAUNCH WORDING (Jay, 13 Nov 2026: open sign-up; do not merge until Jay says go). Was: lock-down until launch (Jay, 11 Nov 2026): anything about the product, pricing, how it works, countries, trials or comparisons gets this one invite-only line and nothing else. */
+  var INV=['Clever Role is open. Sign up and choose a plan at app.cleverrole.com, or leave a message and we’ll get back to you within one business day.'];
   var E=[
   {id:'selfharm',kind:'care',re:/\b(kill (my ?self|me)|suicid\w*|end my life|want to die|hurt my ?self|self harm)\b/,
    a:['I’m really sorry you’re going through something hard. I’m only a website helper, so please reach out to someone you trust or a local crisis line. In the US or Canada you can call or text 988, and in the UK you can call Samaritans on 116 123.']},
