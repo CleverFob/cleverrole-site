@@ -9,7 +9,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const PAGES = { '/': 'index.html', '/privacy': 'privacy/index.html', '/terms': 'terms/index.html', '/status': 'status/index.html' };
+const PAGES = { '/': 'index.html', '/privacy': 'privacy/index.html', '/terms': 'terms/index.html' };
 const read = (p) => readFileSync(join(ROOT, p), 'utf8');
 // Set LAUNCHED=1 on launch day: the noindex checks then flip to "must be indexable".
 const LAUNCHED = process.env.LAUNCHED === '1';
