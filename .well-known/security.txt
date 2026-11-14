@@ -1,0 +1,6 @@
+# Reporting a security problem with Clever Role
+# Please use "Get in touch" on the home page and start your message with SECURITY. Do not include passwords or customer data.
+Contact: https://cleverrole.com/
+Expires: 2027-11-14T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://cleverrole.com/.well-known/security.txt
