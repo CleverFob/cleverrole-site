@@ -110,3 +110,17 @@ test('no stray secrets or env files anywhere in the repo', () => {
   })(ROOT);
   assert.deepStrictEqual(bad, []);
 });
+
+test('home builder chat: off by default, local only, no supplier names', () => {
+  const h = read('index.html');
+  assert.match(h, /window\.CR_HOME_BUILDER=false/, 'the builder must be OFF by default');
+  assert.ok(existsSync(join(ROOT, 'home-builder.js')), 'home-builder.js is missing');
+  const js = read('home-builder.js');
+  for (const re of [/\bfetch\s*\(/, /XMLHttpRequest/, /sendBeacon/, /localStorage/, /sessionStorage/, /document\.cookie/, /\bnew WebSocket/]) {
+    assert.ok(!re.test(js), `home-builder.js must send and save nothing (${re})`);
+  }
+  for (const word of [/\bStripe\b/i, /\bChatGPT\b/i, /\bOpenAI\b/i, /\bAnthropic\b/i, /\bClaude\b/i, /\bZernio\b/i, /\bRetell\b/i, /\bAWS\b/]) {
+    assert.ok(!word.test(js), `home-builder.js shows customers ${word}`);
+  }
+  assert.ok(!/\$\s?\d|\bUSD\b|\bNZD\b/.test(js), 'no prices in the chat: prices come from the price table');
+});
