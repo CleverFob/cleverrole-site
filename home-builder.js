@@ -10,7 +10,7 @@
   var top = document.querySelector('.stage .top');
   if (!stage || !top) return;
 
-  var SIGNUP_URL = 'https://app.cleverrole.com/';
+  var SIGNUP_URL = 'https://app.cleverrole.com/signup';
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- what we know about the visitor (kept in memory only) ---------- */
