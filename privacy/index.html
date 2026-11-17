@@ -81,6 +81,23 @@ html[data-view="privacy"] .stage,html[data-view="terms"] .stage{grid-template-co
   html[data-view="privacy"] .lock,html[data-view="terms"] .lock{flex:0 0 100%;margin-right:0}
   .legalpane{margin-top:6px;border-radius:16px}}
 @media (max-width:380px){.lock{--wh:20px}}
+/* Legal pages polish (Jay, 17 Nov 2026): a clean header bar (logo left, controls right) sits above the card, both lined up on the card's edges; the card hugs its content. */
+html[data-view="privacy"] .stage,html[data-view="terms"] .stage{row-gap:16px;padding-block:20px 22px}
+html[data-view="privacy"] .top,html[data-view="terms"] .top{width:100%;max-width:760px;margin-inline:auto;box-sizing:border-box;padding-inline:2px;min-height:40px}
+html[data-view="privacy"] .legalpane,html[data-view="terms"] .legalpane{align-self:start;max-height:100%;margin:0 auto;padding:36px clamp(20px,4.5vw,48px) 28px;border-radius:20px;box-shadow:0 24px 60px -34px rgba(0,0,0,.55)}
+html[data-view="privacy"] .legalpane section:last-of-type,html[data-view="terms"] .legalpane section:last-of-type{padding-bottom:4px}
+html[data-view="privacy"] .legalpane .eyebrow,html[data-view="terms"] .legalpane .eyebrow{margin-bottom:10px}
+html[data-view="privacy"] .legalpane .dates,html[data-view="terms"] .legalpane .dates{margin-bottom:22px}
+@media (max-width:560px){
+  html[data-view="privacy"] .top,html[data-view="terms"] .top{flex-wrap:nowrap;gap:6px;padding-inline:0}
+  html[data-view="privacy"] .lock,html[data-view="terms"] .lock{flex:0 1 auto;margin-right:auto;min-width:0}
+  html[data-view="privacy"] .lock,html[data-view="terms"] .lock{--wh:20px}
+  html[data-view="privacy"] .top .theme,html[data-view="terms"] .top .theme{width:30px;height:30px}
+  html[data-view="privacy"] .top #resetBtn,html[data-view="terms"] .top #resetBtn{width:28px;height:28px}
+  html[data-view="privacy"] .legalpane,html[data-view="terms"] .legalpane{padding:26px 18px 20px;border-radius:16px}}
+@media (max-width:359px){
+  html[data-view="privacy"] .top,html[data-view="terms"] .top{flex-wrap:wrap;row-gap:10px}
+  html[data-view="privacy"] .lock,html[data-view="terms"] .lock{flex:0 0 100%}}
 .theme{position:relative;transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease,background .25s ease}
 .theme:hover{transform:translateY(-2px);border-color:var(--acc,var(--muted));box-shadow:0 6px 16px -6px rgba(var(--acc-rgb,128,128,128),.75)}
 .theme:active{transform:translateY(0) scale(.96)}
