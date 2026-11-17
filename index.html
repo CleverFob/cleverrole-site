@@ -135,7 +135,7 @@ html[data-view="privacy"] .stage,html[data-view="terms"] .stage{grid-template-co
 footer{display:flex;justify-content:center;gap:22px;flex-wrap:wrap;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
 footer a,footer button{color:var(--muted);text-decoration:none;background:none;border:0;padding:4px 0;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer}
 footer a:hover,footer button:hover{color:var(--fg)}
-footer[hidden]{display:none}
+footer[hidden],footer .contact[hidden]{display:none}
 .contact{display:inline-flex;align-items:center;gap:8px}
 .contact svg{transition:transform .3s ease}
 .contact:hover svg{transform:translateY(-1px)}
@@ -207,8 +207,7 @@ footer[hidden]{display:none}
   <main class="centre">
     <div class="symwrap"><div class="symbol vsym" id="symbol" role="img" aria-label="Clever Role symbol, turning slowly. Swipe it to spin."></div></div>
     <img class="word" src="/wordmark.png" alt="Clever Role">
-    <p class="tag">No agents. Just outcomes.</p>
-    <p class="line">We build intelligent digital solutions for modern businesses.</p>
+    <p class="line">Roles that look after the daily work of your business.</p>
     <p class="soon">Coming soon</p>
     <span class="spinhint" id="spinHint" aria-hidden="true">‹ drag to spin ›</span>
   </main>
@@ -236,8 +235,8 @@ footer[hidden]{display:none}
 <section><h2>Contact</h2><p>Write to <b>legal@cleverrole.com</b>.</p></section>
   </article>
 
-  <footer hidden>
-    <button type="button" id="openForm" class="contact"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg>Get in touch</button>
+  <footer>
+    <button type="button" id="openForm" class="contact" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg>Get in touch</button>
     <a href="/privacy">Privacy</a>
     <a href="/terms">Terms</a>
   </footer>
