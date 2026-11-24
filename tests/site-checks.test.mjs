@@ -9,7 +9,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const PAGES = { '/': 'index.html', '/privacy': 'privacy/index.html', '/terms': 'terms/index.html' };
+const PAGES = { '/': 'index.html', '/privacy': 'privacy/index.html', '/terms': 'terms/index.html', '/data-use': 'data-use/index.html' };
 const read = (p) => readFileSync(join(ROOT, p), 'utf8');
 // Set LAUNCHED=1 on launch day: the noindex checks then flip to "must be indexable".
 const LAUNCHED = process.env.LAUNCHED === '1';
@@ -82,6 +82,18 @@ test('sitemap lists exactly the pages that exist', () => {
   }
   for (const url of Object.keys(PAGES)) {
     assert.ok(urls.some((u) => new URL(u).pathname.replace(/\/$/, '') === url.replace(/\/$/, '')), `${url} is missing from the sitemap`);
+  }
+});
+
+test('/data-use: says what Google asks for, links the Limited Use policy, and the Privacy page links to it', () => {
+  const h = read('data-use/index.html');
+  assert.match(h, /<h1>How we use your Google and Microsoft data<\/h1>/);
+  assert.match(h, /href="https:\/\/developers\.google\.com\/terms\/api-services-user-data-policy"/);
+  assert.match(h, /including the Limited Use requirements/);
+  assert.match(h, /Not used to train AI models/);
+  assert.match(h, /p==='\/data-use'\?'datause'/, 'the page must open on its own view, not the homepage');
+  for (const f of ['privacy/index.html', 'terms/index.html']) {
+    assert.match(read(f), /<a href="\/data-use">How we use your Google and Microsoft data<\/a>/, `${f}: Privacy text is missing the link`);
   }
 });
 
